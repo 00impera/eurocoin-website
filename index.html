@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EURO COIN — Monad Presale</title>
+<title>EUROSPACE — Monad Presale</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
 <script src="https://unpkg.com/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
@@ -19,36 +19,26 @@
     --glow: 0 0 20px #00f5ff44, 0 0 40px #00f5ff22;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: var(--dark);
-    color: var(--text);
-    font-family: 'Share Tech Mono', monospace;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(0,245,255,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,245,255,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
-  }
+  body { background: var(--dark); color: var(--text); font-family: 'Share Tech Mono', monospace; min-height: 100vh; overflow-x: hidden; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(0,245,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,245,255,0.03) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; }
   .container { max-width: 480px; margin: 0 auto; padding: 20px 16px 40px; position: relative; z-index: 1; }
+  
+  /* HEADER */
   .header { text-align: center; padding: 30px 0 20px; }
-  .logo-ring { width: 120px; height: 120px; margin: 0 auto 16px; position: relative; animation: spin-slow 8s linear infinite; }
-  .logo-ring svg { width: 100%; height: 100%; filter: drop-shadow(0 0 20px #00f5ff); }
-  @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-  .logo-inner { position: absolute; inset: 15px; background: var(--dark); border-radius: 50%; display: flex; align-items: center; justify-content: center; animation: spin-slow 8s linear infinite reverse; }
-  .euro-symbol { font-family: 'Orbitron', monospace; font-size: 40px; font-weight: 900; color: var(--cyan); text-shadow: 0 0 20px var(--cyan); }
+  .logo-img { width: 140px; height: 140px; border-radius: 50%; margin: 0 auto 16px; display: block; object-fit: cover; filter: drop-shadow(0 0 20px #00f5ff88); animation: float 3s ease-in-out infinite; border: 2px solid var(--cyan); box-shadow: 0 0 30px #00f5ff44; }
+  @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
   h1 { font-family: 'Orbitron', monospace; font-size: 28px; font-weight: 900; color: var(--cyan); text-shadow: var(--glow); letter-spacing: 4px; margin-bottom: 4px; }
   .subtitle { font-size: 11px; letter-spacing: 3px; color: #4488aa; text-transform: uppercase; }
   .network-badge { display: inline-flex; align-items: center; gap: 6px; background: #001433; border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px; font-size: 11px; color: var(--cyan); margin-top: 12px; letter-spacing: 1px; }
   .network-dot { width: 6px; height: 6px; background: #00ff88; border-radius: 50%; animation: pulse 2s infinite; box-shadow: 0 0 8px #00ff88; }
-  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  /* SOCIAL LINKS */
+  .social-links { display: flex; justify-content: center; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+  .social-btn { display: inline-flex; align-items: center; gap: 6px; background: #001433; border: 1px solid var(--border); border-radius: 20px; padding: 8px 14px; font-size: 11px; color: var(--cyan); text-decoration: none; letter-spacing: 1px; transition: all 0.3s; }
+  .social-btn:hover { border-color: var(--cyan); box-shadow: var(--glow); }
+
+  /* CARDS */
   .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin: 16px 0; position: relative; overflow: hidden; }
   .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--cyan), transparent); }
   .card-title { font-family: 'Orbitron', monospace; font-size: 11px; letter-spacing: 3px; color: #4488aa; text-transform: uppercase; margin-bottom: 16px; }
@@ -68,7 +58,7 @@
   .receive-amount { font-family: 'Orbitron', monospace; font-size: 20px; font-weight: 700; color: #00ff88; text-shadow: 0 0 10px #00ff88; }
   .receive-label { font-size: 10px; color: #4488aa; letter-spacing: 1px; }
 
-  /* WALLET MODAL */
+  /* MODAL */
   .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
   .modal-overlay.show { display: flex; }
   .modal { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 24px; width: 90%; max-width: 360px; position: relative; }
@@ -108,71 +98,58 @@
   .step-num { width: 28px; height: 28px; min-width: 28px; border: 1px solid var(--cyan); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', monospace; font-size: 11px; color: var(--cyan); }
   .step-text { font-size: 11px; color: var(--text); line-height: 1.6; padding-top: 4px; }
   .step-text strong { color: var(--cyan); display: block; margin-bottom: 2px; letter-spacing: 1px; }
+  .explorer-link { display: block; text-align: center; margin-top: 10px; color: var(--cyan); font-size: 10px; letter-spacing: 1px; text-decoration: none; padding: 8px; border: 1px solid var(--border); border-radius: 8px; transition: all 0.3s; }
+  .explorer-link:hover { border-color: var(--cyan); }
 </style>
 </head>
 <body>
-
 <div class="scan-line"></div>
 
-<!-- WALLET SELECTION MODAL -->
+<!-- WALLET MODAL -->
 <div class="modal-overlay" id="walletModal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal()">✕</button>
     <div class="modal-title">◈ Connect Wallet</div>
-
     <div class="wallet-option" onclick="connectMetaMask()">
       <div class="wallet-icon" style="background:#f6851b22">🦊</div>
-      <div>
-        <div class="wallet-name">MetaMask</div>
-        <div class="wallet-desc">Browser extension or mobile app</div>
-      </div>
+      <div><div class="wallet-name">MetaMask</div><div class="wallet-desc">Browser extension or mobile app</div></div>
     </div>
-
     <div class="wallet-option" onclick="connectWalletConnect()">
       <div class="wallet-icon" style="background:#3b99fc22">🔗</div>
-      <div>
-        <div class="wallet-name">WalletConnect</div>
-        <div class="wallet-desc">Scan QR with any mobile wallet</div>
-      </div>
+      <div><div class="wallet-name">WalletConnect</div><div class="wallet-desc">Scan QR with any mobile wallet</div></div>
     </div>
-
     <div class="wallet-option" onclick="connectMetaMask()">
       <div class="wallet-icon" style="background:#2775ca22">🛡️</div>
-      <div>
-        <div class="wallet-name">Trust Wallet</div>
-        <div class="wallet-desc">Open in Trust Wallet browser</div>
-      </div>
+      <div><div class="wallet-name">Trust Wallet</div><div class="wallet-desc">Open in Trust Wallet browser</div></div>
     </div>
-
     <div class="wallet-option" onclick="connectMetaMask()">
       <div class="wallet-icon" style="background:#00ff8822">🐰</div>
-      <div>
-        <div class="wallet-name">Rabby Wallet</div>
-        <div class="wallet-desc">Browser extension</div>
-      </div>
+      <div><div class="wallet-name">Rabby Wallet</div><div class="wallet-desc">Browser extension</div></div>
     </div>
   </div>
 </div>
 
 <div class="container">
+  <!-- HEADER WITH REAL LOGO -->
   <div class="header">
-    <div class="logo-ring">
-      <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="60" cy="60" r="56" fill="none" stroke="#00f5ff" stroke-width="2" stroke-dasharray="8 4"/>
-        <circle cx="60" cy="60" r="46" fill="none" stroke="#0066ff" stroke-width="1" stroke-dasharray="4 8"/>
-      </svg>
-      <div class="logo-inner">
-        <span class="euro-symbol">€</span>
-      </div>
-    </div>
-    <h1>EURO COIN</h1>
+    <img src="logo.png" alt="EUROSPACE" class="logo-img">
+    <h1>EUROSPACE</h1>
     <div class="subtitle">Presale — Monad Network</div>
     <div class="network-badge">
       <div class="network-dot"></div>
       MONAD MAINNET · CHAIN ID 143
     </div>
+
+    <!-- SOCIAL LINKS -->
+    <div class="social-links">
+      <a href="https://x.com/bnbgold277983" target="_blank" class="social-btn">𝕏 Twitter</a>
+      <a href="https://discord.com/channels/1316093079090106472" target="_blank" class="social-btn">💬 Discord</a>
+      <a href="https://t.me/eurocoin_monad_bot" target="_blank" class="social-btn">✈️ Telegram</a>
+      <a href="https://monadvision.com/token/0x28b5cc805D90213D2699CC3B00e28e3f0fbeCA8e?tab=Contract" target="_blank" class="social-btn">🔍 MonadVision</a>
+    </div>
   </div>
 
+  <!-- LIVE STATS -->
   <div class="card">
     <div class="card-title">⬡ Live Stats</div>
     <div class="stats-grid">
@@ -191,6 +168,7 @@
     </div>
   </div>
 
+  <!-- BUY CARD -->
   <div class="card">
     <div class="card-title">⬡ Buy Euro Coin</div>
     <div class="price-grid">
@@ -205,12 +183,10 @@
         <div class="price-unit">Chain ID 143</div>
       </div>
     </div>
-
     <div class="wallet-info" id="walletInfo">
       <span id="walletAddr">Not connected</span>
       <span id="walletBal">0 MON</span>
     </div>
-
     <div class="input-group">
       <label class="input-label">You Pay</label>
       <div class="input-wrapper">
@@ -218,7 +194,6 @@
         <span class="input-unit">MON</span>
       </div>
     </div>
-
     <div class="input-group">
       <label class="input-label">You Receive</label>
       <div class="receive-display">
@@ -226,29 +201,25 @@
           <div class="receive-amount" id="receiveAmount">0.00</div>
           <div class="receive-label">EURO COIN</div>
         </div>
-        <div style="font-size:24px">€</div>
+        <img src="logo.png" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
       </div>
     </div>
-
-    <button class="btn-connect" id="connectBtn" onclick="openModal()">
-      ◈ Connect Wallet
-    </button>
-
-    <button class="btn-buy" id="buyBtn" onclick="buyTokens()" disabled>
-      ◈ Buy Euro Coin
-    </button>
-
+    <button class="btn-connect" id="connectBtn" onclick="openModal()">◈ Connect Wallet</button>
+    <button class="btn-buy" id="buyBtn" onclick="buyTokens()" disabled>◈ Buy Euro Coin</button>
     <div class="status" id="statusMsg"></div>
   </div>
 
+  <!-- CONTRACT -->
   <div class="card">
     <div class="card-title">⬡ Contract Address</div>
     <div class="contract-box" onclick="copyContract()">
       <div class="contract-address">0x28b5cc805D90213D2699CC3B00e28e3f0fbeCA8e</div>
       <button class="copy-btn" id="copyBtn">COPY</button>
     </div>
+    <a href="https://monadvision.com/token/0x28b5cc805D90213D2699CC3B00e28e3f0fbeCA8e?tab=Contract" target="_blank" class="explorer-link">🔍 View on MonadVision Explorer</a>
   </div>
 
+  <!-- HOW TO BUY -->
   <div class="card">
     <div class="card-title">⬡ How To Buy</div>
     <div class="steps">
@@ -270,197 +241,116 @@
       </div>
     </div>
   </div>
+
+  <!-- FOOTER SOCIALS -->
+  <div style="text-align:center;padding:20px 0;font-size:10px;color:#4488aa;letter-spacing:2px;">
+    EUROSPACE · MONAD MAINNET · 2026<br><br>
+    <div class="social-links" style="justify-content:center;">
+      <a href="https://x.com/bnbgold277983" target="_blank" class="social-btn">𝕏 Twitter</a>
+      <a href="https://discord.com/channels/1316093079090106472" target="_blank" class="social-btn">💬 Discord</a>
+      <a href="https://t.me/eurocoin_monad_bot" target="_blank" class="social-btn">✈️ Telegram</a>
+    </div>
+  </div>
 </div>
 
 <script>
 const CONTRACT_ADDRESS = "0x28b5cc805D90213D2699CC3B00e28e3f0fbeCA8e";
 const MONAD_CHAIN_ID = "0x8F";
-const MONAD_RPCS = [
-  "https://monad-mainnet.g.alchemy.com/v2/demo",
-  "https://rpc.monad.xyz",
-  "https://monad.drpc.org"
-];
+const MONAD_RPCS = ["https://monad-mainnet.g.alchemy.com/v2/demo","https://rpc.monad.xyz","https://monad.drpc.org"];
 const PRICE_MON = 100;
-
-const ABI = [
-  "function buyTokens() payable",
-  "function totalSupply() view returns (uint256)",
-  "function buyEnabled() view returns (bool)",
-  "function balanceOf(address) view returns (uint256)"
-];
-
+const ABI = ["function buyTokens() payable","function totalSupply() view returns (uint256)","function buyEnabled() view returns (bool)","function balanceOf(address) view returns (uint256)"];
 let provider, signer, contract, userAddress, wcProvider;
 
-if (window.Telegram?.WebApp) {
-  window.Telegram.WebApp.expand();
-  window.Telegram.WebApp.setHeaderColor('#000a1a');
-  window.Telegram.WebApp.setBackgroundColor('#000a1a');
-}
+if (window.Telegram?.WebApp) { window.Telegram.WebApp.expand(); window.Telegram.WebApp.setHeaderColor('#000a1a'); window.Telegram.WebApp.setBackgroundColor('#000a1a'); }
 
 function openModal() { document.getElementById('walletModal').classList.add('show'); }
 function closeModal() { document.getElementById('walletModal').classList.remove('show'); }
-
-function calcReceive() {
-  const mon = parseFloat(document.getElementById('monAmount').value) || 0;
-  document.getElementById('receiveAmount').textContent = (mon / PRICE_MON).toFixed(4);
-}
-
-function showStatus(msg, type) {
-  const el = document.getElementById('statusMsg');
-  el.textContent = msg;
-  el.className = `status ${type}`;
-}
-
-function copyContract() {
-  navigator.clipboard.writeText(CONTRACT_ADDRESS).then(() => {
-    document.getElementById('copyBtn').textContent = 'COPIED!';
-    setTimeout(() => document.getElementById('copyBtn').textContent = 'COPY', 2000);
-  });
-}
+function calcReceive() { const mon = parseFloat(document.getElementById('monAmount').value)||0; document.getElementById('receiveAmount').textContent=(mon/PRICE_MON).toFixed(4); }
+function showStatus(msg,type) { const el=document.getElementById('statusMsg'); el.textContent=msg; el.className=`status ${type}`; }
+function copyContract() { navigator.clipboard.writeText(CONTRACT_ADDRESS).then(()=>{ document.getElementById('copyBtn').textContent='COPIED!'; setTimeout(()=>document.getElementById('copyBtn').textContent='COPY',2000); }); }
 
 async function addMonadNetwork(eth) {
-  try {
-    await eth.request({
-      method: 'wallet_addEthereumChain',
-      params: [{
-        chainId: MONAD_CHAIN_ID,
-        chainName: 'Monad Mainnet',
-        nativeCurrency: { name: 'MON', symbol: 'MON', decimals: 18 },
-        rpcUrls: ['https://rpc.monad.xyz'],
-        blockExplorerUrls: ['https://monad.socialscan.io']
-      }]
-    });
-  } catch(e) {}
+  try { await eth.request({method:'wallet_addEthereumChain',params:[{chainId:MONAD_CHAIN_ID,chainName:'Monad Mainnet',nativeCurrency:{name:'MON',symbol:'MON',decimals:18},rpcUrls:['https://rpc.monad.xyz'],blockExplorerUrls:['https://monad.socialscan.io']}]}); } catch(e){}
 }
 
 async function setupWallet(ethereum) {
   closeModal();
   try {
-    showStatus('Connecting...', 'info');
-    await ethereum.request({ method: 'eth_requestAccounts' });
-
-    try {
-      await ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: MONAD_CHAIN_ID }] });
-    } catch(e) {
-      if (e.code === 4902) await addMonadNetwork(ethereum);
-    }
-
+    showStatus('Connecting...','info');
+    await ethereum.request({method:'eth_requestAccounts'});
+    try { await ethereum.request({method:'wallet_switchEthereumChain',params:[{chainId:MONAD_CHAIN_ID}]}); } catch(e) { if(e.code===4902) await addMonadNetwork(ethereum); }
     provider = new ethers.BrowserProvider(ethereum);
     signer = await provider.getSigner();
     userAddress = await signer.getAddress();
     contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
-
-    const short = userAddress.slice(0,6) + '...' + userAddress.slice(-4);
+    const short = userAddress.slice(0,6)+'...'+userAddress.slice(-4);
     const bal = await provider.getBalance(userAddress);
-    const balFmt = parseFloat(ethers.formatEther(bal)).toFixed(3);
-
-    document.getElementById('walletAddr').textContent = short;
-    document.getElementById('walletBal').textContent = balFmt + ' MON';
+    document.getElementById('walletAddr').textContent=short;
+    document.getElementById('walletBal').textContent=parseFloat(ethers.formatEther(bal)).toFixed(3)+' MON';
     document.getElementById('walletInfo').classList.add('show');
-    document.getElementById('connectBtn').textContent = '✓ ' + short;
-    document.getElementById('buyBtn').disabled = false;
-    showStatus('Wallet connected!', 'success');
+    document.getElementById('connectBtn').textContent='✓ '+short;
+    document.getElementById('buyBtn').disabled=false;
+    showStatus('Wallet connected!','success');
     loadContractData();
-  } catch(e) {
-    showStatus('Connection failed: ' + (e.message || e).slice(0,60), 'error');
-  }
+  } catch(e) { showStatus('Connection failed: '+(e.message||e).slice(0,60),'error'); }
 }
 
 async function connectMetaMask() {
-  if (window.ethereum) {
-    await setupWallet(window.ethereum);
-  } else {
-    // Redirect to MetaMask deep link
-    const url = encodeURIComponent(window.location.href);
-    window.open(`https://metamask.app.link/dapp/${window.location.host}`, '_blank');
-    closeModal();
-  }
+  if(window.ethereum) { await setupWallet(window.ethereum); }
+  else { window.open(`https://metamask.app.link/dapp/${window.location.host}`,'_blank'); closeModal(); }
 }
 
 async function connectWalletConnect() {
   closeModal();
   try {
-    showStatus('Opening WalletConnect...', 'info');
-    const WalletConnectProvider = window.WalletConnectProvider?.default || window.WalletConnectProvider;
-    if (!WalletConnectProvider) {
-      showStatus('WalletConnect not available. Use MetaMask!', 'error');
-      return;
-    }
-    wcProvider = new WalletConnectProvider({
-      rpc: { 143: 'https://rpc.monad.xyz' },
-      chainId: 143
-    });
+    showStatus('Opening WalletConnect...','info');
+    const WCP = window.WalletConnectProvider?.default||window.WalletConnectProvider;
+    if(!WCP) { showStatus('Use MetaMask instead!','error'); return; }
+    wcProvider = new WCP({rpc:{143:'https://rpc.monad.xyz'},chainId:143});
     await wcProvider.enable();
     await setupWallet(wcProvider);
-  } catch(e) {
-    showStatus('WalletConnect failed: ' + (e.message || e).slice(0,60), 'error');
-  }
+  } catch(e) { showStatus('WalletConnect failed','error'); }
 }
 
-async function rpcFetch(method, params) {
-  for (const rpc of MONAD_RPCS) {
-    try {
-      const res = await fetch(rpc, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params })
-      });
-      const data = await res.json();
-      if (data.result !== undefined) return data.result;
-    } catch(e) { continue; }
+async function rpcFetch(method,params) {
+  for(const rpc of MONAD_RPCS) {
+    try { const res=await fetch(rpc,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method,params})}); const d=await res.json(); if(d.result!==undefined) return d.result; } catch(e){continue;}
   }
   return null;
 }
 
 async function loadContractData() {
   try {
-    const [supplyHex, buyHex] = await Promise.all([
-      rpcFetch('eth_call', [{ to: CONTRACT_ADDRESS, data: '0x18160ddd' }, 'latest']),
-      rpcFetch('eth_call', [{ to: CONTRACT_ADDRESS, data: '0x4c8d4f24' }, 'latest'])
+    const [supplyHex,buyHex] = await Promise.all([
+      rpcFetch('eth_call',[{to:CONTRACT_ADDRESS,data:'0x18160ddd'},'latest']),
+      rpcFetch('eth_call',[{to:CONTRACT_ADDRESS,data:'0x4c8d4f24'},'latest'])
     ]);
-    if (supplyHex) {
-      const supply = Number(BigInt(supplyHex)) / 1e18;
-      document.getElementById('totalSupply').textContent = supply.toLocaleString();
-    }
-    if (buyHex) {
-      const enabled = BigInt(buyHex) !== 0n;
-      document.getElementById('buyStatus').textContent = enabled ? 'OPEN' : 'CLOSED';
-      document.getElementById('buyStatus').style.color = enabled ? '#00ff88' : '#ff4466';
-    }
-  } catch(e) {
-    document.getElementById('buyStatus').textContent = 'LIVE';
-    document.getElementById('buyStatus').style.color = '#00ff88';
-  }
+    if(supplyHex) document.getElementById('totalSupply').textContent=(Number(BigInt(supplyHex))/1e18).toLocaleString();
+    if(buyHex) { const e=BigInt(buyHex)!==0n; document.getElementById('buyStatus').textContent=e?'OPEN':'CLOSED'; document.getElementById('buyStatus').style.color=e?'#00ff88':'#ff4466'; }
+  } catch(e) { document.getElementById('buyStatus').textContent='LIVE'; document.getElementById('buyStatus').style.color='#00ff88'; }
 }
 
 async function buyTokens() {
-  if (!signer) { showStatus('Connect wallet first!', 'error'); return; }
-  const monAmount = parseFloat(document.getElementById('monAmount').value);
-  if (!monAmount || monAmount <= 0) { showStatus('Enter MON amount!', 'error'); return; }
+  if(!signer){showStatus('Connect wallet first!','error');return;}
+  const monAmount=parseFloat(document.getElementById('monAmount').value);
+  if(!monAmount||monAmount<=0){showStatus('Enter MON amount!','error');return;}
   try {
-    document.getElementById('buyBtn').disabled = true;
-    document.getElementById('buyBtn').textContent = '◈ Processing...';
-    showStatus('Sending transaction...', 'info');
-    const value = ethers.parseEther(monAmount.toString());
-    const tx = await contract.buyTokens({ value });
-    showStatus('Transaction sent! Waiting...', 'info');
+    document.getElementById('buyBtn').disabled=true;
+    document.getElementById('buyBtn').textContent='◈ Processing...';
+    showStatus('Sending transaction...','info');
+    const tx=await contract.buyTokens({value:ethers.parseEther(monAmount.toString())});
+    showStatus('Transaction sent! Waiting...','info');
     await tx.wait();
-    showStatus(`✓ Success! Got ${(monAmount/PRICE_MON).toFixed(4)} EURO COIN`, 'success');
-    document.getElementById('monAmount').value = '';
-    document.getElementById('receiveAmount').textContent = '0.00';
+    showStatus(`✓ Success! Got ${(monAmount/PRICE_MON).toFixed(4)} EURO COIN`,'success');
+    document.getElementById('monAmount').value='';
+    document.getElementById('receiveAmount').textContent='0.00';
     loadContractData();
-  } catch(e) {
-    showStatus('Error: ' + (e.reason || e.message || 'failed').slice(0,80), 'error');
-  } finally {
-    document.getElementById('buyBtn').disabled = false;
-    document.getElementById('buyBtn').textContent = '◈ Buy Euro Coin';
-  }
+  } catch(e) { showStatus('Error: '+(e.reason||e.message||'failed').slice(0,80),'error'); }
+  finally { document.getElementById('buyBtn').disabled=false; document.getElementById('buyBtn').textContent='◈ Buy Euro Coin'; }
 }
 
-window.addEventListener('load', loadContractData);
-document.getElementById('walletModal').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
+window.addEventListener('load',loadContractData);
+document.getElementById('walletModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
 </script>
 </body>
 </html>
