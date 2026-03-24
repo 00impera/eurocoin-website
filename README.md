@@ -3,7 +3,7 @@
 > **The Euro-pegged token on Monad Blockchain**
 > Built for speed. Powered on-chain. 100% transparent.
 
-🌐 **Website:** [eurocoin.imperamonad.xyz](https://eurocoin.imperamonad.xyz)
+🌐 **Website:** [eurocoin.imperamonad.xyz](https://winnowin-game.pages.dev/)
 
 ---
 
@@ -44,11 +44,8 @@
 
 | | Link |
 |-|------|
-| 🌐 Website | [eurocoin.imperamonad.xyz](https://eurocoin.imperamonad.xyz) |
-| 🏠 Portfolio | [imperamonad.xyz](https://imperamonad.xyz) |
-| 💎 GemsRock | [gemscoin.imperamonad.xyz](https://gemscoin.imperamonad.xyz) |
-| 🎰 ScratchNFT | [scratchnft.imperamonad.xyz](https://scratchnft.imperamonad.xyz) |
-| 🏍️ Moto Runner | [moto-runner.imperamonad.xyz](https://moto-runner.imperamonad.xyz) |
+| 🌐 Website | [eurocoin.imperamonad.xyz](https://winnowin-game.pages.dev/) |
+
 
 ---
 
