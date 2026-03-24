@@ -3,7 +3,7 @@
 > **The Euro-pegged token on Monad Blockchain**
 > Built for speed. Powered on-chain. 100% transparent.
 
-🌐 **Website:** [eurocoin.imperamonad.xyz](https://winnowin-game.pages.dev/)
+🌐 **Website:** [https://winnowin-game.pages.dev/](https://winnowin-game.pages.dev/)
 
 ---
 
