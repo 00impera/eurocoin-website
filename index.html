@@ -123,6 +123,7 @@
   .buy-modal-name { font-family: 'Orbitron', monospace; font-size: 16px; font-weight: 700; color: var(--token-accent, var(--green)); margin-bottom: 2px; }
   .buy-modal-sym { font-size: 11px; color: #4488aa; letter-spacing: 2px; }
   .buy-modal-price { font-size: 12px; color: #00cc88; margin-top: 4px; }
+  .buy-modal-contract { font-size: 9px; color: #4488aa; margin-top: 4px; word-break: break-all; letter-spacing: 0.5px; }
 
   /* BUTTONS */
   .btn-connect { width: 100%; padding: 16px; background: transparent; border: 2px solid var(--green); border-radius: 12px; color: var(--green); font-family: 'Orbitron', monospace; font-size: 13px; font-weight: 700; letter-spacing: 3px; cursor: pointer; transition: all 0.3s; text-transform: uppercase; margin-bottom: 10px; }
@@ -234,6 +235,7 @@
         <div class="buy-modal-name" id="buyModalName">—</div>
         <div class="buy-modal-sym" id="buyModalSym">—</div>
         <div class="buy-modal-price" id="buyModalPrice">100 MON = 1 Token</div>
+        <div class="buy-modal-contract" id="buyModalContract"></div>
       </div>
     </div>
     <div class="input-group">
@@ -408,32 +410,34 @@
 </div>
 
 <script>
-// ===================== TOKEN DATA =====================
+// ===================== TOKEN DATA — each token has its own contract =====================
 const META_TOKENS = [
-  { symbol:"mBTC",   name:"Meta Bitcoin",  color:"#F7931A", img:"META BTC.png",      price:100 },
-  { symbol:"mETH",   name:"Meta Ethereum", color:"#627EEA", img:"META ETH.png",      price:100 },
-  { symbol:"mSOL",   name:"Meta Solana",   color:"#9945FF", img:"META SOL.png",      price:100 },
-  { symbol:"mBNB",   name:"Meta BNB",      color:"#F3BA2F", img:"META BNB.png",      price:100 },
-  { symbol:"mXRP",   name:"Meta XRP",      color:"#00AAE4", img:"META XRP.png",      price:100 },
-  { symbol:"mUSDC",  name:"Meta USDC",     color:"#2775CA", img:"META USDC.png",     price:100 },
-  { symbol:"mUSDT",  name:"Meta Tether",   color:"#26A17B", img:"META USDT.png",     price:100 },
-  { symbol:"mMATIC", name:"Meta Polygon",  color:"#8247E5", img:"META MATIC.png",    price:100 },
-  { symbol:"mDOGE",  name:"Meta Dogecoin", color:"#C2A633", img:"META DODGE.png",    price:100 },
-  { symbol:"mLTC",   name:"Meta Litecoin", color:"#BFBBBB", img:"META LTC.png",      price:100 },
-  { symbol:"mTRX",   name:"Meta TRON",     color:"#EF0027", img:"META TRX.png",      price:100 },
-  { symbol:"mBASE",  name:"Meta Base",     color:"#0052FF", img:"META BASE.png",     price:100 },
-  { symbol:"mEURO",  name:"Meta Euro",     color:"#003399", img:"META EUROSPACE.png",price:100 },
-  { symbol:"mMONAD", name:"Meta Monad",    color:"#836EF9", img:"META MONAD.png",    price:100 },
-  { symbol:"mEURC",  name:"Meta EURC",     color:"#FFD700", img:"META EURC.png",     price:100 },
-  { symbol:"mCRO",   name:"Meta Cronos",   color:"#002D74", img:"META CRONOS.png",   price:100 },
+  { symbol:"mBTC",   name:"Meta Bitcoin",  color:"#F7931A", img:"META BTC.png",       price:100, contract:"0xea3b17f3593B727F24EF3fcCFF20436dFF096c1a" },
+  { symbol:"mETH",   name:"Meta Ethereum", color:"#627EEA", img:"META ETH.png",       price:100, contract:"0x9925D6BeBbeEDB34d613e1338182539f6C0d14F2" },
+  { symbol:"mSOL",   name:"Meta Solana",   color:"#9945FF", img:"META SOL.png",       price:100, contract:"0x77E984f3C3bBb88969ee2A8AeBC845F99a1F07AC" },
+  { symbol:"mBNB",   name:"Meta BNB",      color:"#F3BA2F", img:"META BNB.png",       price:100, contract:"0x0C31e02D005794e17c101adaA78E780Db98AE26E" },
+  { symbol:"mXRP",   name:"Meta XRP",      color:"#00AAE4", img:"META XRP.png",       price:100, contract:"0x2acB0B4b1d61047bE524c49bd5abfA43912e2f50" },
+  { symbol:"mUSDC",  name:"Meta USDC",     color:"#2775CA", img:"META USDC.png",      price:100, contract:"0x9aBBcF98eCE1963Ac7e3c5dFC3E7C92f4918ec1B" },
+  { symbol:"mUSDT",  name:"Meta Tether",   color:"#26A17B", img:"META USDT.png",      price:100, contract:"0xd606e891A52398281Ab1BE7a3091FB32b4084B72" },
+  { symbol:"mMATIC", name:"Meta Polygon",  color:"#8247E5", img:"META MATIC.png",     price:100, contract:"0xb5a405f35b0013e12C03888Bd9134B6BC45eF82A" },
+  { symbol:"mDOGE",  name:"Meta Dogecoin", color:"#C2A633", img:"META DODGE.png",     price:100, contract:"0x587D4848E288ca9309ce25eDd44b819EadC45523" },
+  { symbol:"mLTC",   name:"Meta Litecoin", color:"#BFBBBB", img:"META LTC.png",       price:100, contract:"0xD2fc00B86466790A36DE7928E8d814fB21035cdc" },
+  { symbol:"mTRX",   name:"Meta TRON",     color:"#EF0027", img:"META TRX.png",       price:100, contract:"0xC341321fCF2d198def5447DB17e39B1501fC9D5D" },
+  { symbol:"mBASE",  name:"Meta Base",     color:"#0052FF", img:"META BASE.png",      price:100, contract:"0xABda2EC410C7d8Fc0D86f386f79b1687044e3828" },
+  { symbol:"mEURO",  name:"Meta Euro",     color:"#003399", img:"META EUROSPACE.png", price:100, contract:"0x24dC13495B41Ec3fD975Ef091defC5Df06f76764" },
+  { symbol:"mMONAD", name:"Meta Monad",    color:"#836EF9", img:"META MONAD.png",     price:100, contract:"0x5bb69371C25Ac42789A5d24F24b6fd931879A918" },
+  { symbol:"mEURC",  name:"Meta EURC",     color:"#FFD700", img:"META EURC.png",      price:100, contract:"0x52492b30cb3901a649B50Ebf9D0A6279393f22F8" },
+  { symbol:"mCRO",   name:"Meta Cronos",   color:"#002D74", img:"META CRONOS.png",    price:100, contract:"0xCBB0Fc67d03f8E08F628f7D34F5D1B7036AB1852" },
 ];
 
 // ===================== GLOBALS =====================
-const CONTRACT_ADDRESS = "0x28b5cc805D90213D2699CC3B00e28e3f0fbeCA8e";
+const EUROSPACE_CONTRACT = "0x28b5cc805D90213D2699CC3B00e28e3f0fbeCA8e";
 const MONAD_CHAIN_ID = "0x8F";
 const MONAD_RPCS = ["https://monad-mainnet.g.alchemy.com/v2/demo","https://rpc.monad.xyz","https://monad.drpc.org"];
 const ABI = ["function buy() payable","function sell(uint256 amount) nonpayable","function totalSupply() view returns (uint256)","function tradeEnabled() view returns (bool)","function buyPrice() view returns (uint256)","function balanceOf(address) view returns (uint256)","function getTokensForMON(uint256 monAmount) view returns (uint256)"];
-let provider, signer, contract, userAddress;
+let provider, signer, userAddress;
+// euroContract is used for the main "Buy Euro Coin" card only
+let euroContract;
 let currentToken = null;
 
 if (window.Telegram?.WebApp) { window.Telegram.WebApp.expand(); }
@@ -526,6 +530,7 @@ function openBuyModal(token) {
   document.getElementById('buyModalName').style.color = token.color;
   document.getElementById('buyModalSym').textContent = token.symbol;
   document.getElementById('buyModalPrice').textContent = `${token.price} MON = 1 ${token.symbol}`;
+  document.getElementById('buyModalContract').textContent = token.contract;
   document.getElementById('modalReceiveLabel').textContent = token.symbol;
   document.getElementById('modalMonAmount').value = '';
   document.getElementById('modalReceiveAmount').textContent = '0.00';
@@ -561,7 +566,11 @@ async function executeTokenBuy() {
     btn.disabled = true;
     btn.textContent = '◈ Processing...';
     showModalStatus('Sending transaction...','info');
-    const tx = await contract.buy({ value: ethers.parseEther(monAmount.toString()) });
+
+    // ✅ Use THIS token's own contract address
+    const tokenContract = new ethers.Contract(currentToken.contract, ABI, signer);
+    const tx = await tokenContract.buy({ value: ethers.parseEther(monAmount.toString()) });
+
     showModalStatus('Waiting for confirmation...','info');
     await tx.wait();
     showModalStatus(`✓ Got ${(monAmount/currentToken.price).toFixed(4)} ${currentToken.symbol}!`,'success');
@@ -601,7 +610,8 @@ async function setupWallet(ethereum) {
     provider = new ethers.BrowserProvider(ethereum);
     signer = await provider.getSigner();
     userAddress = await signer.getAddress();
-    contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+    // Main EURO contract for the "Buy Euro Coin" card
+    euroContract = new ethers.Contract(EUROSPACE_CONTRACT, ABI, signer);
     const short = userAddress.slice(0,6)+'...'+userAddress.slice(-4);
     const bal = await provider.getBalance(userAddress);
     document.getElementById('walletAddr').textContent = short;
@@ -635,8 +645,8 @@ async function rpcFetch(method, params) {
 async function loadContractData() {
   try {
     const [supplyHex, buyHex] = await Promise.all([
-      rpcFetch('eth_call',[{to:CONTRACT_ADDRESS,data:'0x18160ddd'},'latest']),
-      rpcFetch('eth_call',[{to:CONTRACT_ADDRESS,data:'0x0d67f8e8'},'latest'])
+      rpcFetch('eth_call',[{to:EUROSPACE_CONTRACT,data:'0x18160ddd'},'latest']),
+      rpcFetch('eth_call',[{to:EUROSPACE_CONTRACT,data:'0x0d67f8e8'},'latest'])
     ]);
     if (supplyHex) document.getElementById('totalSupply').textContent = (Number(BigInt(supplyHex))/1e18).toLocaleString();
     if (buyHex) {
@@ -664,7 +674,7 @@ async function buyTokens() {
     document.getElementById('buyBtn').disabled = true;
     document.getElementById('buyBtn').textContent = '◈ Processing...';
     showStatus('Sending transaction...','info');
-    const tx = await contract.buy({ value: ethers.parseEther(monAmount.toString()) });
+    const tx = await euroContract.buy({ value: ethers.parseEther(monAmount.toString()) });
     showStatus('Waiting for confirmation...','info');
     await tx.wait();
     showStatus(`✓ Success! Got ${(monAmount/100).toFixed(4)} EURO COIN`,'success');
@@ -682,7 +692,7 @@ function showStatus(msg, type) {
 }
 
 function copyContract() {
-  navigator.clipboard.writeText(CONTRACT_ADDRESS).then(() => {
+  navigator.clipboard.writeText(EUROSPACE_CONTRACT).then(() => {
     document.getElementById('copyBtn').textContent = 'COPIED!';
     setTimeout(() => document.getElementById('copyBtn').textContent = 'COPY', 2000);
   });
