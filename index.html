@@ -22,34 +22,11 @@
     --glow-blue:  0 0 18px #0077ff77, 0 0 40px #00ffe033;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: var(--dark);
-    color: var(--text);
-    font-family: 'Share Tech Mono', monospace;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background-image:
-      linear-gradient(rgba(0,255,136,0.035) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,119,255,0.035) 1px, transparent 1px);
-    background-size: 44px 44px;
-    pointer-events: none; z-index: 0;
-  }
-  body::after {
-    content: '';
-    position: fixed; inset: 0;
-    background:
-      radial-gradient(ellipse 55% 35% at 15% 5%,  #00ff8808 0%, transparent 65%),
-      radial-gradient(ellipse 50% 30% at 85% 85%,  #0077ff0b 0%, transparent 65%),
-      radial-gradient(ellipse 35% 25% at 55% 45%,  #00ffe00a 0%, transparent 55%);
-    pointer-events: none; z-index: 0;
-  }
+  body { background: var(--dark); color: var(--text); font-family: 'Share Tech Mono', monospace; min-height: 100vh; overflow-x: hidden; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(0,255,136,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(0,119,255,0.035) 1px, transparent 1px); background-size: 44px 44px; pointer-events: none; z-index: 0; }
+  body::after { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 55% 35% at 15% 5%, #00ff8808 0%, transparent 65%), radial-gradient(ellipse 50% 30% at 85% 85%, #0077ff0b 0%, transparent 65%), radial-gradient(ellipse 35% 25% at 55% 45%, #00ffe00a 0%, transparent 55%); pointer-events: none; z-index: 0; }
   .container { max-width: 480px; margin: 0 auto; padding: 20px 16px 40px; position: relative; z-index: 1; }
 
-  /* HEADER */
   .header { text-align: center; padding: 30px 0 20px; }
   .logo-img { width: 140px; height: 140px; border-radius: 50%; margin: 0 auto 16px; display: block; object-fit: cover; filter: drop-shadow(0 0 22px #00ff8899) drop-shadow(0 0 8px #0077ffaa); animation: float 3s ease-in-out infinite; border: 2px solid var(--green); box-shadow: 0 0 30px #00ff8844, 0 0 60px #0077ff22; }
   @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
@@ -59,17 +36,14 @@
   .network-dot { width: 6px; height: 6px; background: #00ff88; border-radius: 50%; animation: pulse 2s infinite; box-shadow: 0 0 8px #00ff88; }
   @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-  /* SOCIAL */
   .social-links { display: flex; justify-content: center; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
   .social-btn { display: inline-flex; align-items: center; gap: 6px; background: #000f1f; border: 1px solid #005533; border-radius: 20px; padding: 8px 14px; font-size: 11px; color: var(--cyan); text-decoration: none; letter-spacing: 1px; transition: all 0.3s; }
   .social-btn:hover { border-color: var(--green); box-shadow: var(--glow-green); }
 
-  /* CARDS */
   .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin: 16px 0; position: relative; overflow: hidden; }
   .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--green), var(--cyan), transparent); }
   .card-title { font-family: 'Orbitron', monospace; font-size: 11px; letter-spacing: 3px; color: #00cc88; text-transform: uppercase; margin-bottom: 16px; }
 
-  /* STATS */
   .price-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
   .price-box { background: #00080f; border: 1px solid #004433; border-radius: 10px; padding: 12px; text-align: center; }
   .price-label { font-size: 9px; letter-spacing: 2px; color: #009966; text-transform: uppercase; margin-bottom: 4px; }
@@ -80,7 +54,6 @@
   .stat-value { font-family: 'Orbitron', monospace; font-size: 14px; font-weight: 700; background: linear-gradient(135deg, var(--green), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 4px; }
   .stat-label { font-size: 8px; letter-spacing: 1px; color: #009966; text-transform: uppercase; }
 
-  /* INPUT */
   .input-group { margin-bottom: 12px; }
   .input-label { font-size: 10px; letter-spacing: 2px; color: #009966; text-transform: uppercase; margin-bottom: 6px; display: block; }
   .input-wrapper { position: relative; }
@@ -92,27 +65,24 @@
   .receive-amount { font-family: 'Orbitron', monospace; font-size: 20px; font-weight: 700; color: #00ff88; text-shadow: 0 0 10px #00ff88; }
   .receive-label { font-size: 10px; color: #00aa77; letter-spacing: 1px; }
 
-  /* TOKEN SELECTOR */
-  .token-select-label { font-size: 10px; letter-spacing: 2px; color: #009966; text-transform: uppercase; margin-bottom: 8px; display: block; }
-  .token-selector { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; margin-bottom: 14px; }
-  .token-selector::-webkit-scrollbar { display: none; }
-  .token-chip { flex: 0 0 auto; display: flex; align-items: center; gap: 6px; background: #00080f; border: 1px solid #004433; border-radius: 20px; padding: 6px 12px; cursor: pointer; transition: all 0.25s; font-size: 11px; color: #4488aa; font-family: 'Orbitron', monospace; }
-  .token-chip img { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; }
-  .token-chip.active { border-color: var(--token-color, var(--green)); color: var(--token-color, var(--green)); background: #001a0f; box-shadow: 0 0 10px color-mix(in srgb, var(--token-color, var(--green)) 30%, transparent); }
-  .token-chip:hover { border-color: var(--token-color, var(--green)); }
-
   /* MODAL */
   .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(6px); }
   .modal-overlay.show { display: flex; }
   .modal { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 24px; width: 90%; max-width: 360px; position: relative; }
   .modal::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--green), var(--cyan), transparent); border-radius: 20px 20px 0 0; }
-  .modal-title { font-family: 'Orbitron', monospace; font-size: 14px; color: var(--cyan); letter-spacing: 2px; margin-bottom: 20px; text-align: center; }
+  .modal-title { font-family: 'Orbitron', monospace; font-size: 14px; color: var(--cyan); letter-spacing: 2px; margin-bottom: 8px; text-align: center; }
+  .modal-subtitle { font-size: 10px; color: #4488aa; text-align: center; margin-bottom: 20px; letter-spacing: 1px; }
   .wallet-option { display: flex; align-items: center; gap: 14px; background: #00080f; border: 1px solid #004433; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; cursor: pointer; transition: all 0.3s; }
   .wallet-option:hover { border-color: var(--green); background: #001a0f; }
+  .wallet-option.disabled { opacity: 0.35; cursor: not-allowed; }
+  .wallet-option.disabled:hover { border-color: #004433; background: #00080f; }
   .wallet-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
   .wallet-name { font-family: 'Orbitron', monospace; font-size: 13px; color: var(--text); }
   .wallet-desc { font-size: 10px; color: #009966; margin-top: 2px; }
+  .wallet-badge { font-size: 8px; background: #00ff8822; border: 1px solid #00ff8844; border-radius: 4px; padding: 2px 6px; color: #00ff88; margin-left: 6px; vertical-align: middle; }
+  .wallet-badge.warn { background: #ffaa0022; border-color: #ffaa0044; color: #ffaa00; }
   .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: #009966; cursor: pointer; font-size: 18px; }
+  .modal-note { font-size: 10px; color: #4488aa; text-align: center; margin-top: 12px; line-height: 1.6; padding: 10px; background: #00080f; border-radius: 8px; border: 1px solid #004433; }
 
   /* BUY TOKEN MODAL */
   .buy-modal { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 24px; width: 92%; max-width: 400px; position: relative; }
@@ -125,7 +95,6 @@
   .buy-modal-price { font-size: 12px; color: #00cc88; margin-top: 4px; }
   .buy-modal-contract { font-size: 9px; color: #4488aa; margin-top: 4px; word-break: break-all; letter-spacing: 0.5px; }
 
-  /* BUTTONS */
   .btn-connect { width: 100%; padding: 16px; background: transparent; border: 2px solid var(--green); border-radius: 12px; color: var(--green); font-family: 'Orbitron', monospace; font-size: 13px; font-weight: 700; letter-spacing: 3px; cursor: pointer; transition: all 0.3s; text-transform: uppercase; margin-bottom: 10px; }
   .btn-connect:hover { background: #00ff8811; box-shadow: var(--glow-green); }
   .btn-buy { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--blue), var(--green)); border: none; border-radius: 12px; color: #000; font-family: 'Orbitron', monospace; font-size: 14px; font-weight: 900; letter-spacing: 3px; cursor: pointer; transition: all 0.3s; text-transform: uppercase; }
@@ -142,7 +111,6 @@
   .status.error { display: block; background: #ff004411; border: 1px solid #ff004444; color: #ff4466; }
   .status.info { display: block; background: #00ffe011; border: 1px solid #00ff8844; color: var(--cyan); }
 
-  /* GALLERY */
   .gallery-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin: 16px 0; position: relative; overflow: hidden; }
   .gallery-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--green), var(--cyan), transparent); }
   .gallery-scroll-wrapper { position: relative; }
@@ -160,7 +128,6 @@
   .token-buy-btn { width: 100%; padding: 5px 4px; border: 1px solid var(--token-color, var(--cyan)); border-radius: 6px; background: transparent; color: var(--token-color, var(--cyan)); font-family: 'Orbitron', monospace; font-size: 8px; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: all 0.25s; text-transform: uppercase; }
   .token-buy-btn:hover { background: color-mix(in srgb, var(--token-color, var(--cyan)) 15%, transparent); }
 
-  /* COUNTDOWN */
   .countdown-card { background: linear-gradient(135deg, #00080f, #000f1f, #000a18); border: 1px solid var(--green); border-radius: 16px; padding: 20px; margin: 16px 0; position: relative; overflow: hidden; text-align: center; }
   .countdown-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--green), var(--cyan), transparent); }
   .countdown-title { font-family: 'Orbitron', monospace; font-size: 11px; letter-spacing: 3px; color: #00cc88; text-transform: uppercase; margin-bottom: 16px; }
@@ -174,7 +141,6 @@
   .share-btn { display: inline-flex; align-items: center; gap: 6px; background: #1da1f222; border: 1px solid #1da1f2; border-radius: 20px; padding: 8px 16px; font-size: 11px; color: #1da1f2; text-decoration: none; letter-spacing: 1px; transition: all 0.3s; margin-top: 8px; cursor: pointer; font-family: 'Share Tech Mono', monospace; }
   .share-btn:hover { background: #1da1f233; box-shadow: 0 0 15px #1da1f244; }
 
-  /* CONTRACT */
   .contract-box { background: #00080f; border: 1px solid #004433; border-radius: 10px; padding: 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; cursor: pointer; transition: border-color 0.3s; }
   .contract-box:hover { border-color: var(--green); }
   .contract-address { font-size: 10px; color: #00aa77; word-break: break-all; flex: 1; }
@@ -182,7 +148,6 @@
   .explorer-link { display: block; text-align: center; margin-top: 10px; color: var(--cyan); font-size: 10px; letter-spacing: 1px; text-decoration: none; padding: 8px; border: 1px solid #004433; border-radius: 8px; transition: all 0.3s; }
   .explorer-link:hover { border-color: var(--green); }
 
-  /* HOW TO */
   .steps { display: flex; flex-direction: column; gap: 10px; }
   .step { display: flex; gap: 12px; align-items: flex-start; }
   .step-num { width: 28px; height: 28px; min-width: 28px; border: 1px solid var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', monospace; font-size: 11px; color: var(--green); box-shadow: 0 0 8px #00ff8833; }
@@ -209,17 +174,37 @@
   <div class="modal">
     <button class="modal-close" onclick="closeWalletModal()">✕</button>
     <div class="modal-title">◈ Connect Wallet</div>
-    <div class="wallet-option" onclick="connectMetaMask()">
-      <div class="wallet-icon" style="background:#f6851b22">🦊</div>
-      <div><div class="wallet-name">MetaMask</div><div class="wallet-desc">Browser extension or mobile app</div></div>
+    <div class="modal-subtitle" id="walletModalSubtitle">Choose your wallet</div>
+
+    <!-- Injected wallet (MetaMask desktop, Trust in-app, Rabby) -->
+    <div class="wallet-option" id="optionInjected" onclick="connectInjected()">
+      <div class="wallet-icon" style="background:#f6851b22" id="injectedIcon">🦊</div>
+      <div>
+        <div class="wallet-name" id="injectedName">MetaMask <span class="wallet-badge" id="injectedBadge"></span></div>
+        <div class="wallet-desc" id="injectedDesc">Detected — tap to connect</div>
+      </div>
     </div>
-    <div class="wallet-option" onclick="connectMetaMask()">
+
+    <!-- Trust Wallet deep link (mobile, outside Trust browser) -->
+    <div class="wallet-option" id="optionTrust" onclick="connectTrustDeepLink()">
       <div class="wallet-icon" style="background:#2775ca22">🛡️</div>
-      <div><div class="wallet-name">Trust Wallet</div><div class="wallet-desc">Open in Trust Wallet browser</div></div>
+      <div>
+        <div class="wallet-name">Trust Wallet <span class="wallet-badge">MOBILE</span></div>
+        <div class="wallet-desc">Open in Trust Wallet app</div>
+      </div>
     </div>
-    <div class="wallet-option" onclick="connectMetaMask()">
-      <div class="wallet-icon" style="background:#00ff8822">🐰</div>
-      <div><div class="wallet-name">Rabby Wallet</div><div class="wallet-desc">Browser extension</div></div>
+
+    <!-- MetaMask deep link (mobile, outside MetaMask browser) -->
+    <div class="wallet-option" id="optionMM" onclick="connectMMDeepLink()">
+      <div class="wallet-icon" style="background:#f6851b22">🦊</div>
+      <div>
+        <div class="wallet-name">MetaMask <span class="wallet-badge">MOBILE</span></div>
+        <div class="wallet-desc">Open in MetaMask app</div>
+      </div>
+    </div>
+
+    <div class="modal-note" id="walletNote">
+      ℹ️ Inside Telegram? Tap <b>Trust Wallet</b> or <b>MetaMask</b> mobile to open the dapp in their built-in browser where you can connect and sign.
     </div>
   </div>
 </div>
@@ -260,7 +245,6 @@
 </div>
 
 <div class="container">
-  <!-- HEADER -->
   <div class="header">
     <img src="logo.png" alt="EUROSPACE" class="logo-img" onerror="this.src='https://files.catbox.moe/9o0wad.png'">
     <h1>EUROSPACE</h1>
@@ -277,7 +261,6 @@
     </div>
   </div>
 
-  <!-- COUNTDOWN -->
   <div class="countdown-card">
     <div class="countdown-title">⬡ Presale Ends In</div>
     <div class="countdown-grid">
@@ -292,7 +275,6 @@
     <button class="share-btn" onclick="shareOnTwitter()">𝕏 Share Presale on Twitter</button>
   </div>
 
-  <!-- LIVE STATS -->
   <div class="card">
     <div class="card-title">⬡ Live Stats</div>
     <div class="stats-grid">
@@ -302,7 +284,6 @@
     </div>
   </div>
 
-  <!-- TOKEN GALLERY -->
   <div class="gallery-card">
     <div class="card-title">⬡ Meta Tokens · Tap to Buy</div>
     <div class="gallery-scroll-wrapper">
@@ -312,7 +293,6 @@
     <div class="gallery-count">↔ Scroll · Tap any token to buy</div>
   </div>
 
-  <!-- BUY EURO CARD -->
   <div class="card">
     <div class="card-title">⬡ Buy Euro Coin</div>
     <div class="price-grid">
@@ -353,7 +333,6 @@
     <div class="status" id="statusMsg"></div>
   </div>
 
-  <!-- CONTRACT -->
   <div class="card">
     <div class="card-title">⬡ Contract Address</div>
     <div class="contract-box" onclick="copyContract()">
@@ -363,7 +342,6 @@
     <a href="https://monadvision.com/token/0x28b5cc805D90213D2699CC3B00e28e3f0fbeCA8e?tab=Contract" target="_blank" class="explorer-link">🔍 View on MonadVision Explorer</a>
   </div>
 
-  <!-- HOW TO BUY -->
   <div class="card">
     <div class="card-title">⬡ How To Buy</div>
     <div class="steps">
@@ -374,43 +352,25 @@
     </div>
   </div>
 
-  <!-- FOOTER -->
   <div style="text-align:center;padding:24px 0 40px;font-size:10px;color:#4488aa;letter-spacing:2px;">
     <div style="font-family:'Orbitron',monospace;font-size:13px;font-weight:700;background:linear-gradient(90deg,#00ff88,#00ffe0,#0077ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px;">EUROSPACE</div>
     MONAD MAINNET · 2026
     <div style="display:flex;justify-content:center;gap:12px;margin-top:20px;flex-wrap:wrap;">
-
-      <!-- X / Twitter -->
       <a href="https://x.com/bnbgold277983" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#000f1f;border:1px solid #1a1a2e;border-radius:24px;padding:10px 18px;text-decoration:none;color:#e7e9ea;font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:1px;transition:all 0.3s;" onmouseover="this.style.borderColor='#e7e9ea';this.style.boxShadow='0 0 14px #e7e9ea33'" onmouseout="this.style.borderColor='#1a1a2e';this.style.boxShadow='none'">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="#e7e9ea"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.259 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-        Twitter
-      </a>
-
-      <!-- Discord -->
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#e7e9ea"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.259 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>Twitter</a>
       <a href="https://discord.com/channels/1316093079090106472" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#000f1f;border:1px solid #1a1a2e;border-radius:24px;padding:10px 18px;text-decoration:none;color:#5865f2;font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:1px;transition:all 0.3s;" onmouseover="this.style.borderColor='#5865f2';this.style.boxShadow='0 0 14px #5865f244'" onmouseout="this.style.borderColor='#1a1a2e';this.style.boxShadow='none'">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="#5865f2"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.033.053a19.936 19.936 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
-        Discord
-      </a>
-
-      <!-- Telegram -->
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#5865f2"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.033.053a19.936 19.936 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>Discord</a>
       <a href="https://t.me/eurocoin_monad_bot" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#000f1f;border:1px solid #1a1a2e;border-radius:24px;padding:10px 18px;text-decoration:none;color:#29aae1;font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:1px;transition:all 0.3s;" onmouseover="this.style.borderColor='#29aae1';this.style.boxShadow='0 0 14px #29aae144'" onmouseout="this.style.borderColor='#1a1a2e';this.style.boxShadow='none'">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="#29aae1"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-        Telegram
-      </a>
-
-      <!-- MonadVision Explorer -->
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#29aae1"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>Telegram</a>
       <a href="https://monadvision.com/token/0x28b5cc805D90213D2699CC3B00e28e3f0fbeCA8e" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#000f1f;border:1px solid #1a1a2e;border-radius:24px;padding:10px 18px;text-decoration:none;color:#836ef9;font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:1px;transition:all 0.3s;" onmouseover="this.style.borderColor='#836ef9';this.style.boxShadow='0 0 14px #836ef944'" onmouseout="this.style.borderColor='#1a1a2e';this.style.boxShadow='none'">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#836ef9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        Explorer
-      </a>
-
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#836ef9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Explorer</a>
     </div>
     <div style="margin-top:20px;font-size:9px;color:#2a4a3a;letter-spacing:3px;">© 2026 EUROSPACE · ALL RIGHTS RESERVED</div>
   </div>
 </div>
 
 <script>
-// ===================== TOKEN DATA — each token has its own contract =====================
+// ===================== TOKEN DATA =====================
 const META_TOKENS = [
   { symbol:"mBTC",   name:"Meta Bitcoin",  color:"#F7931A", img:"META BTC.png",       price:100, contract:"0xea3b17f3593B727F24EF3fcCFF20436dFF096c1a" },
   { symbol:"mETH",   name:"Meta Ethereum", color:"#627EEA", img:"META ETH.png",       price:100, contract:"0x9925D6BeBbeEDB34d613e1338182539f6C0d14F2" },
@@ -430,22 +390,139 @@ const META_TOKENS = [
   { symbol:"mCRO",   name:"Meta Cronos",   color:"#002D74", img:"META CRONOS.png",    price:100, contract:"0xCBB0Fc67d03f8E08F628f7D34F5D1B7036AB1852" },
 ];
 
-// ===================== GLOBALS =====================
 const EUROSPACE_CONTRACT = "0x28b5cc805D90213D2699CC3B00e28e3f0fbeCA8e";
-const MONAD_CHAIN_ID = "0x8F";
+const MONAD_CHAIN_ID     = "0x8F"; // 143 decimal
+const MONAD_CHAIN_PARAMS = {
+  chainId: "0x8F",
+  chainName: "Monad Mainnet",
+  nativeCurrency: { name:"MON", symbol:"MON", decimals:18 },
+  rpcUrls: ["https://rpc.monad.xyz"],
+  blockExplorerUrls: ["https://monad.socialscan.io"]
+};
 const MONAD_RPCS = ["https://monad-mainnet.g.alchemy.com/v2/demo","https://rpc.monad.xyz","https://monad.drpc.org"];
-const ABI = ["function buy() payable","function sell(uint256 amount) nonpayable","function totalSupply() view returns (uint256)","function tradeEnabled() view returns (bool)","function buyPrice() view returns (uint256)","function balanceOf(address) view returns (uint256)","function getTokensForMON(uint256 monAmount) view returns (uint256)"];
-let provider, signer, userAddress;
-// euroContract is used for the main "Buy Euro Coin" card only
-let euroContract;
+const ABI = [
+  "function buy() payable",
+  "function sell(uint256 amount) nonpayable",
+  "function totalSupply() view returns (uint256)",
+  "function tradeEnabled() view returns (bool)",
+  "function buyPrice() view returns (uint256)",
+  "function balanceOf(address) view returns (uint256)",
+  "function getTokensForMON(uint256 monAmount) view returns (uint256)"
+];
+
+let provider, signer, userAddress, euroContract;
 let currentToken = null;
+
+// ===================== ENVIRONMENT DETECTION =====================
+const isTelegram   = !!window.Telegram?.WebApp?.initData;
+const isTrustWallet = /TrustWallet/i.test(navigator.userAgent) || !!window.ethereum?.isTrust;
+const isMetaMaskApp = /MetaMaskMobile/i.test(navigator.userAgent) || (!!window.ethereum?.isMetaMask && /Mobile|Android|iPhone/i.test(navigator.userAgent));
+const hasInjected   = !!window.ethereum;
+const dappUrl       = encodeURIComponent(window.location.href);
 
 if (window.Telegram?.WebApp) { window.Telegram.WebApp.expand(); }
 
+// ===================== SMART WALLET MODAL SETUP =====================
+function setupWalletModal() {
+  const injectedOpt  = document.getElementById('optionInjected');
+  const trustOpt     = document.getElementById('optionTrust');
+  const mmOpt        = document.getElementById('optionMM');
+  const subtitle     = document.getElementById('walletModalSubtitle');
+  const note         = document.getElementById('walletNote');
+
+  if (isTelegram && !hasInjected) {
+    // Inside Telegram — no injected wallet available
+    subtitle.textContent = 'Open the dapp in a wallet browser';
+    injectedOpt.classList.add('disabled');
+    document.getElementById('injectedDesc').textContent = 'Not available inside Telegram';
+    note.innerHTML = 'ℹ️ Telegram does not support browser wallets. Tap <b>Trust Wallet</b> or <b>MetaMask</b> below to open this dapp inside the wallet app where you can sign transactions.';
+  } else if (hasInjected) {
+    // Injected wallet present — identify it
+    const eth = window.ethereum;
+    const name = eth.isTrust ? 'Trust Wallet' :
+                 eth.isRabby ? 'Rabby' :
+                 eth.isMetaMask ? 'MetaMask' : 'Wallet';
+    const icon = eth.isTrust ? '🛡️' : eth.isRabby ? '🐰' : '🦊';
+    document.getElementById('injectedIcon').textContent = icon;
+    document.getElementById('injectedName').innerHTML = name + ' <span class="wallet-badge" style="background:#00ff8822;border-color:#00ff8844;color:#00ff88">DETECTED</span>';
+    document.getElementById('injectedDesc').textContent = 'Tap to connect';
+    subtitle.textContent = 'Wallet detected';
+    note.style.display = 'none';
+    // Hide deep-link options if already in a wallet browser
+    if (isTrustWallet || isMetaMaskApp) {
+      trustOpt.style.display = 'none';
+      mmOpt.style.display = 'none';
+    }
+  } else {
+    // No wallet, normal mobile/desktop browser
+    injectedOpt.classList.add('disabled');
+    document.getElementById('injectedDesc').textContent = 'No wallet extension found';
+    subtitle.textContent = 'Choose your wallet app';
+  }
+}
+
+// ===================== CONNECT INJECTED (MetaMask, Trust in-app, Rabby) =====================
+async function connectInjected() {
+  if (!hasInjected) return;
+  closeWalletModal();
+  try {
+    showStatus('Connecting...','info');
+    await window.ethereum.request({ method:'eth_requestAccounts' });
+    try { await window.ethereum.request({ method:'wallet_switchEthereumChain', params:[{ chainId: MONAD_CHAIN_ID }] }); }
+    catch(e) { if (e.code === 4902) await window.ethereum.request({ method:'wallet_addEthereumChain', params:[MONAD_CHAIN_PARAMS] }); }
+    provider   = new ethers.BrowserProvider(window.ethereum);
+    signer     = await provider.getSigner();
+    userAddress = await signer.getAddress();
+    euroContract = new ethers.Contract(EUROSPACE_CONTRACT, ABI, signer);
+    await updateWalletUI();
+    showStatus('Wallet connected!','success');
+    loadContractData();
+  } catch(e) {
+    showStatus('Connection failed: ' + (e.message||e).slice(0,60), 'error');
+  }
+}
+
+// ===================== DEEP LINKS (open dapp in wallet's browser) =====================
+function connectTrustDeepLink() {
+  closeWalletModal();
+  // Trust Wallet deep link opens the dapp inside Trust's built-in browser
+  window.location.href = `https://link.trustwallet.com/open_url?coin_id=60&url=${dappUrl}`;
+}
+
+function connectMMDeepLink() {
+  closeWalletModal();
+  // MetaMask deep link
+  window.location.href = `https://metamask.app.link/dapp/${window.location.host}${window.location.pathname}`;
+}
+
+// Alias so old onclick="connectMetaMask()" still works
+async function connectMetaMask() {
+  if (hasInjected) { await connectInjected(); }
+  else { connectMMDeepLink(); }
+}
+
+async function updateWalletUI() {
+  const short = userAddress.slice(0,6)+'...'+userAddress.slice(-4);
+  const bal   = await provider.getBalance(userAddress);
+  document.getElementById('walletAddr').textContent = short;
+  document.getElementById('walletBal').textContent  = parseFloat(ethers.formatEther(bal)).toFixed(3)+' MON';
+  document.getElementById('walletInfo').classList.add('show');
+  document.getElementById('connectBtn').textContent = '✓ '+short;
+  document.getElementById('buyBtn').disabled = false;
+  if (currentToken) {
+    const btn = document.getElementById('modalBuyBtn');
+    btn.disabled = false;
+    btn.textContent = `◈ Buy ${currentToken.symbol}`;
+  }
+}
+
+function openWalletModal()  { setupWalletModal(); document.getElementById('walletModal').classList.add('show'); }
+function closeWalletModal() { document.getElementById('walletModal').classList.remove('show'); }
+
 // ===================== GALLERY =====================
 function buildTokenGallery() {
-  const gallery = document.getElementById('tokenGallery');
-  const dotsContainer = document.getElementById('galleryDots');
+  const gallery        = document.getElementById('tokenGallery');
+  const dotsContainer  = document.getElementById('galleryDots');
 
   META_TOKENS.forEach((token, i) => {
     const card = document.createElement('div');
@@ -455,12 +532,8 @@ function buildTokenGallery() {
 
     const logoWrap = document.createElement('div');
     logoWrap.className = 'token-logo-wrap';
-
     const img = document.createElement('img');
-    img.className = 'token-logo';
-    img.alt = token.symbol;
-    img.loading = 'lazy';
-    img.src = token.img;
+    img.className = 'token-logo'; img.alt = token.symbol; img.loading = 'lazy'; img.src = token.img;
     img.onerror = function() {
       img.style.display = 'none';
       const fb = document.createElement('div');
@@ -470,24 +543,14 @@ function buildTokenGallery() {
     };
     logoWrap.appendChild(img);
 
-    const sym = document.createElement('div');
-    sym.className = 'token-symbol';
-    sym.textContent = token.symbol;
+    const sym = document.createElement('div'); sym.className = 'token-symbol'; sym.textContent = token.symbol;
+    const nm  = document.createElement('div'); nm.className  = 'token-name';   nm.textContent  = token.name;
+    const btn = document.createElement('button');
+    btn.className = 'token-buy-btn'; btn.textContent = '◈ BUY';
+    btn.style.setProperty('--token-color', token.color);
+    btn.onclick = (e) => { e.stopPropagation(); openBuyModal(token); };
 
-    const nm = document.createElement('div');
-    nm.className = 'token-name';
-    nm.textContent = token.name;
-
-    const buyBtn = document.createElement('button');
-    buyBtn.className = 'token-buy-btn';
-    buyBtn.textContent = '◈ BUY';
-    buyBtn.style.setProperty('--token-color', token.color);
-    buyBtn.onclick = (e) => { e.stopPropagation(); openBuyModal(token); };
-
-    card.appendChild(logoWrap);
-    card.appendChild(sym);
-    card.appendChild(nm);
-    card.appendChild(buyBtn);
+    card.appendChild(logoWrap); card.appendChild(sym); card.appendChild(nm); card.appendChild(btn);
     gallery.appendChild(card);
 
     const dot = document.createElement('div');
@@ -497,14 +560,13 @@ function buildTokenGallery() {
   });
 
   gallery.addEventListener('scroll', () => {
-    const idx = Math.round(gallery.scrollLeft / (110 + 12));
-    document.querySelectorAll('.gallery-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
+    const idx = Math.round(gallery.scrollLeft / 122);
+    document.querySelectorAll('.gallery-dot').forEach((d,i) => d.classList.toggle('active', i === idx));
   }, { passive: true });
 
   dotsContainer.addEventListener('click', e => {
-    if (e.target.classList.contains('gallery-dot')) {
-      gallery.scrollTo({ left: parseInt(e.target.dataset.index) * (110 + 12), behavior: 'smooth' });
-    }
+    if (e.target.classList.contains('gallery-dot'))
+      gallery.scrollTo({ left: parseInt(e.target.dataset.index) * 122, behavior:'smooth' });
   });
 }
 
@@ -514,21 +576,16 @@ function openBuyModal(token) {
   const modal = document.getElementById('buyModalInner');
   modal.style.setProperty('--token-accent', token.color);
 
-  // Logo
   const logoImg = document.getElementById('buyModalLogo');
   const logoFb  = document.getElementById('buyModalLogoFb');
-  logoImg.src = token.img;
-  logoImg.style.display = 'block';
-  logoFb.style.display = 'none';
+  logoImg.src = token.img; logoImg.style.display = 'block'; logoFb.style.display = 'none';
   logoFb.textContent = token.symbol.replace('m','');
-  logoImg.style.borderColor = token.color;
-  logoImg.style.boxShadow = `0 0 16px ${token.color}66`;
-  logoFb.style.borderColor = token.color;
-  logoFb.style.color = token.color;
+  logoImg.style.borderColor = token.color; logoImg.style.boxShadow = `0 0 16px ${token.color}66`;
+  logoFb.style.borderColor  = token.color; logoFb.style.color = token.color;
 
   document.getElementById('buyModalName').textContent = token.name;
   document.getElementById('buyModalName').style.color = token.color;
-  document.getElementById('buyModalSym').textContent = token.symbol;
+  document.getElementById('buyModalSym').textContent  = token.symbol;
   document.getElementById('buyModalPrice').textContent = `${token.price} MON = 1 ${token.symbol}`;
   document.getElementById('buyModalContract').textContent = token.contract;
   document.getElementById('modalReceiveLabel').textContent = token.symbol;
@@ -536,24 +593,18 @@ function openBuyModal(token) {
   document.getElementById('modalReceiveAmount').textContent = '0.00';
   document.getElementById('modalStatus').className = 'modal-status';
 
-  // Style buy button with token color
   const btn = document.getElementById('modalBuyBtn');
   btn.style.background = `linear-gradient(135deg, ${token.color}cc, ${token.color})`;
-  btn.disabled = !signer;
+  btn.disabled    = !signer;
   btn.textContent = signer ? `◈ Buy ${token.symbol}` : '◈ Connect Wallet First';
 
   document.getElementById('buyTokenModal').classList.add('show');
 }
 
-function closeBuyModal() {
-  document.getElementById('buyTokenModal').classList.remove('show');
-  currentToken = null;
-}
-
+function closeBuyModal() { document.getElementById('buyTokenModal').classList.remove('show'); currentToken = null; }
 function calcModalReceive() {
   const mon = parseFloat(document.getElementById('modalMonAmount').value) || 0;
-  const price = currentToken ? currentToken.price : 100;
-  document.getElementById('modalReceiveAmount').textContent = (mon / price).toFixed(4);
+  document.getElementById('modalReceiveAmount').textContent = (mon / (currentToken?.price||100)).toFixed(4);
 }
 
 async function executeTokenBuy() {
@@ -561,16 +612,12 @@ async function executeTokenBuy() {
   if (!currentToken) return;
   const monAmount = parseFloat(document.getElementById('modalMonAmount').value);
   if (!monAmount || monAmount <= 0) { showModalStatus('Enter MON amount!','error'); return; }
+  const btn = document.getElementById('modalBuyBtn');
   try {
-    const btn = document.getElementById('modalBuyBtn');
-    btn.disabled = true;
-    btn.textContent = '◈ Processing...';
+    btn.disabled = true; btn.textContent = '◈ Processing...';
     showModalStatus('Sending transaction...','info');
-
-    // ✅ Use THIS token's own contract address
     const tokenContract = new ethers.Contract(currentToken.contract, ABI, signer);
     const tx = await tokenContract.buy({ value: ethers.parseEther(monAmount.toString()) });
-
     showModalStatus('Waiting for confirmation...','info');
     await tx.wait();
     showModalStatus(`✓ Got ${(monAmount/currentToken.price).toFixed(4)} ${currentToken.symbol}!`,'success');
@@ -580,54 +627,13 @@ async function executeTokenBuy() {
   } catch(e) {
     showModalStatus('Error: '+(e.reason||e.message||'failed').slice(0,80),'error');
   } finally {
-    const btn = document.getElementById('modalBuyBtn');
-    btn.disabled = false;
-    btn.textContent = `◈ Buy ${currentToken?.symbol||''}`;
+    btn.disabled = false; btn.textContent = `◈ Buy ${currentToken?.symbol||''}`;
   }
 }
 
 function showModalStatus(msg, type) {
   const el = document.getElementById('modalStatus');
-  el.textContent = msg;
-  el.className = `modal-status ${type}`;
-}
-
-// ===================== WALLET =====================
-function openWalletModal() { document.getElementById('walletModal').classList.add('show'); }
-function closeWalletModal() { document.getElementById('walletModal').classList.remove('show'); }
-
-async function addMonadNetwork(eth) {
-  try { await eth.request({method:'wallet_addEthereumChain',params:[{chainId:MONAD_CHAIN_ID,chainName:'Monad Mainnet',nativeCurrency:{name:'MON',symbol:'MON',decimals:18},rpcUrls:['https://rpc.monad.xyz'],blockExplorerUrls:['https://monad.socialscan.io']}]}); } catch(e){}
-}
-
-async function setupWallet(ethereum) {
-  closeWalletModal();
-  try {
-    showStatus('Connecting...','info');
-    await ethereum.request({method:'eth_requestAccounts'});
-    try { await ethereum.request({method:'wallet_switchEthereumChain',params:[{chainId:MONAD_CHAIN_ID}]}); }
-    catch(e) { if(e.code===4902) await addMonadNetwork(ethereum); }
-    provider = new ethers.BrowserProvider(ethereum);
-    signer = await provider.getSigner();
-    userAddress = await signer.getAddress();
-    // Main EURO contract for the "Buy Euro Coin" card
-    euroContract = new ethers.Contract(EUROSPACE_CONTRACT, ABI, signer);
-    const short = userAddress.slice(0,6)+'...'+userAddress.slice(-4);
-    const bal = await provider.getBalance(userAddress);
-    document.getElementById('walletAddr').textContent = short;
-    document.getElementById('walletBal').textContent = parseFloat(ethers.formatEther(bal)).toFixed(3)+' MON';
-    document.getElementById('walletInfo').classList.add('show');
-    document.getElementById('connectBtn').textContent = '✓ '+short;
-    document.getElementById('buyBtn').disabled = false;
-    document.getElementById('modalBuyBtn').disabled = false;
-    showStatus('Wallet connected!','success');
-    loadContractData();
-  } catch(e) { showStatus('Connection failed: '+(e.message||e).slice(0,60),'error'); }
-}
-
-async function connectMetaMask() {
-  if (window.ethereum) { await setupWallet(window.ethereum); }
-  else { window.open(`https://metamask.app.link/dapp/${window.location.host}`,'_blank'); closeWalletModal(); }
+  el.textContent = msg; el.className = `modal-status ${type}`;
 }
 
 // ===================== CONTRACT DATA =====================
@@ -662,17 +668,16 @@ async function loadContractData() {
 
 // ===================== MAIN BUY (EURO) =====================
 function calcReceive() {
-  const mon = parseFloat(document.getElementById('monAmount').value) || 0;
-  document.getElementById('receiveAmount').textContent = (mon / 100).toFixed(4);
+  document.getElementById('receiveAmount').textContent = ((parseFloat(document.getElementById('monAmount').value)||0)/100).toFixed(4);
 }
 
 async function buyTokens() {
   if (!signer) { showStatus('Connect wallet first!','error'); return; }
   const monAmount = parseFloat(document.getElementById('monAmount').value);
   if (!monAmount || monAmount <= 0) { showStatus('Enter MON amount!','error'); return; }
+  const btn = document.getElementById('buyBtn');
   try {
-    document.getElementById('buyBtn').disabled = true;
-    document.getElementById('buyBtn').textContent = '◈ Processing...';
+    btn.disabled = true; btn.textContent = '◈ Processing...';
     showStatus('Sending transaction...','info');
     const tx = await euroContract.buy({ value: ethers.parseEther(monAmount.toString()) });
     showStatus('Waiting for confirmation...','info');
@@ -682,13 +687,12 @@ async function buyTokens() {
     document.getElementById('receiveAmount').textContent = '0.00';
     loadContractData();
   } catch(e) { showStatus('Error: '+(e.reason||e.message||'failed').slice(0,80),'error'); }
-  finally { document.getElementById('buyBtn').disabled = false; document.getElementById('buyBtn').textContent = '◈ Buy Euro Coin'; }
+  finally { btn.disabled = false; btn.textContent = '◈ Buy Euro Coin'; }
 }
 
 function showStatus(msg, type) {
   const el = document.getElementById('statusMsg');
-  el.textContent = msg;
-  el.className = `status ${type}`;
+  el.textContent = msg; el.className = `status ${type}`;
 }
 
 function copyContract() {
@@ -709,16 +713,15 @@ const PRESALE_START = new Date('2026-03-21T00:00:00Z').getTime();
 function updateCountdown() {
   const now = Date.now(), diff = PRESALE_END - now;
   if (diff <= 0) { ['cd-days','cd-hours','cd-mins','cd-secs'].forEach(id=>document.getElementById(id).textContent='00'); return; }
-  document.getElementById('cd-days').textContent  = String(Math.floor(diff/(1000*60*60*24))).padStart(2,'0');
-  document.getElementById('cd-hours').textContent = String(Math.floor((diff%(1000*60*60*24))/(1000*60*60))).padStart(2,'0');
-  document.getElementById('cd-mins').textContent  = String(Math.floor((diff%(1000*60*60))/(1000*60))).padStart(2,'0');
-  document.getElementById('cd-secs').textContent  = String(Math.floor((diff%(1000*60))/1000)).padStart(2,'0');
+  document.getElementById('cd-days').textContent  = String(Math.floor(diff/86400000)).padStart(2,'0');
+  document.getElementById('cd-hours').textContent = String(Math.floor((diff%86400000)/3600000)).padStart(2,'0');
+  document.getElementById('cd-mins').textContent  = String(Math.floor((diff%3600000)/60000)).padStart(2,'0');
+  document.getElementById('cd-secs').textContent  = String(Math.floor((diff%60000)/1000)).padStart(2,'0');
   document.getElementById('presale-progress').style.width = Math.min(100,((now-PRESALE_START)/(PRESALE_END-PRESALE_START))*100)+'%';
 }
 
-// Close modals on overlay click
-document.getElementById('walletModal').addEventListener('click', e => { if(e.target===document.getElementById('walletModal')) closeWalletModal(); });
-document.getElementById('buyTokenModal').addEventListener('click', e => { if(e.target===document.getElementById('buyTokenModal')) closeBuyModal(); });
+document.getElementById('walletModal').addEventListener('click',    e => { if(e.target===document.getElementById('walletModal'))    closeWalletModal(); });
+document.getElementById('buyTokenModal').addEventListener('click',  e => { if(e.target===document.getElementById('buyTokenModal'))  closeBuyModal(); });
 
 setInterval(updateCountdown, 1000);
 updateCountdown();
