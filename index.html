@@ -74,8 +74,7 @@
   .modal-subtitle { font-size: 10px; color: #4488aa; text-align: center; margin-bottom: 20px; letter-spacing: 1px; }
   .wallet-option { display: flex; align-items: center; gap: 14px; background: #00080f; border: 1px solid #004433; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; cursor: pointer; transition: all 0.3s; }
   .wallet-option:hover { border-color: var(--green); background: #001a0f; }
-  .wallet-option.disabled { opacity: 0.35; cursor: not-allowed; }
-  .wallet-option.disabled:hover { border-color: #004433; background: #00080f; }
+  .wallet-option.disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
   .wallet-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
   .wallet-name { font-family: 'Orbitron', monospace; font-size: 13px; color: var(--text); }
   .wallet-desc { font-size: 10px; color: #009966; margin-top: 2px; }
@@ -394,9 +393,11 @@ const MONAD_CHAIN_PARAMS = {
   blockExplorerUrls: ["https://monad.socialscan.io"]
 };
 const MONAD_RPCS = ["https://monad-mainnet.g.alchemy.com/v2/demo","https://rpc.monad.xyz","https://monad.drpc.org"];
+
+// ✅ FIXED ABI — removed invalid "nonpayable" keyword from human-readable strings
 const ABI = [
   "function buy() payable",
-  "function sell(uint256 amount) nonpayable",
+  "function sell(uint256 amount)",
   "function totalSupply() view returns (uint256)",
   "function tradeEnabled() view returns (bool)",
   "function buyPrice() view returns (uint256)",
@@ -408,7 +409,7 @@ let provider, signer, userAddress, euroContract;
 let currentToken = null;
 
 // ===================== ENVIRONMENT DETECTION =====================
-const isTelegram   = !!window.Telegram?.WebApp?.initData;
+const isTelegram    = !!window.Telegram?.WebApp?.initData;
 const isTrustWallet = /TrustWallet/i.test(navigator.userAgent) || !!window.ethereum?.isTrust;
 const isMetaMaskApp = /MetaMaskMobile/i.test(navigator.userAgent) || (!!window.ethereum?.isMetaMask && /Mobile|Android|iPhone/i.test(navigator.userAgent));
 const hasInjected   = !!window.ethereum;
@@ -418,97 +419,108 @@ if (window.Telegram?.WebApp) { window.Telegram.WebApp.expand(); }
 
 // ===================== SMART WALLET MODAL SETUP =====================
 function setupWalletModal() {
-  const injectedOpt  = document.getElementById('optionInjected');
-  const trustOpt     = document.getElementById('optionTrust');
-  const mmOpt        = document.getElementById('optionMM');
-  const subtitle     = document.getElementById('walletModalSubtitle');
-  const note         = document.getElementById('walletNote');
+  const injectedOpt = document.getElementById('optionInjected');
+  const trustOpt    = document.getElementById('optionTrust');
+  const mmOpt       = document.getElementById('optionMM');
+  const subtitle    = document.getElementById('walletModalSubtitle');
+  const note        = document.getElementById('walletNote');
 
   if (isTelegram && !hasInjected) {
-    // Inside Telegram — no injected wallet available
     subtitle.textContent = 'Open the dapp in a wallet browser';
     injectedOpt.classList.add('disabled');
     document.getElementById('injectedDesc').textContent = 'Not available inside Telegram';
     note.innerHTML = 'ℹ️ Telegram does not support browser wallets. Tap <b>Trust Wallet</b> or <b>MetaMask</b> below to open this dapp inside the wallet app where you can sign transactions.';
   } else if (hasInjected) {
-    // Injected wallet present — identify it
-    const eth = window.ethereum;
-    const name = eth.isTrust ? 'Trust Wallet' :
-                 eth.isRabby ? 'Rabby' :
-                 eth.isMetaMask ? 'MetaMask' : 'Wallet';
+    const eth  = window.ethereum;
+    const name = eth.isTrust ? 'Trust Wallet' : eth.isRabby ? 'Rabby' : eth.isMetaMask ? 'MetaMask' : 'Wallet';
     const icon = eth.isTrust ? '🛡️' : eth.isRabby ? '🐰' : '🦊';
     document.getElementById('injectedIcon').textContent = icon;
     document.getElementById('injectedName').innerHTML = name + ' <span class="wallet-badge" style="background:#00ff8822;border-color:#00ff8844;color:#00ff88">DETECTED</span>';
     document.getElementById('injectedDesc').textContent = 'Tap to connect';
     subtitle.textContent = 'Wallet detected';
     note.style.display = 'none';
-    // Hide deep-link options if already in a wallet browser
     if (isTrustWallet || isMetaMaskApp) {
       trustOpt.style.display = 'none';
-      mmOpt.style.display = 'none';
+      mmOpt.style.display    = 'none';
     }
   } else {
-    // No wallet, normal mobile/desktop browser
     injectedOpt.classList.add('disabled');
     document.getElementById('injectedDesc').textContent = 'No wallet extension found';
     subtitle.textContent = 'Choose your wallet app';
   }
 }
 
-// ===================== CONNECT INJECTED (MetaMask, Trust in-app, Rabby) =====================
+// ===================== CONNECT INJECTED =====================
 async function connectInjected() {
   if (!hasInjected) return;
   closeWalletModal();
   try {
-    showStatus('Connecting...','info');
+    showStatus('Connecting...', 'info');
+
+    // Request account access
+    await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+    // Switch / add Monad chain
     try {
-      await window.ethereum.request({ method:'wallet_requestPermissions', params:[{ eth_accounts:{} }] });
-    } catch(pe) { /* ignore */ }
-    await window.ethereum.request({ method:'eth_requestAccounts' });
-    try { await window.ethereum.request({ method:'wallet_switchEthereumChain', params:[{ chainId: MONAD_CHAIN_ID }] }); }
-    catch(e) { if (e.code === 4902) await window.ethereum.request({ method:'wallet_addEthereumChain', params:[MONAD_CHAIN_PARAMS] }); }
-    provider   = new ethers.BrowserProvider(window.ethereum);
-    signer     = await provider.getSigner();
-    userAddress = await signer.getAddress();
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: MONAD_CHAIN_ID }]
+      });
+    } catch (switchErr) {
+      if (switchErr.code === 4902) {
+        await window.ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [MONAD_CHAIN_PARAMS]
+        });
+      } else {
+        throw switchErr;
+      }
+    }
+
+    provider     = new ethers.BrowserProvider(window.ethereum);
+    signer       = await provider.getSigner();
+    userAddress  = await signer.getAddress();
     euroContract = new ethers.Contract(EUROSPACE_CONTRACT, ABI, signer);
+
     await updateWalletUI();
-    showStatus('Wallet connected!','success');
+    showStatus('✓ Wallet connected!', 'success');
     loadContractData();
-  } catch(e) {
-    showStatus('Connection failed: ' + (e.message||e).slice(0,60), 'error');
+  } catch (e) {
+    const msg = e?.message || String(e);
+    showStatus('Connection failed: ' + msg.slice(0, 80), 'error');
+    console.error('connectInjected error:', e);
   }
 }
 
-// ===================== DEEP LINKS (open dapp in wallet's browser) =====================
+// ===================== DEEP LINKS =====================
 function connectTrustDeepLink() {
   closeWalletModal();
-  // Trust Wallet deep link opens the dapp inside Trust's built-in browser
   window.location.href = `https://link.trustwallet.com/open_url?coin_id=60&url=${dappUrl}`;
 }
 
 function connectMMDeepLink() {
   closeWalletModal();
-  // MetaMask deep link
   window.location.href = `https://metamask.app.link/dapp/${window.location.host}${window.location.pathname}`;
 }
 
-// Alias so old onclick="connectMetaMask()" still works
 async function connectMetaMask() {
   if (hasInjected) { await connectInjected(); }
   else { connectMMDeepLink(); }
 }
 
+// ===================== WALLET UI =====================
 async function updateWalletUI() {
-  const short = userAddress.slice(0,6)+'...'+userAddress.slice(-4);
+  const short = userAddress.slice(0, 6) + '...' + userAddress.slice(-4);
   const bal   = await provider.getBalance(userAddress);
   document.getElementById('walletAddr').textContent = short;
-  document.getElementById('walletBal').textContent  = parseFloat(ethers.formatEther(bal)).toFixed(3)+' MON';
+  document.getElementById('walletBal').textContent  = parseFloat(ethers.formatEther(bal)).toFixed(3) + ' MON';
   document.getElementById('walletInfo').classList.add('show');
-  document.getElementById('connectBtn').textContent = '✓ '+short;
-  document.getElementById('buyBtn').disabled = false;
+  document.getElementById('connectBtn').textContent = '✓ ' + short;
+  document.getElementById('buyBtn').disabled        = false;
+
   if (currentToken) {
     const btn = document.getElementById('modalBuyBtn');
-    btn.disabled = false;
+    btn.disabled    = false;
     btn.textContent = `◈ Buy ${currentToken.symbol}`;
   }
 }
@@ -518,8 +530,8 @@ function closeWalletModal() { document.getElementById('walletModal').classList.r
 
 // ===================== GALLERY =====================
 function buildTokenGallery() {
-  const gallery        = document.getElementById('tokenGallery');
-  const dotsContainer  = document.getElementById('galleryDots');
+  const gallery       = document.getElementById('tokenGallery');
+  const dotsContainer = document.getElementById('galleryDots');
 
   META_TOKENS.forEach((token, i) => {
     const card = document.createElement('div');
@@ -531,11 +543,11 @@ function buildTokenGallery() {
     logoWrap.className = 'token-logo-wrap';
     const img = document.createElement('img');
     img.className = 'token-logo'; img.alt = token.symbol; img.loading = 'lazy'; img.src = token.img;
-    img.onerror = function() {
+    img.onerror = function () {
       img.style.display = 'none';
       const fb = document.createElement('div');
-      fb.className = 'token-logo-fallback';
-      fb.textContent = token.symbol.replace('m','');
+      fb.className   = 'token-logo-fallback';
+      fb.textContent = token.symbol.replace('m', '');
       logoWrap.appendChild(fb);
     };
     logoWrap.appendChild(img);
@@ -543,7 +555,7 @@ function buildTokenGallery() {
     const sym = document.createElement('div'); sym.className = 'token-symbol'; sym.textContent = token.symbol;
     const nm  = document.createElement('div'); nm.className  = 'token-name';   nm.textContent  = token.name;
     const btn = document.createElement('button');
-    btn.className = 'token-buy-btn'; btn.textContent = '◈ BUY';
+    btn.className   = 'token-buy-btn'; btn.textContent = '◈ BUY';
     btn.style.setProperty('--token-color', token.color);
     btn.onclick = (e) => { e.stopPropagation(); openBuyModal(token); };
 
@@ -551,44 +563,48 @@ function buildTokenGallery() {
     gallery.appendChild(card);
 
     const dot = document.createElement('div');
-    dot.className = 'gallery-dot' + (i === 0 ? ' active' : '');
+    dot.className    = 'gallery-dot' + (i === 0 ? ' active' : '');
     dot.dataset.index = i;
     dotsContainer.appendChild(dot);
   });
 
   gallery.addEventListener('scroll', () => {
     const idx = Math.round(gallery.scrollLeft / 122);
-    document.querySelectorAll('.gallery-dot').forEach((d,i) => d.classList.toggle('active', i === idx));
+    document.querySelectorAll('.gallery-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
   }, { passive: true });
 
   dotsContainer.addEventListener('click', e => {
     if (e.target.classList.contains('gallery-dot'))
-      gallery.scrollTo({ left: parseInt(e.target.dataset.index) * 122, behavior:'smooth' });
+      gallery.scrollTo({ left: parseInt(e.target.dataset.index) * 122, behavior: 'smooth' });
   });
 }
 
 // ===================== BUY TOKEN MODAL =====================
 function openBuyModal(token) {
   currentToken = token;
-  const modal = document.getElementById('buyModalInner');
+  const modal   = document.getElementById('buyModalInner');
   modal.style.setProperty('--token-accent', token.color);
 
   const logoImg = document.getElementById('buyModalLogo');
   const logoFb  = document.getElementById('buyModalLogoFb');
-  logoImg.src = token.img; logoImg.style.display = 'block'; logoFb.style.display = 'none';
-  logoFb.textContent = token.symbol.replace('m','');
-  logoImg.style.borderColor = token.color; logoImg.style.boxShadow = `0 0 16px ${token.color}66`;
-  logoFb.style.borderColor  = token.color; logoFb.style.color = token.color;
+  logoImg.src            = token.img;
+  logoImg.style.display  = 'block';
+  logoFb.style.display   = 'none';
+  logoFb.textContent     = token.symbol.replace('m', '');
+  logoImg.style.borderColor = token.color;
+  logoImg.style.boxShadow   = `0 0 16px ${token.color}66`;
+  logoFb.style.borderColor  = token.color;
+  logoFb.style.color        = token.color;
 
-  document.getElementById('buyModalName').textContent = token.name;
-  document.getElementById('buyModalName').style.color = token.color;
-  document.getElementById('buyModalSym').textContent  = token.symbol;
-  document.getElementById('buyModalPrice').textContent = `${token.price} MON = 1 ${token.symbol}`;
+  document.getElementById('buyModalName').textContent     = token.name;
+  document.getElementById('buyModalName').style.color     = token.color;
+  document.getElementById('buyModalSym').textContent      = token.symbol;
+  document.getElementById('buyModalPrice').textContent    = `${token.price} MON = 1 ${token.symbol}`;
   document.getElementById('buyModalContract').textContent = token.contract;
   document.getElementById('modalReceiveLabel').textContent = token.symbol;
-  document.getElementById('modalMonAmount').value = '';
+  document.getElementById('modalMonAmount').value          = '';
   document.getElementById('modalReceiveAmount').textContent = '0.00';
-  document.getElementById('modalStatus').className = 'modal-status';
+  document.getElementById('modalStatus').className         = 'modal-status';
 
   const btn = document.getElementById('modalBuyBtn');
   btn.style.background = `linear-gradient(135deg, ${token.color}cc, ${token.color})`;
@@ -599,48 +615,60 @@ function openBuyModal(token) {
 }
 
 function closeBuyModal() { document.getElementById('buyTokenModal').classList.remove('show'); currentToken = null; }
+
 function calcModalReceive() {
   const mon = parseFloat(document.getElementById('modalMonAmount').value) || 0;
-  document.getElementById('modalReceiveAmount').textContent = (mon / (currentToken?.price||100)).toFixed(4);
+  document.getElementById('modalReceiveAmount').textContent = (mon / (currentToken?.price || 100)).toFixed(4);
 }
 
 async function executeTokenBuy() {
-  if (!signer) { showModalStatus('Connect wallet first!','error'); return; }
-  if (!currentToken) return;
+  if (!signer)       { showModalStatus('Connect wallet first!', 'error'); return; }
+  if (!currentToken) { return; }
   const monAmount = parseFloat(document.getElementById('modalMonAmount').value);
-  if (!monAmount || monAmount <= 0) { showModalStatus('Enter MON amount!','error'); return; }
+  if (!monAmount || monAmount <= 0) { showModalStatus('Enter MON amount!', 'error'); return; }
+
   const btn = document.getElementById('modalBuyBtn');
   try {
-    btn.disabled = true; btn.textContent = '◈ Processing...';
-    showModalStatus('Sending transaction...','info');
+    btn.disabled    = true;
+    btn.textContent = '◈ Processing...';
+    showModalStatus('Sending transaction...', 'info');
+
     const tokenContract = new ethers.Contract(currentToken.contract, ABI, signer);
     const tx = await tokenContract.buy({ value: ethers.parseEther(monAmount.toString()) });
-    showModalStatus('Waiting for confirmation...','info');
+    showModalStatus('Waiting for confirmation...', 'info');
     await tx.wait();
-    showModalStatus(`✓ Got ${(monAmount/currentToken.price).toFixed(4)} ${currentToken.symbol}!`,'success');
+    showModalStatus(`✓ Got ${(monAmount / currentToken.price).toFixed(4)} ${currentToken.symbol}!`, 'success');
     document.getElementById('modalMonAmount').value = '';
     document.getElementById('modalReceiveAmount').textContent = '0.00';
     loadContractData();
-  } catch(e) {
-    showModalStatus('Error: '+(e.reason||e.message||'failed').slice(0,80),'error');
+  } catch (e) {
+    const msg = e?.reason || e?.message || 'Transaction failed';
+    showModalStatus('Error: ' + msg.slice(0, 80), 'error');
+    console.error('executeTokenBuy error:', e);
   } finally {
-    btn.disabled = false; btn.textContent = `◈ Buy ${currentToken?.symbol||''}`;
+    btn.disabled    = false;
+    btn.textContent = `◈ Buy ${currentToken?.symbol || ''}`;
   }
 }
 
 function showModalStatus(msg, type) {
   const el = document.getElementById('modalStatus');
-  el.textContent = msg; el.className = `modal-status ${type}`;
+  el.textContent = msg;
+  el.className   = `modal-status ${type}`;
 }
 
-// ===================== CONTRACT DATA =====================
+// ===================== CONTRACT DATA (read-only via RPC) =====================
 async function rpcFetch(method, params) {
   for (const rpc of MONAD_RPCS) {
     try {
-      const res = await fetch(rpc,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method,params})});
+      const res = await fetch(rpc, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params })
+      });
       const d = await res.json();
       if (d.result !== undefined) return d.result;
-    } catch(e) { continue; }
+    } catch (e) { continue; }
   }
   return null;
 }
@@ -648,16 +676,19 @@ async function rpcFetch(method, params) {
 async function loadContractData() {
   try {
     const [supplyHex, buyHex] = await Promise.all([
-      rpcFetch('eth_call',[{to:EUROSPACE_CONTRACT,data:'0x18160ddd'},'latest']),
-      rpcFetch('eth_call',[{to:EUROSPACE_CONTRACT,data:'0x0d67f8e8'},'latest'])
+      rpcFetch('eth_call', [{ to: EUROSPACE_CONTRACT, data: '0x18160ddd' }, 'latest']),
+      rpcFetch('eth_call', [{ to: EUROSPACE_CONTRACT, data: '0x0d67f8e8' }, 'latest'])
     ]);
-    if (supplyHex) document.getElementById('totalSupply').textContent = (Number(BigInt(supplyHex))/1e18).toLocaleString();
+    if (supplyHex) {
+      document.getElementById('totalSupply').textContent =
+        (Number(BigInt(supplyHex)) / 1e18).toLocaleString(undefined, { maximumFractionDigits: 2 });
+    }
     if (buyHex) {
       const enabled = BigInt(buyHex) !== 0n;
       document.getElementById('buyStatus').textContent = enabled ? 'OPEN' : 'CLOSED';
       document.getElementById('buyStatus').style.color = enabled ? '#00ff88' : '#ff4466';
     }
-  } catch(e) {
+  } catch (e) {
     document.getElementById('buyStatus').textContent = 'LIVE';
     document.getElementById('buyStatus').style.color = '#00ff88';
   }
@@ -665,33 +696,44 @@ async function loadContractData() {
 
 // ===================== MAIN BUY (EURO) =====================
 function calcReceive() {
-  document.getElementById('receiveAmount').textContent = ((parseFloat(document.getElementById('monAmount').value)||0)/100).toFixed(4);
+  const val = parseFloat(document.getElementById('monAmount').value) || 0;
+  document.getElementById('receiveAmount').textContent = (val / 100).toFixed(4);
 }
 
 async function buyTokens() {
-  if (!signer) { showStatus('Connect wallet first!','error'); return; }
+  if (!signer) { showStatus('Connect wallet first!', 'error'); return; }
   const monAmount = parseFloat(document.getElementById('monAmount').value);
-  if (!monAmount || monAmount <= 0) { showStatus('Enter MON amount!','error'); return; }
+  if (!monAmount || monAmount <= 0) { showStatus('Enter MON amount!', 'error'); return; }
+
   const btn = document.getElementById('buyBtn');
   try {
-    btn.disabled = true; btn.textContent = '◈ Processing...';
-    showStatus('Sending transaction...','info');
+    btn.disabled    = true;
+    btn.textContent = '◈ Processing...';
+    showStatus('Sending transaction...', 'info');
     const tx = await euroContract.buy({ value: ethers.parseEther(monAmount.toString()) });
-    showStatus('Waiting for confirmation...','info');
+    showStatus('Waiting for confirmation...', 'info');
     await tx.wait();
-    showStatus(`✓ Success! Got ${(monAmount/100).toFixed(4)} EURO COIN`,'success');
+    showStatus(`✓ Success! Got ${(monAmount / 100).toFixed(4)} EURO COIN`, 'success');
     document.getElementById('monAmount').value = '';
     document.getElementById('receiveAmount').textContent = '0.00';
     loadContractData();
-  } catch(e) { showStatus('Error: '+(e.reason||e.message||'failed').slice(0,80),'error'); }
-  finally { btn.disabled = false; btn.textContent = '◈ Buy Euro Coin'; }
+  } catch (e) {
+    const msg = e?.reason || e?.message || 'Transaction failed';
+    showStatus('Error: ' + msg.slice(0, 80), 'error');
+    console.error('buyTokens error:', e);
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = '◈ Buy Euro Coin';
+  }
 }
 
 function showStatus(msg, type) {
   const el = document.getElementById('statusMsg');
-  el.textContent = msg; el.className = `status ${type}`;
+  el.textContent = msg;
+  el.className   = `status ${type}`;
 }
 
+// ===================== UTILS =====================
 function copyContract() {
   navigator.clipboard.writeText(EUROSPACE_CONTRACT).then(() => {
     document.getElementById('copyBtn').textContent = 'COPIED!';
@@ -701,24 +743,47 @@ function copyContract() {
 
 function shareOnTwitter() {
   const text = encodeURIComponent('🚀 EUROSPACE Presale is LIVE on Monad!\n\n💶 100 MON = 1 EURO COIN\n⛓ Monad Mainnet · Chain ID 143\n\n#EUROSPACE #Monad #Crypto #Presale');
-  window.open('https://twitter.com/intent/tweet?text='+text,'_blank');
+  window.open('https://twitter.com/intent/tweet?text=' + text, '_blank');
 }
 
 // ===================== COUNTDOWN =====================
 const PRESALE_END   = new Date('2026-04-20T23:59:59Z').getTime();
 const PRESALE_START = new Date('2026-03-21T00:00:00Z').getTime();
+
 function updateCountdown() {
-  const now = Date.now(), diff = PRESALE_END - now;
-  if (diff <= 0) { ['cd-days','cd-hours','cd-mins','cd-secs'].forEach(id=>document.getElementById(id).textContent='00'); return; }
-  document.getElementById('cd-days').textContent  = String(Math.floor(diff/86400000)).padStart(2,'0');
-  document.getElementById('cd-hours').textContent = String(Math.floor((diff%86400000)/3600000)).padStart(2,'0');
-  document.getElementById('cd-mins').textContent  = String(Math.floor((diff%3600000)/60000)).padStart(2,'0');
-  document.getElementById('cd-secs').textContent  = String(Math.floor((diff%60000)/1000)).padStart(2,'0');
-  document.getElementById('presale-progress').style.width = Math.min(100,((now-PRESALE_START)/(PRESALE_END-PRESALE_START))*100)+'%';
+  const now  = Date.now();
+  const diff = PRESALE_END - now;
+  if (diff <= 0) {
+    ['cd-days','cd-hours','cd-mins','cd-secs'].forEach(id => document.getElementById(id).textContent = '00');
+    return;
+  }
+  document.getElementById('cd-days').textContent  = String(Math.floor(diff / 86400000)).padStart(2, '0');
+  document.getElementById('cd-hours').textContent = String(Math.floor((diff % 86400000) / 3600000)).padStart(2, '0');
+  document.getElementById('cd-mins').textContent  = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+  document.getElementById('cd-secs').textContent  = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+  document.getElementById('presale-progress').style.width =
+    Math.min(100, ((now - PRESALE_START) / (PRESALE_END - PRESALE_START)) * 100) + '%';
 }
 
-document.getElementById('walletModal').addEventListener('click',    e => { if(e.target===document.getElementById('walletModal'))    closeWalletModal(); });
-document.getElementById('buyTokenModal').addEventListener('click',  e => { if(e.target===document.getElementById('buyTokenModal'))  closeBuyModal(); });
+// ===================== INIT =====================
+document.getElementById('walletModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('walletModal')) closeWalletModal();
+});
+document.getElementById('buyTokenModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('buyTokenModal')) closeBuyModal();
+});
+
+// Handle chain/account changes
+if (window.ethereum) {
+  window.ethereum.on('chainChanged', () => window.location.reload());
+  window.ethereum.on('accountsChanged', (accounts) => {
+    if (accounts.length === 0) { window.location.reload(); }
+    else {
+      userAddress = accounts[0];
+      updateWalletUI().catch(console.error);
+    }
+  });
+}
 
 setInterval(updateCountdown, 1000);
 updateCountdown();
