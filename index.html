@@ -976,10 +976,12 @@ async function executeTokenBuy() {
     btn.textContent = '◈ Processing…';
     showModalStatus('Sending transaction…', 'info');
 
-    // Use complete ABI_META so ethers correctly encodes buyTokens() selector
-    const tc = new ethers.Contract(token.contract, ABI_META, signer);
-    const tx = await tc.buyTokens({
+    // Raw sendTransaction with hardcoded buyTokens() selector 0xa6f2ae3a
+    // This guarantees calldata is never stripped by wallet middleware
+    const tx = await signer.sendTransaction({
+      to:       token.contract,
       value:    ethers.parseEther(mon.toString()),
+      data:     "0xa6f2ae3a",
       gasLimit: 300000
     });
 
@@ -1037,8 +1039,12 @@ async function buyEuro() {
     btn.textContent = '◈ Processing…';
     showStatus('Sending transaction…', 'info');
 
-    const tx = await euroContract.buyTokens({
+    // Raw sendTransaction with hardcoded buyTokens() selector 0xa6f2ae3a
+    // This guarantees calldata is never stripped by wallet middleware
+    const tx = await signer.sendTransaction({
+      to:       EUROSPACE_CONTRACT,
       value:    ethers.parseEther(mon.toString()),
+      data:     "0xa6f2ae3a",
       gasLimit: 300000
     });
 
