@@ -59,7 +59,6 @@
   .receive-amount { font-family:'Orbitron',monospace; font-size:20px; font-weight:700; color:#00ff88; text-shadow:0 0 10px #00ff88; }
   .receive-label { font-size:10px; color:#00aa77; letter-spacing:1px; }
 
-  /* FIX: wallet info bar — hidden by default, shown via .show */
   .wallet-info { display:none; background:#000d26; border:1px solid #00ff8855; border-radius:10px; padding:10px 14px; margin-bottom:10px; font-size:10px; color:var(--green); letter-spacing:1px; }
   .wallet-info.show { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; }
   .wallet-info-left { display:flex; align-items:center; gap:8px; }
@@ -68,7 +67,6 @@
   .btn-disconnect { background:none; border:1px solid #ff446633; border-radius:6px; color:#ff4466; font-size:9px; padding:3px 8px; cursor:pointer; font-family:'Share Tech Mono',monospace; letter-spacing:1px; transition:all 0.25s; }
   .btn-disconnect:hover { background:#ff446611; border-color:#ff4466; }
 
-  /* FIX: connect button hidden when wallet connected */
   .btn-connect-main { width:100%; padding:16px; background:transparent; border:2px solid var(--green); border-radius:12px; color:var(--green); font-family:'Orbitron',monospace; font-size:13px; font-weight:700; letter-spacing:3px; cursor:pointer; transition:all 0.3s; text-transform:uppercase; margin-bottom:10px; }
   .btn-connect-main:hover { background:#00ff8811; box-shadow:var(--glow-green); }
   .btn-connect-main.hidden { display:none; }
@@ -327,7 +325,6 @@
       <div class="price-box"><div class="price-label">Network</div><div class="price-value" style="font-size:13px">MONAD</div><div class="price-unit">Chain ID 143</div></div>
     </div>
 
-    <!-- wallet info bar: hidden until connected -->
     <div class="wallet-info" id="walletInfo">
       <div class="wallet-info-left">
         <span id="walletAddr">—</span>
@@ -357,7 +354,6 @@
       </div>
     </div>
 
-    <!-- FIX: connect btn hides after wallet connected -->
     <button class="btn-connect-main" id="connectBtn" onclick="handleConnectBtnClick()">◈ Connect Wallet</button>
     <button class="btn-buy" id="buyBtn" onclick="buyTokens()" disabled>◈ Buy Euro Coin</button>
     <div class="status" id="statusMsg"></div>
@@ -413,10 +409,10 @@ const MONAD_CHAIN = {
   blockExplorerUrls: ["https://monad.socialscan.io"]
 };
 
+// FIX 1: Removed broken Alchemy demo RPC (CORS/429 errors)
 const MONAD_RPCS = [
   "https://rpc.monad.xyz",
-  "https://monad.drpc.org",
-  "https://monad-mainnet.g.alchemy.com/v2/demo"
+  "https://monad.drpc.org"
 ];
 
 const ABI = [
@@ -459,7 +455,7 @@ let wcProvider      = null;
 let wcUri           = '';
 let connectedVia    = '';
 let _heartbeatTimer = null;
-let _isBuying       = false; // FIX: guard against race on closeBuyModal mid-buy
+let _isBuying       = false;
 
 // ══════════════════════════════════════════════════
 //  ENVIRONMENT DETECTION
@@ -473,12 +469,8 @@ const dappHost      = window.location.host + window.location.pathname;
 
 if (window.Telegram?.WebApp) window.Telegram.WebApp.expand();
 
-// ══════════════════════════════════════════════════
-//  FIX: Connect button smart handler
-//  — opens modal only when NOT connected
-// ══════════════════════════════════════════════════
 function handleConnectBtnClick() {
-  if (userAddress) return; // already connected — button should be hidden, but safety guard
+  if (userAddress) return;
   openWalletModal();
 }
 
@@ -495,10 +487,8 @@ async function loadWCClass() {
 }
 
 async function initWalletConnect() {
-  // FIX: if wcProvider already exists and has a live session, reuse it
   if (wcProvider) {
     if (wcProvider.session) return wcProvider;
-    // stale provider with no session — tear it down cleanly
     try { await wcProvider.disconnect(); } catch (_) {}
     wcProvider  = null;
   }
@@ -519,14 +509,12 @@ async function initWalletConnect() {
     showQrModal: false
   });
 
-  // URI ready → render QR
   wcProvider.on('display_uri', (uri) => {
     wcUri = uri;
     renderQR(uri);
     showWcStatus('📱 Scan with your wallet app', 'info');
   });
 
-  // Session established
   wcProvider.on('connect', async () => {
     connectedVia = 'walletconnect';
     try { await ensureMonadChain(wcProvider); } catch (_) {}
@@ -535,7 +523,6 @@ async function initWalletConnect() {
     startHeartbeat();
   });
 
-  // FIX: distinguish ping timeout from real user disconnect
   wcProvider.on('disconnect', (error) => {
     const msg = (error?.message || error?.reason || String(error || '')).toLowerCase();
     const isPingTimeout = msg.includes('ping') || msg.includes('timeout') ||
@@ -571,7 +558,6 @@ async function initWalletConnect() {
   return wcProvider;
 }
 
-// FIX: heartbeat moved to module scope (not inside init) so it can be called after reconnect too
 function startHeartbeat() {
   stopHeartbeat();
   _heartbeatTimer = setInterval(async () => {
@@ -713,14 +699,12 @@ async function disconnectWallet() {
   provider = signer = userAddress = euroContract = null;
   connectedVia = '';
 
-  // FIX: restore connect button, hide wallet info bar, disable buy
   document.getElementById('walletInfo').classList.remove('show');
   document.getElementById('connectBtn').textContent = '◈ Connect Wallet';
   document.getElementById('connectBtn').classList.remove('hidden');
   document.getElementById('buyBtn').disabled = true;
   document.getElementById('statusMsg').className = 'status';
 
-  // FIX: reset modal buy button to safe state
   if (currentToken) {
     const btn = document.getElementById('modalBuyBtn');
     btn.disabled    = true;
@@ -747,11 +731,8 @@ async function updateWalletUI() {
   badge.className   = connectedVia === 'walletconnect' ? 'w-src-badge wc' : 'w-src-badge';
 
   document.getElementById('walletInfo').classList.add('show');
-
-  // FIX: hide connect button once wallet is connected
   document.getElementById('connectBtn').classList.add('hidden');
 
-  // FIX: update modal buy button when wallet connects while modal is open
   if (currentToken) {
     const btn = document.getElementById('modalBuyBtn');
     btn.disabled    = false;
@@ -848,7 +829,7 @@ function buildTokenGallery() {
 // ══════════════════════════════════════════════════
 function openBuyModal(token) {
   currentToken = token;
-  _isBuying    = false; // FIX: reset buy guard on fresh open
+  _isBuying    = false;
 
   const modal = document.getElementById('buyModalInner');
   modal.style.setProperty('--token-accent', token.color);
@@ -867,7 +848,7 @@ function openBuyModal(token) {
   document.getElementById('modalReceiveLabel').textContent = token.symbol;
   document.getElementById('modalMonAmount').value          = '';
   document.getElementById('modalReceiveAmount').textContent= '0.00';
-  document.getElementById('modalStatus').className         = 'modal-status'; // FIX: always clear status on open
+  document.getElementById('modalStatus').className         = 'modal-status';
 
   const btn = document.getElementById('modalBuyBtn');
   btn.style.background = `linear-gradient(135deg,${token.color}cc,${token.color})`;
@@ -877,9 +858,8 @@ function openBuyModal(token) {
   document.getElementById('buyTokenModal').classList.add('show');
 }
 
-// FIX: don't null currentToken while a buy is in-flight
 function closeBuyModal() {
-  if (_isBuying) return; // block close during transaction
+  if (_isBuying) return;
   document.getElementById('buyTokenModal').classList.remove('show');
   currentToken = null;
   _isBuying    = false;
@@ -893,12 +873,11 @@ function calcModalReceive() {
 async function executeTokenBuy() {
   if (!signer)       { showModalStatus('Connect wallet first!','error'); return; }
   if (!currentToken) return;
-  if (_isBuying)     return; // FIX: prevent double-clicks
+  if (_isBuying)     return;
 
   const mon = parseFloat(document.getElementById('modalMonAmount').value);
   if (!mon||mon<=0)  { showModalStatus('Enter MON amount!','error'); return; }
 
-  // FIX: snapshot token in case modal state changes
   const token = currentToken;
   const btn   = document.getElementById('modalBuyBtn');
 
@@ -908,7 +887,9 @@ async function executeTokenBuy() {
     showModalStatus('Sending transaction…','info');
 
     const tc = new ethers.Contract(token.contract, ABI, signer);
-    const tx = await tc.buy({value:ethers.parseEther(mon.toString())});
+    // FIX 2: Pass explicit gasLimit to bypass failing estimateGas
+    // (contracts revert on estimateGas when tradeEnabled guard is present)
+    const tx = await tc.buy({ value: ethers.parseEther(mon.toString()), gasLimit: 300000n });
     showModalStatus('Waiting for confirmation…','info');
     await tx.wait();
 
@@ -922,7 +903,6 @@ async function executeTokenBuy() {
   } finally {
     _isBuying    = false;
     btn.disabled = false;
-    // FIX: use snapshotted token for label restore — safe even if currentToken changed
     btn.textContent = `◈ Buy ${token.symbol}`;
   }
 }
@@ -949,7 +929,8 @@ async function buyTokens(){
   try {
     btn.disabled=true; btn.textContent='◈ Processing…';
     showStatus('Sending transaction…','info');
-    const tx=await euroContract.buy({value:ethers.parseEther(mon.toString())});
+    // FIX 2: Pass explicit gasLimit to bypass failing estimateGas
+    const tx=await euroContract.buy({ value: ethers.parseEther(mon.toString()), gasLimit: 300000n });
     showStatus('Waiting for confirmation…','info');
     await tx.wait();
     showStatus(`✓ Got ${(mon/100).toFixed(4)} EURO COIN`,'success');
