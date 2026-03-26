@@ -371,17 +371,23 @@ const MONAD_RPCS = ["https://rpc.monad.xyz","https://monad.drpc.org"];
 
 // ── EURO main contract ABI — COMPLETE (fixes empty calldata revert) ────────
 const ABI_EURO = [
-  // BUY FUNCTION
+  // BUY TOKEN
   "function buyTokens() payable",
+
+  // BUY NFT (must be included so ethers doesn't confuse them)
+  "function buyNFT() payable",
+
   // PRESALE STATE
   "function buyEnabled() view returns (bool)",
   "function tokensPerMON() view returns (uint256)",
   "function pricePerToken() view returns (uint256)",
+
   // ADMIN
   "function owner() view returns (address)",
   "function toggleBuy(bool _enabled)",
   "function setPrice(uint256 _pricePerToken, uint256 _tokensPerMON)",
   "function withdraw()",
+
   // ERC20 STANDARD
   "function name() view returns (string)",
   "function symbol() view returns (string)",
@@ -392,7 +398,8 @@ const ABI_EURO = [
   "function allowance(address,address) view returns (uint256)",
   "function approve(address,uint256) returns (bool)",
   "function transferFrom(address,address,uint256) returns (bool)",
-  // MINT (owner only)
+
+  // MINT
   "function mint(address,uint256)"
 ];
 
