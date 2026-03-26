@@ -6,7 +6,6 @@
 <title>EUROSPACE — Monad Presale</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
-<!-- QR code renderer (no build needed) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
@@ -26,7 +25,6 @@
   body::after  { content:''; position:fixed; inset:0; background:radial-gradient(ellipse 55% 35% at 15% 5%,#00ff8808 0%,transparent 65%),radial-gradient(ellipse 50% 30% at 85% 85%,#0077ff0b 0%,transparent 65%); pointer-events:none; z-index:0; }
   .container { max-width:480px; margin:0 auto; padding:20px 16px 40px; position:relative; z-index:1; }
 
-  /* ── HEADER ─────────────────────────────────── */
   .header { text-align:center; padding:30px 0 20px; }
   .logo-img { width:140px; height:140px; border-radius:50%; margin:0 auto 16px; display:block; object-fit:cover; filter:drop-shadow(0 0 22px #00ff8899) drop-shadow(0 0 8px #0077ffaa); animation:float 3s ease-in-out infinite; border:2px solid var(--green); box-shadow:0 0 30px #00ff8844,0 0 60px #0077ff22; }
   @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
@@ -36,7 +34,6 @@
   .network-dot { width:6px; height:6px; background:#00ff88; border-radius:50%; animation:pulse 2s infinite; box-shadow:0 0 8px #00ff88; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-  /* ── CARDS ──────────────────────────────────── */
   .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:20px; margin:16px 0; position:relative; overflow:hidden; }
   .card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--green),var(--cyan),transparent); }
   .card-title { font-family:'Orbitron',monospace; font-size:11px; letter-spacing:3px; color:#00cc88; text-transform:uppercase; margin-bottom:16px; }
@@ -51,7 +48,6 @@
   .stat-value { font-family:'Orbitron',monospace; font-size:14px; font-weight:700; background:linear-gradient(135deg,var(--green),var(--cyan)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:4px; }
   .stat-label { font-size:8px; letter-spacing:1px; color:#009966; text-transform:uppercase; }
 
-  /* ── INPUTS ─────────────────────────────────── */
   .input-group { margin-bottom:12px; }
   .input-label { font-size:10px; letter-spacing:2px; color:#009966; text-transform:uppercase; margin-bottom:6px; display:block; }
   .input-wrapper { position:relative; }
@@ -63,7 +59,6 @@
   .receive-amount { font-family:'Orbitron',monospace; font-size:20px; font-weight:700; color:#00ff88; text-shadow:0 0 10px #00ff88; }
   .receive-label { font-size:10px; color:#00aa77; letter-spacing:1px; }
 
-  /* ── WALLET INFO BAR ────────────────────────── */
   .wallet-info { display:none; background:#000d26; border:1px solid #00ff8855; border-radius:10px; padding:10px 14px; margin-bottom:10px; font-size:10px; color:var(--green); letter-spacing:1px; }
   .wallet-info.show { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; }
   .wallet-info-left { display:flex; align-items:center; gap:8px; }
@@ -72,7 +67,6 @@
   .btn-disconnect { background:none; border:1px solid #ff446633; border-radius:6px; color:#ff4466; font-size:9px; padding:3px 8px; cursor:pointer; font-family:'Share Tech Mono',monospace; letter-spacing:1px; transition:all 0.25s; }
   .btn-disconnect:hover { background:#ff446611; border-color:#ff4466; }
 
-  /* ── BUTTONS ────────────────────────────────── */
   .btn-connect-main { width:100%; padding:16px; background:transparent; border:2px solid var(--green); border-radius:12px; color:var(--green); font-family:'Orbitron',monospace; font-size:13px; font-weight:700; letter-spacing:3px; cursor:pointer; transition:all 0.3s; text-transform:uppercase; margin-bottom:10px; }
   .btn-connect-main:hover { background:#00ff8811; box-shadow:var(--glow-green); }
   .btn-buy { width:100%; padding:16px; background:linear-gradient(135deg,var(--blue),var(--green)); border:none; border-radius:12px; color:#000; font-family:'Orbitron',monospace; font-size:14px; font-weight:900; letter-spacing:3px; cursor:pointer; transition:all 0.3s; text-transform:uppercase; }
@@ -82,13 +76,11 @@
   .btn-buy-token:hover:not(:disabled) { transform:translateY(-2px); }
   .btn-buy-token:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
 
-  /* ── STATUS ─────────────────────────────────── */
   .status { text-align:center; padding:10px; border-radius:8px; font-size:11px; letter-spacing:1px; margin-top:10px; display:none; }
   .status.success { display:block; background:#00ff8811; border:1px solid #00ff8844; color:#00ff88; }
   .status.error   { display:block; background:#ff004411; border:1px solid #ff004444; color:#ff4466; }
   .status.info    { display:block; background:#00ffe011; border:1px solid #00ff8844; color:var(--cyan); }
 
-  /* ── MODALS ─────────────────────────────────── */
   .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:300; align-items:center; justify-content:center; backdrop-filter:blur(8px); }
   .modal-overlay.show { display:flex; }
   .modal-box { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:28px 24px; width:92%; max-width:380px; position:relative; max-height:90vh; overflow-y:auto; }
@@ -97,7 +89,6 @@
   .modal-subtitle { font-size:10px; color:#4488aa; text-align:center; margin-bottom:22px; letter-spacing:1px; }
   .modal-close    { position:absolute; top:16px; right:16px; background:none; border:none; color:#009966; cursor:pointer; font-size:18px; }
 
-  /* Wallet options */
   .w-option { display:flex; align-items:center; gap:14px; background:#00080f; border:1px solid #004433; border-radius:14px; padding:14px 16px; margin-bottom:10px; cursor:pointer; transition:all 0.25s; }
   .w-option:hover:not(.disabled) { border-color:var(--green); background:#001a0f; box-shadow:0 0 18px #00ff8822; }
   .w-option.disabled { opacity:0.35; cursor:not-allowed; pointer-events:none; }
@@ -109,11 +100,9 @@
   .w-badge.wc       { background:#3b99fc22; border-color:#3b99fc44; color:#3b99fc; }
   .w-badge.warn     { background:#ffaa0022; border-color:#ffaa0044; color:#ffaa00; }
 
-  /* WC QR panel */
   .wc-qr-panel { background:#00080f; border:1px solid #3b99fc33; border-radius:12px; padding:16px; margin-top:12px; text-align:center; display:none; }
   .wc-qr-panel.show { display:block; }
-  .wc-qr-panel canvas,
-  .wc-qr-panel img  { border-radius:8px; border:3px solid #00080f; display:inline-block; }
+  .wc-qr-panel canvas, .wc-qr-panel img { border-radius:8px; border:3px solid #00080f; display:inline-block; }
   .wc-qr-label  { font-size:10px; color:#3b99fc; letter-spacing:1px; margin-top:10px; }
   .wc-uri-copy  { display:inline-block; margin-top:8px; font-size:9px; color:#4488aa; cursor:pointer; border:1px solid #004433; border-radius:6px; padding:4px 10px; transition:all 0.2s; }
   .wc-uri-copy:hover { border-color:var(--green); color:var(--green); }
@@ -125,7 +114,6 @@
   .modal-note { font-size:10px; color:#4488aa; text-align:center; margin-top:14px; line-height:1.7; padding:10px 12px; background:#00080f; border-radius:8px; border:1px solid #004433; }
   .modal-note b { color:var(--cyan); }
 
-  /* Buy token modal */
   .buy-modal-box { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:24px; width:92%; max-width:400px; position:relative; }
   .buy-modal-box::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--token-accent,var(--green)),var(--cyan),transparent); border-radius:20px 20px 0 0; }
   .buy-modal-header { display:flex; align-items:center; gap:14px; margin-bottom:20px; }
@@ -140,7 +128,6 @@
   .modal-status.error  { display:block; background:#ff004411; border:1px solid #ff004444; color:#ff4466; }
   .modal-status.info   { display:block; background:#00ffe011; border:1px solid #00ff8844; color:var(--cyan); }
 
-  /* ── GALLERY ────────────────────────────────── */
   .gallery-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:20px; margin:16px 0; position:relative; overflow:hidden; }
   .gallery-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--green),var(--cyan),transparent); }
   .gallery-scroll-wrapper::after { content:''; position:absolute; right:0; top:0; bottom:0; width:40px; background:linear-gradient(to right,transparent,var(--card)); pointer-events:none; }
@@ -161,7 +148,6 @@
   .gallery-dot.active { background:var(--green); width:16px; border-radius:2px; }
   .gallery-count{ text-align:center; font-size:9px; color:#4488aa; letter-spacing:2px; margin-top:8px; }
 
-  /* ── COUNTDOWN ──────────────────────────────── */
   .countdown-card { background:linear-gradient(135deg,#00080f,#000f1f,#000a18); border:1px solid var(--green); border-radius:16px; padding:20px; margin:16px 0; position:relative; text-align:center; overflow:hidden; }
   .countdown-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--green),var(--cyan),transparent); }
   .countdown-title{ font-family:'Orbitron',monospace; font-size:11px; letter-spacing:3px; color:#00cc88; text-transform:uppercase; margin-bottom:16px; }
@@ -174,7 +160,6 @@
   .countdown-end{ font-size:10px; color:#4488aa; letter-spacing:1px; }
   .share-btn { display:inline-flex; align-items:center; gap:6px; background:#1da1f222; border:1px solid #1da1f2; border-radius:20px; padding:8px 16px; font-size:11px; color:#1da1f2; letter-spacing:1px; transition:all 0.3s; margin-top:8px; cursor:pointer; font-family:'Share Tech Mono',monospace; }
 
-  /* ── CONTRACT ───────────────────────────────── */
   .contract-box { background:#00080f; border:1px solid #004433; border-radius:10px; padding:12px; display:flex; align-items:center; justify-content:space-between; gap:10px; cursor:pointer; transition:border-color 0.3s; }
   .contract-box:hover { border-color:var(--green); }
   .contract-address{ font-size:10px; color:#00aa77; word-break:break-all; flex:1; }
@@ -182,7 +167,6 @@
   .explorer-link { display:block; text-align:center; margin-top:10px; color:var(--cyan); font-size:10px; letter-spacing:1px; text-decoration:none; padding:8px; border:1px solid #004433; border-radius:8px; transition:all 0.3s; }
   .explorer-link:hover { border-color:var(--green); }
 
-  /* ── HOW TO ─────────────────────────────────── */
   .steps { display:flex; flex-direction:column; gap:10px; }
   .step { display:flex; gap:12px; align-items:flex-start; }
   .step-num { width:28px; height:28px; min-width:28px; border:1px solid var(--green); border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Orbitron',monospace; font-size:11px; color:var(--green); }
@@ -196,16 +180,12 @@
 <body>
 <div class="scan-line"></div>
 
-<!-- ════════════════════════════════════
-     WALLET SELECT MODAL
-════════════════════════════════════ -->
 <div class="modal-overlay" id="walletModal">
   <div class="modal-box">
     <button class="modal-close" onclick="closeWalletModal()">✕</button>
     <div class="modal-title">◈ Connect Wallet</div>
     <div class="modal-subtitle" id="walletModalSubtitle">Select how to connect</div>
 
-    <!-- Browser extension (MetaMask / Rabby / Trust in-app) -->
     <div class="w-option" id="optInjected" onclick="connectInjected()">
       <div class="w-icon" id="injIcon" style="background:#f6851b22">🦊</div>
       <div>
@@ -214,7 +194,6 @@
       </div>
     </div>
 
-    <!-- WalletConnect v2 -->
     <div class="w-option" id="optWC" onclick="connectWalletConnect()">
       <div class="w-icon" style="background:#3b99fc22">
         <svg width="22" height="22" viewBox="0 0 480 480" fill="none">
@@ -227,7 +206,6 @@
       </div>
     </div>
 
-    <!-- Trust deep-link -->
     <div class="w-option" id="optTrust" onclick="connectTrustDeepLink()">
       <div class="w-icon" style="background:#2775ca22">🛡️</div>
       <div>
@@ -236,7 +214,6 @@
       </div>
     </div>
 
-    <!-- MetaMask deep-link -->
     <div class="w-option" id="optMM" onclick="connectMMDeepLink()">
       <div class="w-icon" style="background:#f6851b22">🦊</div>
       <div>
@@ -245,7 +222,6 @@
       </div>
     </div>
 
-    <!-- WC QR panel -->
     <div class="wc-qr-panel" id="wcQrPanel">
       <div id="wcQrContainer"></div>
       <div class="wc-qr-label">📱 Scan with any WalletConnect wallet</div>
@@ -260,9 +236,6 @@
   </div>
 </div>
 
-<!-- ════════════════════════════════════
-     BUY TOKEN MODAL
-════════════════════════════════════ -->
 <div class="modal-overlay" id="buyTokenModal">
   <div class="buy-modal-box" id="buyModalInner">
     <button class="modal-close" onclick="closeBuyModal()">✕</button>
@@ -297,9 +270,6 @@
   </div>
 </div>
 
-<!-- ════════════════════════════════════
-     PAGE CONTENT
-════════════════════════════════════ -->
 <div class="container">
   <div class="header">
     <img src="logo.png" alt="EUROSPACE" class="logo-img" onerror="this.src='https://files.catbox.moe/9o0wad.png'">
@@ -411,22 +381,19 @@
       <a href="https://discord.com/channels/1316093079090106472" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#000f1f;border:1px solid #1a1a2e;border-radius:24px;padding:10px 18px;text-decoration:none;color:#5865f2;font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:1px;transition:all 0.3s;" onmouseover="this.style.borderColor='#5865f2'" onmouseout="this.style.borderColor='#1a1a2e'">Discord</a>
       <a href="https://t.me/eurocoin_monad_bot" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#000f1f;border:1px solid #1a1a2e;border-radius:24px;padding:10px 18px;text-decoration:none;color:#29aae1;font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:1px;transition:all 0.3s;" onmouseover="this.style.borderColor='#29aae1'" onmouseout="this.style.borderColor='#1a1a2e'">Telegram</a>
       <a href="https://monadvision.com/token/0x28b5cc805D90213D2699CC3B00e28e3f0fbeCA8e" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#000f1f;border:1px solid #1a1a2e;border-radius:24px;padding:10px 18px;text-decoration:none;color:#836ef9;font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:1px;transition:all 0.3s;" onmouseover="this.style.borderColor='#836ef9'" onmouseout="this.style.borderColor='#1a1a2e'">Explorer</a>
+      <a href="https://dashboard.blockvision.org" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#000f1f;border:1px solid #1a1a2e;border-radius:24px;padding:10px 18px;text-decoration:none;color:#00d4ff;font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:1px;transition:all 0.3s;" onmouseover="this.style.borderColor='#00d4ff'" onmouseout="this.style.borderColor='#1a1a2e'">
+        <img src="https://blockvision.org/favicon.ico" width="16" height="16" style="border-radius:3px;object-fit:contain;" onerror="this.style.display='none'">BlockVision</a>
     </div>
     <div style="margin-top:20px;font-size:9px;color:#2a4a3a;letter-spacing:3px;">© 2026 EUROSPACE · ALL RIGHTS RESERVED</div>
   </div>
 </div>
 
-<!-- ════════════════════════════════════
-     JAVASCRIPT
-════════════════════════════════════ -->
 <script>
 // ══════════════════════════════════════════════════
 //  CONFIG
 // ══════════════════════════════════════════════════
-
 const EUROSPACE_CONTRACT = "0x28b5cc805D90213D2699CC3B00e28e3f0fbeCA8e";
 
-// ✅ Custom Monad chain — fully defined for WalletConnect + injected
 const MONAD_CHAIN = {
   id:       143,
   chainId:  "0x8F",
@@ -442,7 +409,6 @@ const MONAD_RPCS = [
   "https://monad-mainnet.g.alchemy.com/v2/demo"
 ];
 
-// ✅ ABI — no "nonpayable" (invalid in ethers v6 human-readable strings)
 const ABI = [
   "function buy() payable",
   "function sell(uint256 amount)",
@@ -453,7 +419,6 @@ const ABI = [
   "function getTokensForMON(uint256 monAmount) view returns (uint256)"
 ];
 
-// ✅ WalletConnect v2 Project ID — free at https://cloud.walletconnect.com
 const WC_PROJECT_ID = "fb6f5975280757260d74ece910c45ba8";
 
 const META_TOKENS = [
@@ -479,10 +444,11 @@ const META_TOKENS = [
 //  STATE
 // ══════════════════════════════════════════════════
 let provider, signer, userAddress, euroContract;
-let currentToken  = null;
-let wcProvider    = null;
-let wcUri         = '';
-let connectedVia  = ''; // 'injected' | 'walletconnect'
+let currentToken = null;
+let wcProvider   = null;
+let wcUri        = '';
+let connectedVia = '';
+let _heartbeatTimer = null;
 
 // ══════════════════════════════════════════════════
 //  ENVIRONMENT DETECTION
@@ -498,13 +464,11 @@ if (window.Telegram?.WebApp) window.Telegram.WebApp.expand();
 
 // ══════════════════════════════════════════════════
 //  WALLETCONNECT v2
-//  Loaded dynamically from ESM CDN (no npm / build)
 // ══════════════════════════════════════════════════
-let _WCProvider = null; // cached class reference
+let _WCProvider = null;
 
 async function loadWCClass() {
   if (_WCProvider) return _WCProvider;
-  // EthereumProvider from @walletconnect/ethereum-provider via esm.sh CDN
   const mod = await import('https://esm.sh/@walletconnect/ethereum-provider@2.13.0');
   _WCProvider = mod.EthereumProvider;
   return _WCProvider;
@@ -513,24 +477,21 @@ async function loadWCClass() {
 async function initWalletConnect() {
   const EthereumProvider = await loadWCClass();
 
-  // ✅ Custom chain config: declare Monad as required chain with its RPC
   wcProvider = await EthereumProvider.init({
     projectId:      WC_PROJECT_ID,
-    chains:         [MONAD_CHAIN.id],       // required chains list
-    optionalChains: [1, 137],               // Ethereum & Polygon as optional
-    rpcMap: {
-      [MONAD_CHAIN.id]: MONAD_CHAIN.rpcUrls[0]
-    },
+    chains:         [MONAD_CHAIN.id],
+    optionalChains: [1, 137],
+    rpcMap: { [MONAD_CHAIN.id]: MONAD_CHAIN.rpcUrls[0] },
     metadata: {
       name:        "EUROSPACE Presale",
       description: "Buy EURO & Meta Tokens on Monad Mainnet",
       url:         window.location.origin,
       icons:       ["https://files.catbox.moe/9o0wad.png"]
     },
-    showQrModal: false   // We render our own QR in the modal
+    showQrModal: false
   });
 
-  // URI ready → render QR code
+  // URI ready → render QR
   wcProvider.on('display_uri', (uri) => {
     wcUri = uri;
     renderQR(uri);
@@ -545,11 +506,58 @@ async function initWalletConnect() {
     closeWalletModal();
   });
 
-  wcProvider.on('disconnect',      () => disconnectWallet());
+  // ✅ FIX: distinguish ping timeout from real user disconnect
+  wcProvider.on('disconnect', (error) => {
+    const msg = (error?.message || error?.reason || String(error || '')).toLowerCase();
+    const isPingTimeout = msg.includes('ping') || msg.includes('timeout') ||
+                          msg.includes('socket') || msg.includes('connection');
+
+    if (isPingTimeout && connectedVia === 'walletconnect' && userAddress) {
+      // Silent reconnect — keep wallet state intact
+      console.warn('[WC] Ping timeout — reconnecting silently…');
+      setTimeout(async () => {
+        try {
+          if (wcProvider?.session) {
+            // Transport dropped but session still valid — re-establish
+            const newProv = new ethers.BrowserProvider(wcProvider);
+            provider = newProv;
+            signer   = await newProv.getSigner();
+            euroContract = new ethers.Contract(EUROSPACE_CONTRACT, ABI, signer);
+            console.info('[WC] Reconnected via existing session');
+          }
+        } catch (e) {
+          console.error('[WC] Reconnect failed — disconnecting:', e);
+          disconnectWallet();
+        }
+      }, 2000);
+    } else {
+      disconnectWallet();
+    }
+  });
+
   wcProvider.on('accountsChanged', accs => {
     if (!accs.length) disconnectWallet();
     else { userAddress = accs[0]; updateWalletUI().catch(console.error); }
   });
+
+  // ✅ FIX: heartbeat — keeps WebSocket relay alive, prevents ping timeout
+  function startHeartbeat() {
+    stopHeartbeat();
+    _heartbeatTimer = setInterval(async () => {
+      if (connectedVia === 'walletconnect' && wcProvider?.session) {
+        try {
+          await wcProvider.request({ method: 'eth_chainId' });
+        } catch (_) { /* disconnect handler covers recovery */ }
+      }
+    }, 25000); // every 25s
+  }
+
+  function stopHeartbeat() {
+    if (_heartbeatTimer) { clearInterval(_heartbeatTimer); _heartbeatTimer = null; }
+  }
+
+  wcProvider.on('connect',    startHeartbeat);
+  wcProvider.on('disconnect', stopHeartbeat);
 
   return wcProvider;
 }
@@ -560,7 +568,6 @@ async function connectWalletConnect() {
     document.getElementById('wcQrPanel').classList.remove('show');
     const wcp = await initWalletConnect();
 
-    // Already have an active session → reuse
     if (wcp.session) {
       connectedVia = 'walletconnect';
       await finalizeConnection(new ethers.BrowserProvider(wcp));
@@ -568,7 +575,7 @@ async function connectWalletConnect() {
       return;
     }
 
-    await wcp.connect(); // triggers display_uri → QR rendered
+    await wcp.connect();
   } catch (e) {
     showWcStatus('WalletConnect error: ' + (e?.message||String(e)).slice(0,60), 'error');
     console.error('WC connect error:', e);
@@ -579,14 +586,10 @@ function renderQR(uri) {
   const panel = document.getElementById('wcQrPanel');
   const cont  = document.getElementById('wcQrContainer');
   panel.classList.add('show');
-  cont.innerHTML = ''; // clear previous
-  // QRCode.js renders into the container div
+  cont.innerHTML = '';
   new QRCode(cont, {
-    text:         uri,
-    width:        220,
-    height:       220,
-    colorDark:    '#00ff88',
-    colorLight:   '#00080f',
+    text: uri, width: 220, height: 220,
+    colorDark: '#00ff88', colorLight: '#00080f',
     correctLevel: QRCode.CorrectLevel.M
   });
 }
@@ -607,7 +610,7 @@ function showWcStatus(msg, type) {
 }
 
 // ══════════════════════════════════════════════════
-//  INJECTED WALLET (MetaMask / Rabby / Trust in-app)
+//  INJECTED WALLET
 // ══════════════════════════════════════════════════
 async function connectInjected() {
   if (!hasInjected) return;
@@ -626,16 +629,12 @@ async function connectInjected() {
 }
 
 // ══════════════════════════════════════════════════
-//  CHAIN SWITCH / ADD  (works for both injected & WC)
+//  CHAIN SWITCH / ADD
 // ══════════════════════════════════════════════════
 async function ensureMonadChain(ethLike) {
   try {
-    await ethLike.request({
-      method: 'wallet_switchEthereumChain',
-      params: [{ chainId: MONAD_CHAIN.chainId }]
-    });
+    await ethLike.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: MONAD_CHAIN.chainId }] });
   } catch (e) {
-    // 4902 = chain not added; -32603 = some wallets use this for unknown chain
     if (e.code === 4902 || e.code === -32603) {
       await ethLike.request({
         method: 'wallet_addEthereumChain',
@@ -647,14 +646,12 @@ async function ensureMonadChain(ethLike) {
           blockExplorerUrls: MONAD_CHAIN.blockExplorerUrls
         }]
       });
-    } else {
-      throw e;
-    }
+    } else { throw e; }
   }
 }
 
 // ══════════════════════════════════════════════════
-//  FINALIZE CONNECTION (shared entry point)
+//  FINALIZE CONNECTION
 // ══════════════════════════════════════════════════
 async function finalizeConnection(ethersProvider) {
   provider     = ethersProvider;
@@ -667,7 +664,7 @@ async function finalizeConnection(ethersProvider) {
 }
 
 // ══════════════════════════════════════════════════
-//  DEEP LINKS  (for users outside wallet browsers)
+//  DEEP LINKS
 // ══════════════════════════════════════════════════
 function connectTrustDeepLink() {
   closeWalletModal();
@@ -682,10 +679,11 @@ function connectMMDeepLink() {
 //  DISCONNECT
 // ══════════════════════════════════════════════════
 async function disconnectWallet() {
+  if (_heartbeatTimer) { clearInterval(_heartbeatTimer); _heartbeatTimer = null; }
   if (connectedVia === 'walletconnect' && wcProvider) {
     try { await wcProvider.disconnect(); } catch (_) {}
-    wcProvider = null;
-    _WCProvider = null; // allow re-init
+    wcProvider  = null;
+    _WCProvider = null;
   }
   provider = signer = userAddress = euroContract = null;
   connectedVia = '';
@@ -710,8 +708,8 @@ async function updateWalletUI() {
     bal = parseFloat(ethers.formatEther(b)).toFixed(3) + ' MON';
   } catch (_) {}
 
-  document.getElementById('walletAddr').textContent     = short;
-  document.getElementById('walletBal').textContent      = bal;
+  document.getElementById('walletAddr').textContent = short;
+  document.getElementById('walletBal').textContent  = bal;
   const badge = document.getElementById('walletSrcBadge');
   badge.textContent = connectedVia === 'walletconnect' ? 'WC v2' : 'BROWSER';
   badge.className   = connectedVia === 'walletconnect' ? 'w-src-badge wc' : 'w-src-badge';
@@ -736,12 +734,10 @@ function setupWalletModal() {
     const name = eth.isTrust ? 'Trust Wallet' : eth.isRabby ? 'Rabby' : eth.isMetaMask ? 'MetaMask' : 'Browser Wallet';
     const icon = eth.isTrust ? '🛡️' : eth.isRabby ? '🐰' : '🦊';
     document.getElementById('injIcon').textContent = icon;
-    document.getElementById('injName').innerHTML   =
-      name + ' <span class="w-badge detected">DETECTED</span>';
+    document.getElementById('injName').innerHTML   = name + ' <span class="w-badge detected">DETECTED</span>';
     document.getElementById('injDesc').textContent = 'Tap to connect';
     subtitle.textContent = 'Wallet detected — or choose another method';
     note.style.display   = 'none';
-    // Hide mobile deep-links if already inside a wallet browser
     if (isTrustWallet || isMMApp) {
       document.getElementById('optTrust').style.display = 'none';
       document.getElementById('optMM').style.display    = 'none';
@@ -752,7 +748,6 @@ function setupWalletModal() {
     subtitle.textContent = 'Choose your connection method';
   }
 
-  // Reset WC UI
   document.getElementById('wcQrPanel').classList.remove('show');
   document.getElementById('wcModalStatus').className = 'wc-status';
 }
@@ -833,7 +828,7 @@ function openBuyModal(token) {
   document.getElementById('modalReceiveLabel').textContent = token.symbol;
   document.getElementById('modalMonAmount').value          = '';
   document.getElementById('modalReceiveAmount').textContent= '0.00';
-  document.getElementById('modalStatus').className        = 'modal-status';
+  document.getElementById('modalStatus').className         = 'modal-status';
 
   const btn = document.getElementById('modalBuyBtn');
   btn.style.background = `linear-gradient(135deg,${token.color}cc,${token.color})`;
@@ -971,8 +966,8 @@ function shareOnTwitter(){
 // ══════════════════════════════════════════════════
 //  COUNTDOWN
 // ══════════════════════════════════════════════════
-const PRESALE_END  =new Date('2026-04-20T23:59:59Z').getTime();
-const PRESALE_START=new Date('2026-03-21T00:00:00Z').getTime();
+const PRESALE_END  = new Date('2026-04-20T23:59:59Z').getTime();
+const PRESALE_START= new Date('2026-03-21T00:00:00Z').getTime();
 
 function updateCountdown(){
   const now=Date.now(), diff=PRESALE_END-now;
@@ -995,7 +990,6 @@ document.getElementById('buyTokenModal').addEventListener('click',e=>{
   if (e.target===document.getElementById('buyTokenModal')) closeBuyModal();
 });
 
-// Native wallet event listeners (injected)
 if (window.ethereum){
   window.ethereum.on('chainChanged',()=>window.location.reload());
   window.ethereum.on('accountsChanged',accs=>{
