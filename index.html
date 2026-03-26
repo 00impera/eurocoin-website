@@ -59,6 +59,7 @@
   .receive-amount { font-family:'Orbitron',monospace; font-size:20px; font-weight:700; color:#00ff88; text-shadow:0 0 10px #00ff88; }
   .receive-label { font-size:10px; color:#00aa77; letter-spacing:1px; }
 
+  /* FIX: wallet info bar — hidden by default, shown via .show */
   .wallet-info { display:none; background:#000d26; border:1px solid #00ff8855; border-radius:10px; padding:10px 14px; margin-bottom:10px; font-size:10px; color:var(--green); letter-spacing:1px; }
   .wallet-info.show { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; }
   .wallet-info-left { display:flex; align-items:center; gap:8px; }
@@ -67,8 +68,11 @@
   .btn-disconnect { background:none; border:1px solid #ff446633; border-radius:6px; color:#ff4466; font-size:9px; padding:3px 8px; cursor:pointer; font-family:'Share Tech Mono',monospace; letter-spacing:1px; transition:all 0.25s; }
   .btn-disconnect:hover { background:#ff446611; border-color:#ff4466; }
 
+  /* FIX: connect button hidden when wallet connected */
   .btn-connect-main { width:100%; padding:16px; background:transparent; border:2px solid var(--green); border-radius:12px; color:var(--green); font-family:'Orbitron',monospace; font-size:13px; font-weight:700; letter-spacing:3px; cursor:pointer; transition:all 0.3s; text-transform:uppercase; margin-bottom:10px; }
   .btn-connect-main:hover { background:#00ff8811; box-shadow:var(--glow-green); }
+  .btn-connect-main.hidden { display:none; }
+
   .btn-buy { width:100%; padding:16px; background:linear-gradient(135deg,var(--blue),var(--green)); border:none; border-radius:12px; color:#000; font-family:'Orbitron',monospace; font-size:14px; font-weight:900; letter-spacing:3px; cursor:pointer; transition:all 0.3s; text-transform:uppercase; }
   .btn-buy:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 8px 30px #00ff8844,0 4px 20px #0077ff33; }
   .btn-buy:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
@@ -180,6 +184,7 @@
 <body>
 <div class="scan-line"></div>
 
+<!-- ══════════ WALLET MODAL ══════════ -->
 <div class="modal-overlay" id="walletModal">
   <div class="modal-box">
     <button class="modal-close" onclick="closeWalletModal()">✕</button>
@@ -236,6 +241,7 @@
   </div>
 </div>
 
+<!-- ══════════ BUY TOKEN MODAL ══════════ -->
 <div class="modal-overlay" id="buyTokenModal">
   <div class="buy-modal-box" id="buyModalInner">
     <button class="modal-close" onclick="closeBuyModal()">✕</button>
@@ -270,6 +276,7 @@
   </div>
 </div>
 
+<!-- ══════════ MAIN PAGE ══════════ -->
 <div class="container">
   <div class="header">
     <img src="logo.png" alt="EUROSPACE" class="logo-img" onerror="this.src='https://files.catbox.moe/9o0wad.png'">
@@ -320,6 +327,7 @@
       <div class="price-box"><div class="price-label">Network</div><div class="price-value" style="font-size:13px">MONAD</div><div class="price-unit">Chain ID 143</div></div>
     </div>
 
+    <!-- wallet info bar: hidden until connected -->
     <div class="wallet-info" id="walletInfo">
       <div class="wallet-info-left">
         <span id="walletAddr">—</span>
@@ -348,7 +356,9 @@
         <img src="logo.png" style="width:32px;height:32px;border-radius:50%;object-fit:cover;" onerror="this.src='https://files.catbox.moe/9o0wad.png'">
       </div>
     </div>
-    <button class="btn-connect-main" id="connectBtn" onclick="openWalletModal()">◈ Connect Wallet</button>
+
+    <!-- FIX: connect btn hides after wallet connected -->
+    <button class="btn-connect-main" id="connectBtn" onclick="handleConnectBtnClick()">◈ Connect Wallet</button>
     <button class="btn-buy" id="buyBtn" onclick="buyTokens()" disabled>◈ Buy Euro Coin</button>
     <div class="status" id="statusMsg"></div>
   </div>
@@ -444,11 +454,12 @@ const META_TOKENS = [
 //  STATE
 // ══════════════════════════════════════════════════
 let provider, signer, userAddress, euroContract;
-let currentToken = null;
-let wcProvider   = null;
-let wcUri        = '';
-let connectedVia = '';
+let currentToken    = null;
+let wcProvider      = null;
+let wcUri           = '';
+let connectedVia    = '';
 let _heartbeatTimer = null;
+let _isBuying       = false; // FIX: guard against race on closeBuyModal mid-buy
 
 // ══════════════════════════════════════════════════
 //  ENVIRONMENT DETECTION
@@ -463,6 +474,15 @@ const dappHost      = window.location.host + window.location.pathname;
 if (window.Telegram?.WebApp) window.Telegram.WebApp.expand();
 
 // ══════════════════════════════════════════════════
+//  FIX: Connect button smart handler
+//  — opens modal only when NOT connected
+// ══════════════════════════════════════════════════
+function handleConnectBtnClick() {
+  if (userAddress) return; // already connected — button should be hidden, but safety guard
+  openWalletModal();
+}
+
+// ══════════════════════════════════════════════════
 //  WALLETCONNECT v2
 // ══════════════════════════════════════════════════
 let _WCProvider = null;
@@ -475,6 +495,14 @@ async function loadWCClass() {
 }
 
 async function initWalletConnect() {
+  // FIX: if wcProvider already exists and has a live session, reuse it
+  if (wcProvider) {
+    if (wcProvider.session) return wcProvider;
+    // stale provider with no session — tear it down cleanly
+    try { await wcProvider.disconnect(); } catch (_) {}
+    wcProvider  = null;
+  }
+
   const EthereumProvider = await loadWCClass();
 
   wcProvider = await EthereumProvider.init({
@@ -504,24 +532,23 @@ async function initWalletConnect() {
     try { await ensureMonadChain(wcProvider); } catch (_) {}
     await finalizeConnection(new ethers.BrowserProvider(wcProvider));
     closeWalletModal();
+    startHeartbeat();
   });
 
-  // ✅ FIX: distinguish ping timeout from real user disconnect
+  // FIX: distinguish ping timeout from real user disconnect
   wcProvider.on('disconnect', (error) => {
     const msg = (error?.message || error?.reason || String(error || '')).toLowerCase();
     const isPingTimeout = msg.includes('ping') || msg.includes('timeout') ||
                           msg.includes('socket') || msg.includes('connection');
 
     if (isPingTimeout && connectedVia === 'walletconnect' && userAddress) {
-      // Silent reconnect — keep wallet state intact
       console.warn('[WC] Ping timeout — reconnecting silently…');
       setTimeout(async () => {
         try {
           if (wcProvider?.session) {
-            // Transport dropped but session still valid — re-establish
             const newProv = new ethers.BrowserProvider(wcProvider);
-            provider = newProv;
-            signer   = await newProv.getSigner();
+            provider     = newProv;
+            signer       = await newProv.getSigner();
             euroContract = new ethers.Contract(EUROSPACE_CONTRACT, ABI, signer);
             console.info('[WC] Reconnected via existing session');
           }
@@ -531,6 +558,7 @@ async function initWalletConnect() {
         }
       }, 2000);
     } else {
+      stopHeartbeat();
       disconnectWallet();
     }
   });
@@ -540,26 +568,22 @@ async function initWalletConnect() {
     else { userAddress = accs[0]; updateWalletUI().catch(console.error); }
   });
 
-  // ✅ FIX: heartbeat — keeps WebSocket relay alive, prevents ping timeout
-  function startHeartbeat() {
-    stopHeartbeat();
-    _heartbeatTimer = setInterval(async () => {
-      if (connectedVia === 'walletconnect' && wcProvider?.session) {
-        try {
-          await wcProvider.request({ method: 'eth_chainId' });
-        } catch (_) { /* disconnect handler covers recovery */ }
-      }
-    }, 25000); // every 25s
-  }
-
-  function stopHeartbeat() {
-    if (_heartbeatTimer) { clearInterval(_heartbeatTimer); _heartbeatTimer = null; }
-  }
-
-  wcProvider.on('connect',    startHeartbeat);
-  wcProvider.on('disconnect', stopHeartbeat);
-
   return wcProvider;
+}
+
+// FIX: heartbeat moved to module scope (not inside init) so it can be called after reconnect too
+function startHeartbeat() {
+  stopHeartbeat();
+  _heartbeatTimer = setInterval(async () => {
+    if (connectedVia === 'walletconnect' && wcProvider?.session) {
+      try { await wcProvider.request({ method: 'eth_chainId' }); }
+      catch (_) { /* disconnect handler covers recovery */ }
+    }
+  }, 25000);
+}
+
+function stopHeartbeat() {
+  if (_heartbeatTimer) { clearInterval(_heartbeatTimer); _heartbeatTimer = null; }
 }
 
 async function connectWalletConnect() {
@@ -572,6 +596,7 @@ async function connectWalletConnect() {
       connectedVia = 'walletconnect';
       await finalizeConnection(new ethers.BrowserProvider(wcp));
       closeWalletModal();
+      startHeartbeat();
       return;
     }
 
@@ -679,7 +704,7 @@ function connectMMDeepLink() {
 //  DISCONNECT
 // ══════════════════════════════════════════════════
 async function disconnectWallet() {
-  if (_heartbeatTimer) { clearInterval(_heartbeatTimer); _heartbeatTimer = null; }
+  stopHeartbeat();
   if (connectedVia === 'walletconnect' && wcProvider) {
     try { await wcProvider.disconnect(); } catch (_) {}
     wcProvider  = null;
@@ -687,13 +712,19 @@ async function disconnectWallet() {
   }
   provider = signer = userAddress = euroContract = null;
   connectedVia = '';
+
+  // FIX: restore connect button, hide wallet info bar, disable buy
   document.getElementById('walletInfo').classList.remove('show');
   document.getElementById('connectBtn').textContent = '◈ Connect Wallet';
-  document.getElementById('buyBtn').disabled        = true;
-  document.getElementById('statusMsg').className    = 'status';
+  document.getElementById('connectBtn').classList.remove('hidden');
+  document.getElementById('buyBtn').disabled = true;
+  document.getElementById('statusMsg').className = 'status';
+
+  // FIX: reset modal buy button to safe state
   if (currentToken) {
     const btn = document.getElementById('modalBuyBtn');
-    btn.disabled = true; btn.textContent = '◈ Connect Wallet First';
+    btn.disabled    = true;
+    btn.textContent = '◈ Connect Wallet First';
   }
 }
 
@@ -710,15 +741,21 @@ async function updateWalletUI() {
 
   document.getElementById('walletAddr').textContent = short;
   document.getElementById('walletBal').textContent  = bal;
+
   const badge = document.getElementById('walletSrcBadge');
   badge.textContent = connectedVia === 'walletconnect' ? 'WC v2' : 'BROWSER';
   badge.className   = connectedVia === 'walletconnect' ? 'w-src-badge wc' : 'w-src-badge';
-  document.getElementById('walletInfo').classList.add('show');
-  document.getElementById('connectBtn').textContent = '✓ ' + short;
 
+  document.getElementById('walletInfo').classList.add('show');
+
+  // FIX: hide connect button once wallet is connected
+  document.getElementById('connectBtn').classList.add('hidden');
+
+  // FIX: update modal buy button when wallet connects while modal is open
   if (currentToken) {
     const btn = document.getElementById('modalBuyBtn');
-    btn.disabled = false; btn.textContent = `◈ Buy ${currentToken.symbol}`;
+    btn.disabled    = false;
+    btn.textContent = `◈ Buy ${currentToken.symbol}`;
   }
 }
 
@@ -811,7 +848,9 @@ function buildTokenGallery() {
 // ══════════════════════════════════════════════════
 function openBuyModal(token) {
   currentToken = token;
-  const modal  = document.getElementById('buyModalInner');
+  _isBuying    = false; // FIX: reset buy guard on fresh open
+
+  const modal = document.getElementById('buyModalInner');
   modal.style.setProperty('--token-accent', token.color);
 
   const li = document.getElementById('buyModalLogo');
@@ -828,7 +867,7 @@ function openBuyModal(token) {
   document.getElementById('modalReceiveLabel').textContent = token.symbol;
   document.getElementById('modalMonAmount').value          = '';
   document.getElementById('modalReceiveAmount').textContent= '0.00';
-  document.getElementById('modalStatus').className         = 'modal-status';
+  document.getElementById('modalStatus').className         = 'modal-status'; // FIX: always clear status on open
 
   const btn = document.getElementById('modalBuyBtn');
   btn.style.background = `linear-gradient(135deg,${token.color}cc,${token.color})`;
@@ -838,7 +877,13 @@ function openBuyModal(token) {
   document.getElementById('buyTokenModal').classList.add('show');
 }
 
-function closeBuyModal() { document.getElementById('buyTokenModal').classList.remove('show'); currentToken=null; }
+// FIX: don't null currentToken while a buy is in-flight
+function closeBuyModal() {
+  if (_isBuying) return; // block close during transaction
+  document.getElementById('buyTokenModal').classList.remove('show');
+  currentToken = null;
+  _isBuying    = false;
+}
 
 function calcModalReceive() {
   const m = parseFloat(document.getElementById('modalMonAmount').value)||0;
@@ -848,26 +893,37 @@ function calcModalReceive() {
 async function executeTokenBuy() {
   if (!signer)       { showModalStatus('Connect wallet first!','error'); return; }
   if (!currentToken) return;
+  if (_isBuying)     return; // FIX: prevent double-clicks
+
   const mon = parseFloat(document.getElementById('modalMonAmount').value);
   if (!mon||mon<=0)  { showModalStatus('Enter MON amount!','error'); return; }
 
-  const btn = document.getElementById('modalBuyBtn');
+  // FIX: snapshot token in case modal state changes
+  const token = currentToken;
+  const btn   = document.getElementById('modalBuyBtn');
+
   try {
-    btn.disabled=true; btn.textContent='◈ Processing…';
+    _isBuying    = true;
+    btn.disabled = true; btn.textContent = '◈ Processing…';
     showModalStatus('Sending transaction…','info');
-    const tc = new ethers.Contract(currentToken.contract, ABI, signer);
+
+    const tc = new ethers.Contract(token.contract, ABI, signer);
     const tx = await tc.buy({value:ethers.parseEther(mon.toString())});
     showModalStatus('Waiting for confirmation…','info');
     await tx.wait();
-    showModalStatus(`✓ Got ${(mon/currentToken.price).toFixed(4)} ${currentToken.symbol}!`,'success');
-    document.getElementById('modalMonAmount').value='';
-    document.getElementById('modalReceiveAmount').textContent='0.00';
+
+    showModalStatus(`✓ Got ${(mon/token.price).toFixed(4)} ${token.symbol}!`,'success');
+    document.getElementById('modalMonAmount').value = '';
+    document.getElementById('modalReceiveAmount').textContent = '0.00';
     loadContractData();
   } catch(e) {
     showModalStatus('Error: '+(e?.reason||e?.message||'failed').slice(0,80),'error');
     console.error(e);
   } finally {
-    btn.disabled=false; btn.textContent=`◈ Buy ${currentToken?.symbol||''}`;
+    _isBuying    = false;
+    btn.disabled = false;
+    // FIX: use snapshotted token for label restore — safe even if currentToken changed
+    btn.textContent = `◈ Buy ${token.symbol}`;
   }
 }
 
