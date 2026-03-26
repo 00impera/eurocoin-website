@@ -369,27 +369,41 @@ const MONAD_CHAIN = {
 
 const MONAD_RPCS = ["https://rpc.monad.xyz","https://monad.drpc.org"];
 
-// ── Correct ABI from verified on-chain contract ────────────────────────────
-const ABI = [
-  "function buyTokens() payable",               // ← CORRECT name (was wrongly "buy()")
-  "function buyEnabled() view returns (bool)",  // ← CORRECT guard (was "tradeEnabled")
+// ── EURO main contract ABI ─────────────────────────────────────────────────
+const ABI_EURO = [
+  "function buyTokens() payable",
+  "function buyEnabled() view returns (bool)",
   "function tokensPerMON() view returns (uint256)",
   "function pricePerToken() view returns (uint256)",
   "function totalSupply() view returns (uint256)",
   "function balanceOf(address) view returns (uint256)",
-  "function nftEnabled() view returns (bool)",
   "function owner() view returns (address)",
   "function toggleBuy(bool _enabled)",
   "function setPrice(uint256 _pricePerToken, uint256 _tokensPerMON)",
-  "function withdraw()",
-  "function mint(address to, uint256 amount)"
+  "function withdraw()"
 ];
 
-// 4-byte selectors for raw eth_call reads
+// ── Meta token ABI ─────────────────────────────────────────────────────────
+// All 16 meta tokens: tradeEnabled() / buyPrice() / sellPrice() / setPrices()
+const ABI_META = [
+  "function buyTokens() payable",
+  "function tradeEnabled() view returns (bool)",
+  "function buyPrice() view returns (uint256)",
+  "function sellPrice() view returns (uint256)",
+  "function setTradeEnabled(bool _enabled)",
+  "function setPrices(uint256 _buyPrice, uint256 _sellPrice)"
+];
+
+// ── Confirmed 4-byte selectors (verified by on-chain probe) ───────────────
 const SEL = {
-  totalSupply:  "0x18160ddd",
-  buyEnabled:   "0xd7e80b0a",  // keccak256("buyEnabled()")[0:4]
-  tokensPerMON: "0xf26be3fc",  // keccak256("tokensPerMON()")[0:4]
+  // EURO main contract
+  totalSupply:   "0x18160ddd",
+  buyEnabled:    "0xf582d293",  // buyEnabled()    — EURO only
+  tokensPerMON:  "0x19cb3e21",  // tokensPerMON()  — EURO only
+  pricePerToken: "0x7b1b1de6",  // pricePerToken() — EURO only
+  // Meta tokens
+  tradeEnabled:  "0xd621e813",  // tradeEnabled()  — all 16 meta tokens
+  buyPrice:      "0x8620410b",  // buyPrice()      — all 16 meta tokens
 };
 
 const WC_PROJECT_ID = "fb6f5975280757260d74ece910c45ba8";
@@ -423,7 +437,7 @@ let wcUri           = '';
 let connectedVia    = '';
 let _heartbeatTimer = null;
 let _isBuying       = false;
-let _tokensPerMON   = 0n;  // live from EURO contract
+let _tokensPerMON   = 0n;  // live from EURO contract (tokensPerMON)
 
 // ══════════════════════════════════════════════════
 //  ENVIRONMENT
@@ -452,15 +466,14 @@ async function rpcFetch(method,params){
 const ethCall=(addr,sel)=>rpcFetch('eth_call',[{to:addr,data:sel},'latest']);
 
 // ══════════════════════════════════════════════════
-//  CONTRACT DATA — reads buyEnabled, tokensPerMON, totalSupply
+//  CONTRACT DATA — EURO main contract stats
 // ══════════════════════════════════════════════════
 async function loadContractData(){
   try{
-    const [supplyHex,enabledHex,rateHex]=await Promise.all([
-      ethCall(EUROSPACE_CONTRACT,SEL.totalSupply),
-      ethCall(EUROSPACE_CONTRACT,SEL.buyEnabled),
-      ethCall(EUROSPACE_CONTRACT,SEL.tokensPerMON),
-    ]);
+    // Sequential reads to avoid Monad RPC rate-limit drops
+    const supplyHex  = await ethCall(EUROSPACE_CONTRACT, SEL.totalSupply);
+    const enabledHex = await ethCall(EUROSPACE_CONTRACT, SEL.buyEnabled);
+    const rateHex    = await ethCall(EUROSPACE_CONTRACT, SEL.tokensPerMON);
 
     if(supplyHex){
       const s=Number(BigInt(supplyHex))/1e18;
@@ -477,7 +490,8 @@ async function loadContractData(){
 
     if(rateHex){
       _tokensPerMON=BigInt(rateHex);
-      const rate=Number(_tokensPerMON)/1e18;
+      const rate=Number(_tokensPerMON);
+      // tokensPerMON is a plain integer (1000), not 1e18-scaled
       const fmt=rate.toLocaleString(undefined,{maximumFractionDigits:4});
       document.getElementById('tokensPerMONDisplay').textContent=fmt;
       document.getElementById('mainRateDisplay').textContent=fmt;
@@ -490,10 +504,13 @@ async function loadContractData(){
   }
 }
 
-// Pre-flight: read buyEnabled on any contract before sending tx
-async function checkBuyEnabled(addr){
-  const hex=await ethCall(addr,SEL.buyEnabled);
-  if(hex===null) return true; // can't read → optimistic
+// ── Pre-flight guard: read the correct enabled flag per contract type ──────
+// EURO uses buyEnabled() [0xf582d293]
+// Meta tokens use tradeEnabled() [0xd621e813]
+async function checkEnabled(addr, isMeta){
+  const sel = isMeta ? SEL.tradeEnabled : SEL.buyEnabled;
+  const hex = await ethCall(addr, sel);
+  if(hex===null) return true; // unreadable → optimistic
   return BigInt(hex)!==0n;
 }
 
@@ -532,7 +549,7 @@ async function initWalletConnect(){
     const msg=(error?.message||error?.reason||String(error||'')).toLowerCase();
     const isPing=msg.includes('ping')||msg.includes('timeout')||msg.includes('socket')||msg.includes('connection');
     if(isPing&&connectedVia==='walletconnect'&&userAddress){
-      setTimeout(async()=>{try{if(wcProvider?.session){const p=new ethers.BrowserProvider(wcProvider);provider=p;signer=await p.getSigner();euroContract=new ethers.Contract(EUROSPACE_CONTRACT,ABI,signer);}}catch(e){disconnectWallet();}},2000);
+      setTimeout(async()=>{try{if(wcProvider?.session){const p=new ethers.BrowserProvider(wcProvider);provider=p;signer=await p.getSigner();euroContract=new ethers.Contract(EUROSPACE_CONTRACT,ABI_EURO,signer);}}catch(e){disconnectWallet();}},2000);
     }else{stopHeartbeat();disconnectWallet();}
   });
   wcProvider.on('accountsChanged',accs=>{if(!accs.length)disconnectWallet();else{userAddress=accs[0];updateWalletUI().catch(console.error);}});
@@ -580,7 +597,7 @@ async function ensureMonadChain(ethLike){
 async function finalizeConnection(ethersProvider){
   provider=ethersProvider;signer=await provider.getSigner();
   userAddress=await signer.getAddress();
-  euroContract=new ethers.Contract(EUROSPACE_CONTRACT,ABI,signer);
+  euroContract=new ethers.Contract(EUROSPACE_CONTRACT,ABI_EURO,signer);
   await updateWalletUI();
   document.getElementById('buyBtn').disabled=false;
   loadContractData();
@@ -695,15 +712,22 @@ async function openBuyModal(token){
   btn.style.background=`linear-gradient(135deg,${token.color}cc,${token.color})`;
   btn.disabled=!signer;btn.textContent=signer?`◈ Buy ${token.symbol}`:'◈ Connect Wallet First';
   document.getElementById('buyTokenModal').classList.add('show');
-  // Fetch live rate for this token
+
+  // ── Fetch live rate from buyPrice() ────────────────────────────────────
+  // buyPrice is in wei (1e15 = 0.001 MON per token → 1000 tokens per MON)
   try{
-    const rateHex=await ethCall(token.contract,SEL.tokensPerMON);
-    if(rateHex){
-      token._tokensPerMON=BigInt(rateHex);
-      const rate=Number(token._tokensPerMON)/1e18;
-      document.getElementById('buyModalPrice').textContent=`1 MON = ${rate.toLocaleString(undefined,{maximumFractionDigits:4})} ${token.symbol}`;
+    const priceHex = await ethCall(token.contract, SEL.buyPrice);
+    if(priceHex && priceHex !== '0x'){
+      const buyPriceWei = BigInt(priceHex);
+      token._buyPriceWei = buyPriceWei;
+      // tokensPerMON = 1e18 / buyPriceWei
+      const tokensPerMON = Number(10n**18n / buyPriceWei);
+      document.getElementById('buyModalPrice').textContent=
+        `1 MON = ${tokensPerMON.toLocaleString(undefined,{maximumFractionDigits:4})} ${token.symbol}`;
       calcModalReceive();
-    }else{document.getElementById('buyModalPrice').textContent='Rate unavailable';}
+    }else{
+      document.getElementById('buyModalPrice').textContent='Rate unavailable';
+    }
   }catch(_){document.getElementById('buyModalPrice').textContent='Rate unavailable';}
 }
 
@@ -714,10 +738,11 @@ function closeBuyModal(){
 }
 
 function calcModalReceive(){
-  if(!currentToken)return;
+  if(!currentToken||!currentToken._buyPriceWei)return;
   const mon=parseFloat(document.getElementById('modalMonAmount').value)||0;
-  const rate=currentToken._tokensPerMON?Number(currentToken._tokensPerMON)/1e18:0;
-  document.getElementById('modalReceiveAmount').textContent=rate>0?(mon*rate).toFixed(4):'—';
+  // tokens = MON_in_wei / buyPriceWei  →  in display: mon * 1e18 / buyPriceWei
+  const tokensPerMON = Number(10n**18n / currentToken._buyPriceWei);
+  document.getElementById('modalReceiveAmount').textContent=(mon * tokensPerMON).toFixed(4);
 }
 
 async function executeTokenBuy(){
@@ -730,21 +755,20 @@ async function executeTokenBuy(){
   try{
     _isBuying=true;btn.disabled=true;btn.textContent='◈ Checking…';
 
-    // ── Pre-flight: verify buyEnabled before spending gas ─────────────────
-    const enabled=await checkBuyEnabled(token.contract);
+    // ── Pre-flight: meta tokens use tradeEnabled() ────────────────────────
+    const enabled = await checkEnabled(token.contract, true);
     if(!enabled){
-      showModalStatus('⚠ Presale not open — owner must call toggleBuy(true)','warn');
+      showModalStatus('⚠ Trading not open for this token','warn');
       return;
     }
 
     btn.textContent='◈ Processing…';showModalStatus('Sending transaction…','info');
-    const tc=new ethers.Contract(token.contract,ABI,signer);
-    // ── buyTokens() is the correct function name from the verified ABI ────
+    const tc=new ethers.Contract(token.contract, ABI_META, signer);
     const tx=await tc.buyTokens({value:ethers.parseEther(mon.toString()),gasLimit:200000n});
     showModalStatus('Waiting for confirmation…','info');
     await tx.wait();
-    const rate=token._tokensPerMON?Number(token._tokensPerMON)/1e18:0;
-    showModalStatus(`✓ Got ${(mon*rate).toFixed(4)} ${token.symbol}!`,'success');
+    const tokensPerMON = token._buyPriceWei ? Number(10n**18n / token._buyPriceWei) : 0;
+    showModalStatus(`✓ Got ${(mon*tokensPerMON).toFixed(4)} ${token.symbol}!`,'success');
     document.getElementById('modalMonAmount').value='';document.getElementById('modalReceiveAmount').textContent='0.00';
     loadContractData();
   }catch(e){
@@ -761,7 +785,8 @@ function showModalStatus(msg,type){const el=document.getElementById('modalStatus
 // ══════════════════════════════════════════════════
 function calcReceive(){
   const mon=parseFloat(document.getElementById('monAmount').value)||0;
-  const rate=_tokensPerMON>0n?Number(_tokensPerMON)/1e18:0;
+  // _tokensPerMON is a plain integer (e.g. 1000), not 1e18-scaled
+  const rate=Number(_tokensPerMON);
   document.getElementById('receiveAmount').textContent=rate>0?(mon*rate).toFixed(4):'—';
 }
 
@@ -773,19 +798,18 @@ async function buyEuro(){
   try{
     btn.disabled=true;btn.textContent='◈ Checking…';
 
-    // ── Pre-flight: verify buyEnabled before spending gas ─────────────────
-    const enabled=await checkBuyEnabled(EUROSPACE_CONTRACT);
+    // ── Pre-flight: EURO uses buyEnabled() ───────────────────────────────
+    const enabled = await checkEnabled(EUROSPACE_CONTRACT, false);
     if(!enabled){
       showStatus('⚠ Presale not open — owner must call toggleBuy(true)','warn');
       return;
     }
 
     btn.textContent='◈ Processing…';showStatus('Sending transaction…','info');
-    // ── buyTokens() is the correct function name from the verified ABI ────
     const tx=await euroContract.buyTokens({value:ethers.parseEther(mon.toString()),gasLimit:200000n});
     showStatus('Waiting for confirmation…','info');
     await tx.wait();
-    const rate=_tokensPerMON>0n?Number(_tokensPerMON)/1e18:0;
+    const rate=Number(_tokensPerMON);
     showStatus(`✓ Got ${(mon*rate).toFixed(4)} EURO COIN`,'success');
     document.getElementById('monAmount').value='';document.getElementById('receiveAmount').textContent='0.00';
     loadContractData();
