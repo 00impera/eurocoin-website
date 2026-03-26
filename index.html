@@ -383,14 +383,29 @@ const ABI_EURO = [
   "function withdraw()"
 ];
 
-// ── Meta token ABI ─────────────────────────────────────────────────────────
+// ── Meta token ABI — COMPLETE (fixes empty calldata revert) ───────────────
 const ABI_META = [
+  // BUY FUNCTION
   "function buyTokens() payable",
+  // TRADE STATE
   "function tradeEnabled() view returns (bool)",
   "function buyPrice() view returns (uint256)",
   "function sellPrice() view returns (uint256)",
+  // ADMIN
   "function setTradeEnabled(bool _enabled)",
-  "function setPrices(uint256 _buyPrice, uint256 _sellPrice)"
+  "function setPrices(uint256 _buyPrice, uint256 _sellPrice)",
+  // ERC20 STANDARD
+  "function name() view returns (string)",
+  "function symbol() view returns (string)",
+  "function decimals() view returns (uint8)",
+  "function totalSupply() view returns (uint256)",
+  "function balanceOf(address) view returns (uint256)",
+  "function transfer(address,uint256) returns (bool)",
+  "function allowance(address,address) view returns (uint256)",
+  "function approve(address,uint256) returns (bool)",
+  "function transferFrom(address,address,uint256) returns (bool)",
+  // MINT (owner only)
+  "function mint(address,uint256)"
 ];
 
 // ── Confirmed 4-byte selectors (verified by on-chain probe) ───────────────
@@ -486,7 +501,6 @@ async function checkEnabled(addr, isMeta) {
 // ══════════════════════════════════════════════════
 async function loadContractData() {
   try {
-    // Sequential reads to avoid Monad RPC rate-limit drops
     const supplyHex  = await ethCall(EUROSPACE_CONTRACT, SEL.totalSupply);
     const enabledHex = await ethCall(EUROSPACE_CONTRACT, SEL.buyEnabled);
     const rateHex    = await ethCall(EUROSPACE_CONTRACT, SEL.tokensPerMON);
@@ -505,7 +519,6 @@ async function loadContractData() {
     }
 
     if (rateHex && rateHex !== '0x') {
-      // tokensPerMON is a plain integer (e.g. 1000), NOT 1e18-scaled
       _tokensPerMON = BigInt(rateHex);
       const rate = Number(_tokensPerMON);
       const fmt = rate.toLocaleString(undefined, {maximumFractionDigits: 4});
@@ -696,7 +709,6 @@ async function finalizeConnection(ethersProvider) {
   provider = ethersProvider;
   signer = await provider.getSigner();
   userAddress = await signer.getAddress();
-  // EURO contract uses ABI_EURO
   euroContract = new ethers.Contract(EUROSPACE_CONTRACT, ABI_EURO, signer);
   await updateWalletUI();
   document.getElementById('buyBtn').disabled = false;
@@ -859,7 +871,7 @@ function buildTokenGallery() {
 }
 
 // ══════════════════════════════════════════════════
-//  BUY TOKEN MODAL — uses ABI_META + SEL.buyPrice
+//  BUY TOKEN MODAL
 // ══════════════════════════════════════════════════
 async function openBuyModal(token) {
   currentToken = token;
@@ -895,15 +907,11 @@ async function openBuyModal(token) {
 
   document.getElementById('buyTokenModal').classList.add('show');
 
-  // ── Fetch live rate via buyPrice() [0x8620410b] ───────────────────────
-  // buyPrice is in wei:
-  //   e.g. 1 000 000 000 000 000 (1e15) = 0.001 MON per token → 1000 tokens per MON
   try {
     const priceHex = await ethCall(token.contract, SEL.buyPrice);
     if (priceHex && priceHex !== '0x' && priceHex !== '0x0') {
       const buyPriceWei = BigInt(priceHex);
       token._buyPriceWei = buyPriceWei;
-      // tokensPerMON = 1e18 / buyPriceWei  (both in wei units)
       const tokensPerMON = Number(10n ** 18n / buyPriceWei);
       document.getElementById('buyModalPrice').textContent =
         `1 MON = ${tokensPerMON.toLocaleString(undefined, {maximumFractionDigits: 4})} ${token.symbol}`;
@@ -926,12 +934,11 @@ function closeBuyModal() {
 function calcModalReceive() {
   if (!currentToken || !currentToken._buyPriceWei) return;
   const mon = parseFloat(document.getElementById('modalMonAmount').value) || 0;
-  // tokensPerMON = 1e18 / buyPriceWei
   const tokensPerMON = Number(10n ** 18n / currentToken._buyPriceWei);
   document.getElementById('modalReceiveAmount').textContent = (mon * tokensPerMON).toFixed(4);
 }
 
-// ── Meta token buy — uses ABI_META contract, pre-flights tradeEnabled() ──
+// ── Meta token buy ────────────────────────────────────────────────────────
 async function executeTokenBuy() {
   if (!signer)       { showModalStatus('Connect wallet first!', 'error'); return; }
   if (!currentToken || _isBuying) return;
@@ -947,7 +954,6 @@ async function executeTokenBuy() {
     btn.disabled = true;
     btn.textContent = '◈ Checking…';
 
-    // Pre-flight: meta tokens use tradeEnabled() [0xd621e813]
     const enabled = await checkEnabled(token.contract, true);
     if (!enabled) {
       showModalStatus('⚠ Trading not open for this token', 'warn');
@@ -957,11 +963,11 @@ async function executeTokenBuy() {
     btn.textContent = '◈ Processing…';
     showModalStatus('Sending transaction…', 'info');
 
-    // Instantiate using ABI_META (has buyTokens payable + tradeEnabled + buyPrice)
+    // Use complete ABI_META so ethers correctly encodes buyTokens() selector
     const tc = new ethers.Contract(token.contract, ABI_META, signer);
     const tx = await tc.buyTokens({
       value:    ethers.parseEther(mon.toString()),
-      gasLimit: 200000n
+      gasLimit: 300000
     });
 
     showModalStatus('Waiting for confirmation…', 'info');
@@ -991,11 +997,10 @@ function showModalStatus(msg, type) {
 
 // ══════════════════════════════════════════════════
 //  MAIN BUY — EURO COIN
-//  _tokensPerMON is a plain integer (e.g. 1000), not 1e18-scaled
 // ══════════════════════════════════════════════════
 function calcReceive() {
   const mon  = parseFloat(document.getElementById('monAmount').value) || 0;
-  const rate = Number(_tokensPerMON);   // plain integer, direct multiply
+  const rate = Number(_tokensPerMON);
   document.getElementById('receiveAmount').textContent =
     rate > 0 ? (mon * rate).toFixed(4) : '—';
 }
@@ -1010,7 +1015,6 @@ async function buyEuro() {
     btn.disabled    = true;
     btn.textContent = '◈ Checking…';
 
-    // Pre-flight: EURO uses buyEnabled() [0xf582d293]
     const enabled = await checkEnabled(EUROSPACE_CONTRACT, false);
     if (!enabled) {
       showStatus('⚠ Presale not open — owner must call toggleBuy(true)', 'warn');
@@ -1022,7 +1026,7 @@ async function buyEuro() {
 
     const tx = await euroContract.buyTokens({
       value:    ethers.parseEther(mon.toString()),
-      gasLimit: 200000n
+      gasLimit: 300000
     });
 
     showStatus('Waiting for confirmation…', 'info');
