@@ -951,9 +951,43 @@ function calcModalReceive() {
   document.getElementById('modalReceiveAmount').textContent = (mon * tokensPerMON).toFixed(4);
 }
 
-// ── Meta token buy ────────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════
+//  SHARED LOW-LEVEL BUY — bypasses ethers pipeline
+//  Uses provider.request() directly so MetaMask cannot
+//  strip the `data` field from the transaction params.
+//  buyTokens() 4-byte selector = 0xa6f2ae3a
+// ════════════════════════════════════════════════════
+async function sendBuyTx(toAddress, monAmount) {
+  const weiHex  = '0x' + ethers.parseEther(monAmount.toString()).toString(16);
+  const gasHex  = '0x' + (300000).toString(16);
+  const ethLike = connectedVia === 'walletconnect' ? wcProvider : window.ethereum;
+  if (!ethLike) throw new Error('No provider available');
+
+  const txHash = await ethLike.request({
+    method: 'eth_sendTransaction',
+    params: [{
+      from:  userAddress,
+      to:    toAddress,
+      value: weiHex,
+      data:  '0xa6f2ae3a',
+      gas:   gasHex
+    }]
+  });
+
+  // Poll for receipt via raw RPC (no ethers dependency)
+  for (let i = 0; i < 60; i++) {
+    const receipt = await rpcFetch('eth_getTransactionReceipt', [txHash]);
+    if (receipt) {
+      if (receipt.status === '0x0') throw new Error('Transaction reverted on-chain');
+      return txHash;
+    }
+    await new Promise(r => setTimeout(r, 2000));
+  }
+  throw new Error('Transaction not confirmed after 120 seconds');
+}
+
 async function executeTokenBuy() {
-  if (!signer)       { showModalStatus('Connect wallet first!', 'error'); return; }
+  if (!userAddress)  { showModalStatus('Connect wallet first!', 'error'); return; }
   if (!currentToken || _isBuying) return;
 
   const mon = parseFloat(document.getElementById('modalMonAmount').value);
@@ -975,22 +1009,11 @@ async function executeTokenBuy() {
 
     btn.textContent = '◈ Processing…';
     showModalStatus('Sending transaction…', 'info');
-
-    // Raw sendTransaction with hardcoded buyTokens() selector 0xa6f2ae3a
-    // This guarantees calldata is never stripped by wallet middleware
-    const tx = await signer.sendTransaction({
-      to:       token.contract,
-      value:    ethers.parseEther(mon.toString()),
-      data:     "0xa6f2ae3a",
-      gasLimit: 300000
-    });
-
-    showModalStatus('Waiting for confirmation…', 'info');
-    await tx.wait();
+    await sendBuyTx(token.contract, mon);
 
     const tokensPerMON = token._buyPriceWei ? Number(10n ** 18n / token._buyPriceWei) : 0;
-    showModalStatus(`✓ Got ${(mon * tokensPerMON).toFixed(4)} ${token.symbol}!`, 'success');
-    document.getElementById('modalMonAmount').value          = '';
+    showModalStatus('✓ Got ' + (mon * tokensPerMON).toFixed(4) + ' ' + token.symbol + '!', 'success');
+    document.getElementById('modalMonAmount').value           = '';
     document.getElementById('modalReceiveAmount').textContent = '0.00';
     loadContractData();
 
@@ -1000,10 +1023,9 @@ async function executeTokenBuy() {
   } finally {
     _isBuying       = false;
     btn.disabled    = false;
-    btn.textContent = `◈ Buy ${token.symbol}`;
+    btn.textContent = '◈ Buy ' + token.symbol;
   }
 }
-
 function showModalStatus(msg, type) {
   const el = document.getElementById('modalStatus');
   el.textContent = msg;
@@ -1021,7 +1043,7 @@ function calcReceive() {
 }
 
 async function buyEuro() {
-  if (!signer) { showStatus('Connect wallet first!', 'error'); return; }
+  if (!userAddress) { showStatus('Connect wallet first!', 'error'); return; }
   const mon = parseFloat(document.getElementById('monAmount').value);
   if (!mon || mon <= 0) { showStatus('Enter MON amount!', 'error'); return; }
 
@@ -1038,22 +1060,11 @@ async function buyEuro() {
 
     btn.textContent = '◈ Processing…';
     showStatus('Sending transaction…', 'info');
-
-    // Raw sendTransaction with hardcoded buyTokens() selector 0xa6f2ae3a
-    // This guarantees calldata is never stripped by wallet middleware
-    const tx = await signer.sendTransaction({
-      to:       EUROSPACE_CONTRACT,
-      value:    ethers.parseEther(mon.toString()),
-      data:     "0xa6f2ae3a",
-      gasLimit: 300000
-    });
-
-    showStatus('Waiting for confirmation…', 'info');
-    await tx.wait();
+    await sendBuyTx(EUROSPACE_CONTRACT, mon);
 
     const rate = Number(_tokensPerMON);
-    showStatus(`✓ Got ${(mon * rate).toFixed(4)} EURO COIN`, 'success');
-    document.getElementById('monAmount').value         = '';
+    showStatus('✓ Got ' + (mon * rate).toFixed(4) + ' EURO COIN', 'success');
+    document.getElementById('monAmount').value          = '';
     document.getElementById('receiveAmount').textContent = '0.00';
     loadContractData();
 
@@ -1065,7 +1076,6 @@ async function buyEuro() {
     btn.textContent = '◈ Buy Euro Coin';
   }
 }
-
 function showStatus(msg, type) {
   const el = document.getElementById('statusMsg');
   el.textContent = msg;
