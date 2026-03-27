@@ -1056,15 +1056,25 @@ function fillMaxSell() {
 //  SHARED LOW-LEVEL TX SENDER
 // ══════════════════════════════════════════════════
 async function sendBuyTx(toAddress, monAmount) {
-  const weiHex='0x'+ethers.parseEther(monAmount.toString()).toString(16);
-  const ethLike=connectedVia==='walletconnect'?wcProvider:window.ethereum;
-  if (!ethLike) throw new Error('No provider');
-  const txHash=await ethLike.request({
-    method:'eth_sendTransaction',
-    params:[{from:userAddress,to:toAddress,value:weiHex,data:'0xd0febe4c',gas:'0x493E0'}]
+  const weiHex = "0x" + ethers.parseEther(monAmount.toString()).toString(16);
+  const ethLike =
+    connectedVia === "walletconnect" ? wcProvider : window.ethereum;
+  if (!ethLike) throw new Error("No provider");
+  const txHash = await ethLike.request({
+    method: "eth_sendTransaction",
+    params: [
+      {
+        from: userAddress,
+        to: toAddress,
+        value: weiHex,
+        data: "0xd0febe4c",
+        gas: "0x493E0",
+      },
+    ],
   });
   return await waitForTx(txHash);
 }
+
 
 async function sendSellTx(contract, tokenAmountWei) {
   // sellTokens(uint256) — selector 0x9dc29fac
