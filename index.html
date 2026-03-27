@@ -70,7 +70,6 @@
   .btn-buy-token { width:100%; padding:14px; border:none; border-radius:12px; color:#000; font-family:'Orbitron',monospace; font-size:13px; font-weight:900; letter-spacing:2px; cursor:pointer; transition:all 0.3s; text-transform:uppercase; margin-top:10px; }
   .btn-buy-token:hover:not(:disabled) { transform:translateY(-2px); }
   .btn-buy-token:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
-  /* SELL button */
   .btn-sell-token { width:100%; padding:14px; border:2px solid; border-radius:12px; background:transparent; font-family:'Orbitron',monospace; font-size:13px; font-weight:900; letter-spacing:2px; cursor:pointer; transition:all 0.3s; text-transform:uppercase; margin-top:8px; }
   .btn-sell-token:hover:not(:disabled) { transform:translateY(-2px); }
   .btn-sell-token:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
@@ -121,7 +120,6 @@
   .modal-status.error  { display:block; background:#ff004411; border:1px solid #ff004444; color:#ff4466; }
   .modal-status.info   { display:block; background:#00ffe011; border:1px solid #00ff8844; color:var(--cyan); }
   .modal-status.warn   { display:block; background:#ffaa0011; border:1px solid #ffaa0044; color:#ffaa00; }
-  /* sell input in modal */
   .sell-section { margin-top:14px; padding-top:14px; border-top:1px solid #004433; }
   .sell-section .input-label { color:#ff8844; }
   .sell-balance { font-size:10px; color:#4488aa; text-align:right; margin-bottom:4px; cursor:pointer; }
@@ -167,7 +165,6 @@
   .step-num { width:28px; height:28px; min-width:28px; border:1px solid var(--green); border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Orbitron',monospace; font-size:11px; color:var(--green); }
   .step-text { font-size:11px; color:var(--text); line-height:1.6; padding-top:4px; }
   .step-text strong { color:var(--cyan); display:block; margin-bottom:2px; letter-spacing:1px; }
-  /* MINT PANEL (owner only) */
   .mint-panel { background:#000f1f; border:1px solid #00ff8833; border-radius:12px; padding:16px; margin-top:14px; display:none; }
   .mint-panel.show { display:block; }
   .mint-panel-title { font-family:'Orbitron',monospace; font-size:10px; letter-spacing:2px; color:#00cc88; margin-bottom:12px; }
@@ -182,7 +179,6 @@
   .btn-owner-action.danger:hover { border-color:#ff4466; background:#ff446611; }
   @keyframes scan { 0%{transform:translateY(-100%)} 100%{transform:translateY(100vh)} }
   .scan-line { position:fixed; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--green),var(--cyan),transparent); opacity:0.2; animation:scan 4s linear infinite; pointer-events:none; z-index:0; }
-  /* OWNER PANEL */
   .owner-panel { background:#000a1a; border:1px solid #00ff8822; border-radius:12px; padding:16px; margin-top:14px; display:none; }
   .owner-panel.show { display:block; }
   .owner-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
@@ -282,30 +278,26 @@
       <button class="btn-sell-token" id="modalSellBtn" onclick="executeTokenSell()" disabled>◈ Sell Tokens</button>
     </div>
 
-    <!-- OWNER PANEL (mint / toggle / withdraw) -->
+    <!-- OWNER PANEL -->
     <div class="owner-panel" id="tokenOwnerPanel">
       <div class="mint-panel-title">⚙ OWNER PANEL</div>
-
       <div class="owner-label">Mint Tokens</div>
       <div class="owner-row">
         <input class="mint-input" id="mintToAddr" placeholder="0x address">
         <input class="mint-input" id="mintAmt" placeholder="Amount" style="max-width:120px">
         <button class="btn-mint" onclick="doMintToken()">MINT</button>
       </div>
-
       <div class="owner-label">Trade Toggle</div>
       <div class="owner-row">
         <button class="btn-owner-action" onclick="doToggleTrade(true)">✓ Enable Trading</button>
         <button class="btn-owner-action danger" onclick="doToggleTrade(false)">✕ Disable Trading</button>
       </div>
-
       <div class="owner-label">Set Prices (wei)</div>
       <div class="owner-row">
         <input class="mint-input" id="newBuyPrice"  placeholder="buyPrice (wei)">
         <input class="mint-input" id="newSellPrice" placeholder="sellPrice (wei)">
         <button class="btn-mint" onclick="doSetPrices()">SET</button>
       </div>
-
       <div class="owner-label">Withdraw MON</div>
       <button class="btn-owner-action" onclick="doWithdrawToken()">⬇ Withdraw MON Balance</button>
     </div>
@@ -403,26 +395,22 @@
     <!-- EURO OWNER PANEL -->
     <div class="owner-panel" id="euroOwnerPanel">
       <div class="mint-panel-title">⚙ EURO OWNER PANEL</div>
-
       <div class="owner-label">Mint EURO</div>
       <div class="owner-row">
         <input class="mint-input" id="euroMintTo"  placeholder="0x address">
         <input class="mint-input" id="euroMintAmt" placeholder="Amount" style="max-width:120px">
         <button class="btn-mint" onclick="doMintEuro()">MINT</button>
       </div>
-
       <div class="owner-label">Presale Toggle</div>
       <div class="owner-row">
         <button class="btn-owner-action" onclick="doToggleBuy(true)">✓ Enable Presale</button>
         <button class="btn-owner-action danger" onclick="doToggleBuy(false)">✕ Disable Presale</button>
       </div>
-
       <div class="owner-label">Set Rate (tokensPerMON)</div>
       <div class="owner-row">
         <input class="mint-input" id="newTokensPerMON" placeholder="e.g. 1000">
         <button class="btn-mint" onclick="doSetEuroPrice()">SET</button>
       </div>
-
       <div class="owner-label">Withdraw MON</div>
       <button class="btn-owner-action" onclick="doWithdrawEuro()">⬇ Withdraw MON Balance</button>
     </div>
@@ -431,10 +419,10 @@
   <div class="card">
     <div class="card-title">⬡ Contract Address</div>
     <div class="contract-box" onclick="copyContract()">
-      <div class="contract-address" id="mainContractAddr">0x75549CBfDBefB674084e7d4d4E86C99357b009C0</div>
+      <div class="contract-address" id="mainContractAddr">0x5548D8405F343a6075a46a45CB954bCeB8Ba4E79</div>
       <button class="copy-btn" id="copyBtn">COPY</button>
     </div>
-    <a href="https://monad-testnet.socialscan.io/address/0x75549CBfDBefB674084e7d4d4E86C99357b009C0" target="_blank" class="explorer-link">🔍 View on Explorer</a>
+    <a href="https://testnet.monadexplorer.com/address/0x5548D8405F343a6075a46a45CB954bCeB8Ba4E79" target="_blank" class="explorer-link">🔍 View on Explorer</a>
   </div>
 
   <div class="card">
@@ -461,9 +449,9 @@
 
 <script>
 // ══════════════════════════════════════════════════
-//  CONFIG — NEW DEPLOYED ADDRESSES
+//  CONFIG — ALL DEPLOYED ADDRESSES (UPDATED)
 // ══════════════════════════════════════════════════
-const EUROSPACE_CONTRACT = "0x75549CBfDBefB674084e7d4d4E86C99357b009C0";
+const EUROSPACE_CONTRACT = "0x5548D8405F343a6075a46a45CB954bCeB8Ba4E79"; // MetaEuroCoin (EURO)
 const OWNER_ADDRESS      = "0x592B35c8917eD36c39Ef73D0F5e92B0173560b2e";
 
 const MONAD_CHAIN = {
@@ -530,24 +518,28 @@ const SEL = {
 
 const WC_PROJECT_ID = "fb6f5975280757260d74ece910c45ba8";
 
-// ── NEW DEPLOYED META TOKENS ──────────────────────
+// ══════════════════════════════════════════════════
+//  META TOKENS — ALL 16 DEPLOYED CONTRACTS
+// ══════════════════════════════════════════════════
 const META_TOKENS = [
-  {symbol:"mBTC",  name:"Meta Bitcoin",  color:"#F7931A", img:"META BTC.png",       contract:"0x7f1357AA0DE65B1FBd8481C624f579a585AbA878"},
-  {symbol:"mETH",  name:"Meta Ethereum", color:"#627EEA", img:"META ETH.png",       contract:"0x81C4416d0A4e4352D1b6765Ec4E9Bb593a6Ff3c3"},
-  {symbol:"mSOL",  name:"Meta Solana",   color:"#9945FF", img:"META SOL.png",       contract:"0xBA68074613B998F13662eaA4Fc5B77E0Af48b4aD"},
-  {symbol:"mBNB",  name:"Meta BNB",      color:"#F3BA2F", img:"META BNB.png",       contract:"0x4F03901a686fC306B49ad4065EDfB24219eB0Ad5"},
-  {symbol:"mXRP",  name:"Meta XRP",      color:"#00AAE4", img:"META XRP.png",       contract:"0x3E47819ecab548f76AeAC8812f92a549c6EAE8F4"},
-  {symbol:"mUSDC", name:"Meta USDC",     color:"#2775CA", img:"META USDC.png",      contract:"0xFDf2B510c7c53c9a79fA92a534BEa7B71017A903"},
-  {symbol:"mUSDT", name:"Meta Tether",   color:"#26A17B", img:"META USDT.png",      contract:"0xeD5647f37B3A96a5fFc0a5c9793cf30DDBee7F79"},
-  {symbol:"mMATIC",name:"Meta Polygon",  color:"#8247E5", img:"META MATIC.png",     contract:"0xE85709a90ce5C67CA736056CD67b60E38162860c"},
-  {symbol:"mDOGE", name:"Meta Dogecoin", color:"#C2A633", img:"META DODGE.png",     contract:"0x187Bd6C6e39861aDD4e93Cd5E652fE2ba9c2a230"},
-  {symbol:"mLTC",  name:"Meta Litecoin", color:"#BFBBBB", img:"META LTC.png",       contract:"0xeAf03D32A7b9370E7fe45Ee9016dcec265213A9B"},
-  {symbol:"mTRX",  name:"Meta TRON",     color:"#EF0027", img:"META TRX.png",       contract:"0x6B46f58248f1679f050758b00061E038e190Be3b"},
-  {symbol:"mBASE", name:"Meta Base",     color:"#0052FF", img:"META BASE.png",      contract:"0x69971f2102972FFf4D41bb5039f48e02865a5443"},
-  {symbol:"mEURO", name:"Meta Euro",     color:"#003399", img:"META EUROSPACE.png", contract:"0x1803c57464572Ccb3d1E8AAB3964cf18A48Cdf29"},
-  {symbol:"mMONAD",name:"Meta Monad",    color:"#836EF9", img:"META MONAD.png",     contract:"0x2886F81e628C55beC7067C162bE21e0aA31d33CA"},
-  {symbol:"mEURC", name:"Meta EURC",     color:"#FFD700", img:"META EURC.png",      contract:"0x4760Aba8454389e0d6245cd7e190D5a4d4c9BE88"},
-  {symbol:"mCRO",  name:"Meta Cronos",   color:"#002D74", img:"META CRONOS.png",    contract:"0x94b2A93513775c3A11c0784eA38797A9E157c7a1"},
+  // ── Original 4 (prices fixed via fix-prices.sh) ──
+  {symbol:"mBTC",   name:"Meta Bitcoin",  color:"#F7931A", img:"META BTC.png",       contract:"0x5078A3531Dba3Dea11AB4aaF641DB6f0fE88579e"},
+  {symbol:"mETH",   name:"Meta Ethereum", color:"#627EEA", img:"META ETH.png",       contract:"0x271028A77301bb705C293Bd1fFA79E239AB1Daec"},
+  {symbol:"mSOL",   name:"Meta Solana",   color:"#9945FF", img:"META SOL.png",       contract:"0xEd59c5bA2180ce57a723Dbc04FF3A81e1ba84B3C"},
+  {symbol:"mBNB",   name:"Meta BNB",      color:"#F3BA2F", img:"META BNB.png",       contract:"0xb1326c51F73814f071bb4d3db44c86dD03DC8C76"},
+  // ── New 12 (deployed with correct 1e15 price) ──
+  {symbol:"mXRP",   name:"Meta XRP",      color:"#00AAE4", img:"META XRP.png",       contract:"0x379563529988bD76DeD9bc4a175AD59df6191B75"},
+  {symbol:"mUSDC",  name:"Meta USDC",     color:"#2775CA", img:"META USDC.png",      contract:"0xe0Ed08D1bC86b98434861ae0403be968bD95465E"},
+  {symbol:"mUSDT",  name:"Meta Tether",   color:"#26A17B", img:"META USDT.png",      contract:"0x085368cae9d4eCffe676806c3a8105433377164b"},
+  {symbol:"mMATIC", name:"Meta Polygon",  color:"#8247E5", img:"META MATIC.png",     contract:"0x43C60d3cec23b0E85678602A4F5C1156a7398daC"},
+  {symbol:"mDOGE",  name:"Meta Dogecoin", color:"#C2A633", img:"META DODGE.png",     contract:"0x111b31d8474Aee70767337FD794a7fb0A08788A8"},
+  {symbol:"mLTC",   name:"Meta Litecoin", color:"#BFBBBB", img:"META LTC.png",       contract:"0x8abAe4dbf7A2e286d688fa7101bea0fAE4C0Dd75"},
+  {symbol:"mTRX",   name:"Meta TRON",     color:"#EF0027", img:"META TRX.png",       contract:"0x1A3206c56993d4906ec26Fe85194399E0dBD8EBf"},
+  {symbol:"mBASE",  name:"Meta Base",     color:"#0052FF", img:"META BASE.png",      contract:"0xeA66DaF739823505817d4DAfEdBb43Dc0C2E5372"},
+  {symbol:"mEURO",  name:"Meta Euro",     color:"#003399", img:"META EUROSPACE.png", contract:"0x4443892C796f7A519C9D099417EC8422f88F5867"},
+  {symbol:"mMONAD", name:"Meta Monad",    color:"#836EF9", img:"META MONAD.png",     contract:"0xbF5E34B1EBE37F9a98BFcE48645dc67Dd84E5fD6"},
+  {symbol:"mEURC",  name:"Meta EURC",     color:"#FFD700", img:"META EURC.png",      contract:"0x7bD9bbFc0086B033ede5736e4Aa9C16a451D0904"},
+  {symbol:"mCRO",   name:"Meta Cronos",   color:"#002D74", img:"META CRONOS.png",    contract:"0x0127B3c3C864cfC1BB519beB935477299b961d46"},
 ];
 
 // ══════════════════════════════════════════════════
@@ -594,7 +586,6 @@ async function rpcFetch(method, params) {
 const ethCall = (addr, data) =>
   rpcFetch('eth_call', [{to: addr, data}, 'latest']);
 
-// balanceOf(address) — encode address into 32-byte slot
 function encodeBalanceOf(addr) {
   return SEL.balanceOf + '000000000000000000000000' + addr.toLowerCase().replace('0x','');
 }
@@ -985,26 +976,22 @@ async function openBuyModal(token) {
   document.getElementById('modalSellReceive').textContent='0.00';
   document.getElementById('modalStatus').className='modal-status';
 
-  // buy btn
   const buyBtn=document.getElementById('modalBuyBtn');
   buyBtn.style.background=`linear-gradient(135deg,${token.color}cc,${token.color})`;
   buyBtn.disabled=!signer;
   buyBtn.textContent=signer?`◈ Buy ${token.symbol}`:'◈ Connect Wallet First';
 
-  // sell btn
   const sellBtn=document.getElementById('modalSellBtn');
   sellBtn.style.borderColor=token.color;
   sellBtn.style.color=token.color;
   sellBtn.disabled=!signer;
   sellBtn.textContent=signer?`◈ Sell ${token.symbol}`:'◈ Connect Wallet First';
 
-  // owner panel
   const isTokenOwner=userAddress&&userAddress.toLowerCase()===OWNER_ADDRESS.toLowerCase();
   document.getElementById('tokenOwnerPanel').classList.toggle('show', !!isTokenOwner);
 
   document.getElementById('buyTokenModal').classList.add('show');
 
-  // load rate + balance in parallel
   const [priceHex, sellPriceHex] = await Promise.all([
     ethCall(token.contract, SEL.buyPrice),
     ethCall(token.contract, SEL.sellPrice),
@@ -1053,31 +1040,20 @@ function fillMaxSell() {
 }
 
 // ══════════════════════════════════════════════════
-//  SHARED LOW-LEVEL TX SENDER
+//  TX HELPERS
 // ══════════════════════════════════════════════════
 async function sendBuyTx(toAddress, monAmount) {
   const weiHex = "0x" + ethers.parseEther(monAmount.toString()).toString(16);
-  const ethLike =
-    connectedVia === "walletconnect" ? wcProvider : window.ethereum;
+  const ethLike = connectedVia === "walletconnect" ? wcProvider : window.ethereum;
   if (!ethLike) throw new Error("No provider");
   const txHash = await ethLike.request({
     method: "eth_sendTransaction",
-    params: [
-      {
-        from: userAddress,
-        to: toAddress,
-        value: weiHex,
-        data: "0xd0febe4c",
-        gas: "0x493E0",
-      },
-    ],
+    params: [{from:userAddress, to:toAddress, value:weiHex, data:"0xd0febe4c", gas:"0x493E0"}],
   });
   return await waitForTx(txHash);
 }
 
-
 async function sendSellTx(contract, tokenAmountWei) {
-  // sellTokens(uint256) — selector 0x9dc29fac
   const amtHex=tokenAmountWei.toString(16).padStart(64,'0');
   const data='0x8e19899e'+amtHex;
   const ethLike=connectedVia==='walletconnect'?wcProvider:window.ethereum;
@@ -1147,11 +1123,8 @@ async function executeTokenSell() {
     if (!enabled) { showModalStatus('⚠ Trading not open','warn'); return; }
     btn.textContent='◈ Approving…';
     showModalStatus('Approving tokens…','info');
-
-    // First approve the contract to spend tokens
     const ethLike=connectedVia==='walletconnect'?wcProvider:window.ethereum;
     const tknWei=BigInt(Math.floor(tkn*1e18));
-    // approve(spender, amount) — 0x095ea7b3
     const approveData='0x095ea7b3'
       +'000000000000000000000000'+token.contract.replace('0x','')
       +tknWei.toString(16).padStart(64,'0');
@@ -1160,11 +1133,9 @@ async function executeTokenSell() {
       params:[{from:userAddress,to:token.contract,data:approveData,gas:'0x15F90'}]
     });
     await waitForTx(approveTx);
-
     btn.textContent='◈ Selling…';
     showModalStatus('Selling tokens…','info');
     await sendSellTx(token.contract, tknWei);
-
     const monOut=token._sellPriceWei?tkn*Number(token._sellPriceWei)/1e18:0;
     showModalStatus('✓ Sold! Got ~'+monOut.toFixed(6)+' MON','success');
     document.getElementById('modalSellAmount').value='';
