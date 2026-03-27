@@ -1069,7 +1069,7 @@ async function sendBuyTx(toAddress, monAmount) {
 async function sendSellTx(contract, tokenAmountWei) {
   // sellTokens(uint256) — selector 0x9dc29fac
   const amtHex=tokenAmountWei.toString(16).padStart(64,'0');
-  const data='0x9dc29fac'+amtHex;
+  const data='0x8e19899e'+amtHex;
   const ethLike=connectedVia==='walletconnect'?wcProvider:window.ethereum;
   if (!ethLike) throw new Error('No provider');
   const txHash=await ethLike.request({
