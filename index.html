@@ -371,23 +371,17 @@ const MONAD_RPCS = ["https://rpc.monad.xyz","https://monad.drpc.org"];
 
 // ── EURO main contract ABI — COMPLETE (fixes empty calldata revert) ────────
 const ABI_EURO = [
-  // BUY TOKEN
+  // BUY FUNCTION
   "function buyTokens() payable",
-
-  // BUY NFT (must be included so ethers doesn't confuse them)
-  "function buyNFT() payable",
-
   // PRESALE STATE
   "function buyEnabled() view returns (bool)",
   "function tokensPerMON() view returns (uint256)",
   "function pricePerToken() view returns (uint256)",
-
   // ADMIN
   "function owner() view returns (address)",
   "function toggleBuy(bool _enabled)",
   "function setPrice(uint256 _pricePerToken, uint256 _tokensPerMON)",
   "function withdraw()",
-
   // ERC20 STANDARD
   "function name() view returns (string)",
   "function symbol() view returns (string)",
@@ -398,8 +392,7 @@ const ABI_EURO = [
   "function allowance(address,address) view returns (uint256)",
   "function approve(address,uint256) returns (bool)",
   "function transferFrom(address,address,uint256) returns (bool)",
-
-  // MINT
+  // MINT (owner only)
   "function mint(address,uint256)"
 ];
 
@@ -685,18 +678,35 @@ function showWcStatus(msg, type) {
 // ══════════════════════════════════════════════════
 //  INJECTED WALLET
 // ══════════════════════════════════════════════════
+let _connectingInjected = false;
 async function connectInjected() {
   if (!hasInjected) return;
+  if (_connectingInjected) return;
+  _connectingInjected = true;
   closeWalletModal();
   try {
     showStatus('Connecting browser wallet…', 'info');
-    await window.ethereum.request({method: 'eth_requestAccounts'});
+    // Use eth_accounts first to avoid duplicate popup if already permitted
+    let accounts = [];
+    try { accounts = await window.ethereum.request({method: 'eth_accounts'}); } catch(_) {}
+    if (!accounts || !accounts.length) {
+      accounts = await window.ethereum.request({method: 'eth_requestAccounts'});
+    }
     await ensureMonadChain(window.ethereum);
     connectedVia = 'injected';
     await finalizeConnection(new ethers.BrowserProvider(window.ethereum));
     showStatus('✓ Connected!', 'success');
   } catch(e) {
-    showStatus('Connection failed: ' + (e?.message || String(e)).slice(0, 80), 'error');
+    const msg = e?.message || String(e);
+    if (msg.toLowerCase().includes('already pending')) {
+      showStatus('MetaMask popup already open — please check MetaMask and try again', 'warn');
+    } else if (msg.toLowerCase().includes('user rejected') || e?.code === 4001) {
+      showStatus('Connection cancelled', 'warn');
+    } else {
+      showStatus('Connection failed: ' + msg.slice(0, 80), 'error');
+    }
+  } finally {
+    _connectingInjected = false;
   }
 }
 
