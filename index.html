@@ -1061,7 +1061,7 @@ async function sendBuyTx(toAddress, monAmount) {
   if (!ethLike) throw new Error('No provider');
   const txHash=await ethLike.request({
     method:'eth_sendTransaction',
-    params:[{from:userAddress,to:toAddress,value:weiHex,data:'0xa6f2ae3a',gas:'0x493E0'}]
+    params:[{from:userAddress,to:toAddress,value:weiHex,data:'0xd0febe4c'',gas:'0x493E0'}]
   });
   return await waitForTx(txHash);
 }
