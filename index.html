@@ -23,6 +23,28 @@
   body { background:var(--dark); color:var(--text); font-family:'Share Tech Mono',monospace; min-height:100vh; overflow-x:hidden; }
   body::before { content:''; position:fixed; inset:0; background-image:linear-gradient(rgba(0,255,136,0.035) 1px,transparent 1px),linear-gradient(90deg,rgba(0,119,255,0.035) 1px,transparent 1px); background-size:44px 44px; pointer-events:none; z-index:0; }
   body::after  { content:''; position:fixed; inset:0; background:radial-gradient(ellipse 55% 35% at 15% 5%,#00ff8808 0%,transparent 65%),radial-gradient(ellipse 50% 30% at 85% 85%,#0077ff0b 0%,transparent 65%); pointer-events:none; z-index:0; }
+
+  /* ── SPLASH SCREEN ── */
+  #splash {
+    position:fixed; inset:0; background:var(--dark); z-index:9999;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px;
+    transition:opacity 0.8s ease, visibility 0.8s ease;
+  }
+  #splash.fade-out { opacity:0; visibility:hidden; }
+  .splash-logo { width:110px; height:110px; border-radius:50%; border:2px solid var(--green);
+    box-shadow:0 0 40px #00ff8866, 0 0 80px #0077ff22;
+    animation:splashPulse 1.5s ease-in-out infinite; object-fit:cover; }
+  @keyframes splashPulse { 0%,100%{box-shadow:0 0 30px #00ff8855,0 0 60px #0077ff22} 50%{box-shadow:0 0 60px #00ff88aa,0 0 120px #0077ff44} }
+  .splash-title { font-family:'Orbitron',monospace; font-size:26px; font-weight:900;
+    background:linear-gradient(90deg,var(--green),var(--cyan),var(--blue));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    letter-spacing:5px; filter:drop-shadow(0 0 16px #00ff8866); }
+  .splash-sub { font-size:10px; letter-spacing:3px; color:#4488aa; }
+  .splash-bar { width:180px; height:2px; background:#001a0f; border-radius:2px; overflow:hidden; }
+  .splash-fill { height:100%; background:linear-gradient(90deg,var(--green),var(--cyan));
+    animation:splashLoad 1.8s ease forwards; width:0; border-radius:2px; }
+  @keyframes splashLoad { 0%{width:0} 100%{width:100%} }
+
   .container { max-width:480px; margin:0 auto; padding:20px 16px 40px; position:relative; z-index:1; }
   .header { text-align:center; padding:30px 0 20px; }
   .logo-img { width:140px; height:140px; border-radius:50%; margin:0 auto 16px; display:block; object-fit:cover; filter:drop-shadow(0 0 22px #00ff8899) drop-shadow(0 0 8px #0077ffaa); animation:float 3s ease-in-out infinite; border:2px solid var(--green); box-shadow:0 0 30px #00ff8844,0 0 60px #0077ff22; }
@@ -183,9 +205,62 @@
   .owner-panel.show { display:block; }
   .owner-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
   .owner-label { font-size:9px; color:#009966; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; }
+
+  /* ── FOOTER ── */
+  .footer {
+    background:#000a18;
+    border-top:1px solid #003d2a;
+    border-radius:16px 16px 0 0;
+    padding:30px 20px 24px;
+    margin-top:32px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .footer::before {
+    content:'';
+    position:absolute; top:0; left:0; right:0; height:1px;
+    background:linear-gradient(90deg,transparent,var(--green),var(--cyan),transparent);
+  }
+  .footer-logo {
+    width:52px; height:52px; border-radius:50%; object-fit:cover;
+    border:1px solid #00ff8844; margin:0 auto 10px; display:block;
+    filter:drop-shadow(0 0 10px #00ff8855);
+  }
+  .footer-brand {
+    font-family:'Orbitron',monospace; font-size:16px; font-weight:900;
+    background:linear-gradient(90deg,var(--green),var(--cyan),var(--blue));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    letter-spacing:4px; margin-bottom:2px;
+  }
+  .footer-sub { font-size:9px; color:#4488aa; letter-spacing:3px; margin-bottom:22px; }
+  .footer-section-label {
+    font-family:'Orbitron',monospace; font-size:9px; letter-spacing:3px;
+    color:#00cc88; text-transform:uppercase; margin:16px 0 10px; text-align:left;
+  }
+  .footer-links { display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-start; }
+  .footer-link {
+    display:inline-flex; align-items:center; gap:7px;
+    background:#00080f; border:1px solid #222; border-radius:20px;
+    padding:8px 14px; text-decoration:none; font-family:'Share Tech Mono',monospace;
+    font-size:11px; letter-spacing:1px; transition:all 0.3s;
+  }
+  .footer-link:hover { transform:translateY(-2px); box-shadow:0 4px 16px rgba(0,255,136,0.12); }
+  .footer-divider { height:1px; background:linear-gradient(90deg,transparent,#003d2a,transparent); margin:22px 0 14px; }
+  .footer-copy { font-size:9px; color:#2a4a3a; letter-spacing:3px; margin-bottom:4px; }
+  .footer-chain { font-size:9px; color:#1a3a2a; letter-spacing:2px; }
 </style>
 </head>
 <body>
+
+<!-- ══════════ SPLASH SCREEN ══════════ -->
+<div id="splash">
+  <img src="logo.png" class="splash-logo" onerror="this.src='https://files.catbox.moe/9o0wad.png'" alt="EUROSPACE">
+  <div class="splash-title">EUROSPACE</div>
+  <div class="splash-sub">MONAD MAINNET · 2026</div>
+  <div class="splash-bar"><div class="splash-fill"></div></div>
+</div>
+
 <div class="scan-line"></div>
 
 <!-- ══════════ WALLET MODAL ══════════ -->
@@ -236,8 +311,6 @@
         <div class="buy-modal-contract" id="buyModalContract"></div>
       </div>
     </div>
-
-    <!-- BUY SECTION -->
     <div class="input-group">
       <label class="input-label">You Pay (MON)</label>
       <div class="input-wrapper">
@@ -255,8 +328,6 @@
       </div>
     </div>
     <button class="btn-buy-token" id="modalBuyBtn" onclick="executeTokenBuy()" disabled>◈ Buy Now</button>
-
-    <!-- SELL SECTION -->
     <div class="sell-section">
       <div class="sell-balance" id="sellBalanceRow" onclick="fillMaxSell()">Balance: <span id="sellBalance">—</span></div>
       <div class="input-group">
@@ -277,8 +348,6 @@
       </div>
       <button class="btn-sell-token" id="modalSellBtn" onclick="executeTokenSell()" disabled>◈ Sell Tokens</button>
     </div>
-
-    <!-- OWNER PANEL -->
     <div class="owner-panel" id="tokenOwnerPanel">
       <div class="mint-panel-title">⚙ OWNER PANEL</div>
       <div class="owner-label">Mint Tokens</div>
@@ -301,7 +370,6 @@
       <div class="owner-label">Withdraw MON</div>
       <button class="btn-owner-action" onclick="doWithdrawToken()">⬇ Withdraw MON Balance</button>
     </div>
-
     <div class="modal-status" id="modalStatus"></div>
   </div>
 </div>
@@ -391,8 +459,6 @@
     <button class="btn-connect-main" id="connectBtn" onclick="handleConnectBtnClick()">◈ Connect Wallet</button>
     <button class="btn-buy" id="buyBtn" onclick="buyEuro()" disabled>◈ Buy Euro Coin</button>
     <div class="status" id="statusMsg"></div>
-
-    <!-- EURO OWNER PANEL -->
     <div class="owner-panel" id="euroOwnerPanel">
       <div class="mint-panel-title">⚙ EURO OWNER PANEL</div>
       <div class="owner-label">Mint EURO</div>
@@ -422,7 +488,7 @@
       <div class="contract-address" id="mainContractAddr">0x5548D8405F343a6075a46a45CB954bCeB8Ba4E79</div>
       <button class="copy-btn" id="copyBtn">COPY</button>
     </div>
-    <a href="https://testnet.monadexplorer.com/address/0x5548D8405F343a6075a46a45CB954bCeB8Ba4E79" target="_blank" class="explorer-link">🔍 View on Explorer</a>
+    <a href="https://monadvision.com/token/0x5548D8405F343a6075a46a45CB954bCeB8Ba4E79" target="_blank" class="explorer-link">🔍 View on MonadVision</a>
   </div>
 
   <div class="card">
@@ -435,35 +501,87 @@
     </div>
   </div>
 
-  <div style="text-align:center;padding:24px 0 40px;font-size:10px;color:#4488aa;letter-spacing:2px;">
-    <div style="font-family:'Orbitron',monospace;font-size:13px;font-weight:700;background:linear-gradient(90deg,#00ff88,#00ffe0,#0077ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px;">EUROSPACE</div>
-    MONAD MAINNET · 2026
-    <div style="display:flex;justify-content:center;gap:12px;margin-top:20px;flex-wrap:wrap;">
-      <a href="https://x.com/bnbgold277983" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#000f1f;border:1px solid #1a1a2e;border-radius:24px;padding:10px 18px;text-decoration:none;color:#e7e9ea;font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:1px;transition:all 0.3s;" onmouseover="this.style.borderColor='#e7e9ea'" onmouseout="this.style.borderColor='#1a1a2e'">Twitter</a>
-      <a href="https://discord.com/channels/1316093079090106472" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#000f1f;border:1px solid #1a1a2e;border-radius:24px;padding:10px 18px;text-decoration:none;color:#5865f2;font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:1px;transition:all 0.3s;" onmouseover="this.style.borderColor='#5865f2'" onmouseout="this.style.borderColor='#1a1a2e'">Discord</a>
-      <a href="https://t.me/eurocoin_monad_bot" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#000f1f;border:1px solid #1a1a2e;border-radius:24px;padding:10px 18px;text-decoration:none;color:#29aae1;font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:1px;transition:all 0.3s;" onmouseover="this.style.borderColor='#29aae1'" onmouseout="this.style.borderColor='#1a1a2e'">Telegram</a>
+  <!-- ══ FOOTER ══ -->
+  <div class="footer">
+    <img src="logo.png" class="footer-logo" onerror="this.src='https://files.catbox.moe/9o0wad.png'" alt="EUROSPACE">
+    <div class="footer-brand">EUROSPACE</div>
+    <div class="footer-sub">MONAD MAINNET · 2026</div>
+
+    <div class="footer-section-label">◈ Community</div>
+    <div class="footer-links">
+      <a href="https://x.com/bnbgold277983" target="_blank" class="footer-link" style="color:#e7e9ea;border-color:#222" onmouseover="this.style.borderColor='#e7e9ea';this.style.background='#111'" onmouseout="this.style.borderColor='#222';this.style.background='#00080f'">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.91-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        Twitter
+      </a>
+      <a href="https://discord.com/channels/1316093079090106472" target="_blank" class="footer-link" style="color:#5865f2;border-color:#222" onmouseover="this.style.borderColor='#5865f2';this.style.background='#0d0d2b'" onmouseout="this.style.borderColor='#222';this.style.background='#00080f'">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.013.04.03.052a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+        Discord
+      </a>
+      <a href="https://t.me/eurocoin_monad_bot" target="_blank" class="footer-link" style="color:#29aae1;border-color:#222" onmouseover="this.style.borderColor='#29aae1';this.style.background='#001626'" onmouseout="this.style.borderColor='#222';this.style.background='#00080f'">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+        Telegram
+      </a>
     </div>
-    <div style="margin-top:20px;font-size:9px;color:#2a4a3a;letter-spacing:3px;">© 2026 EUROSPACE · ALL RIGHTS RESERVED</div>
+
+    <div class="footer-section-label">◈ Ecosystem</div>
+    <div class="footer-links">
+      <a href="https://monadvision.com/project/Opensea" target="_blank" class="footer-link" style="color:#836EF9;border-color:#2a1a4a" onmouseover="this.style.borderColor='#836EF9';this.style.background='#0d0a1f'" onmouseout="this.style.borderColor='#2a1a4a';this.style.background='#00080f'">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#836EF9" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3" stroke-linecap="round"/></svg>
+        MonadVision
+      </a>
+      <a href="https://dashboard.blockvision.org" target="_blank" class="footer-link" style="color:#00ffe0;border-color:#003a3a" onmouseover="this.style.borderColor='#00ffe0';this.style.background='#001a18'" onmouseout="this.style.borderColor='#003a3a';this.style.background='#00080f'">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#00ffe0" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        BlockVision
+      </a>
+      <a href="https://app.uniswap.org/" target="_blank" class="footer-link" style="color:#ff007a;border-color:#3a0020" onmouseover="this.style.borderColor='#ff007a';this.style.background='#1a0010'" onmouseout="this.style.borderColor='#3a0020';this.style.background='#00080f'">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="#ff007a"><ellipse cx="9" cy="10" rx="3" ry="4"/><path d="M12 14c1 2 4 4 6 3s2-4 0-6" fill="none" stroke="#ff007a" stroke-width="1.5"/></svg>
+        Uniswap
+      </a>
+    </div>
+
+    <div class="footer-section-label">◈ Explorer</div>
+    <div class="footer-links">
+      <a href="https://monadvision.com/token/0x5548D8405F343a6075a46a45CB954bCeB8Ba4E79" target="_blank" class="footer-link" style="color:#00ff88;border-color:#00ff8833" onmouseover="this.style.borderColor='#00ff88';this.style.background='#001a0f'" onmouseout="this.style.borderColor='#00ff8833';this.style.background='#00080f'">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#00ff88" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35" stroke-linecap="round"/></svg>
+        EURO on MonadVision
+      </a>
+      <a href="https://monadvision.com/project/Opensea" target="_blank" class="footer-link" style="color:#836EF9;border-color:#836EF933" onmouseover="this.style.borderColor='#836EF9';this.style.background='#0d0a1f'" onmouseout="this.style.borderColor='#836EF933';this.style.background='#00080f'">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#836EF9" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20" stroke-linecap="round"/></svg>
+        Monad Project
+      </a>
+    </div>
+
+    <div class="footer-divider"></div>
+    <div class="footer-copy">© 2026 EUROSPACE · ALL RIGHTS RESERVED</div>
+    <div class="footer-chain">Built on Monad · Chain ID 143</div>
   </div>
 </div>
 
 <script>
+// ── SPLASH ──────────────────────────────────────
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const splash = document.getElementById('splash');
+    splash.classList.add('fade-out');
+    setTimeout(() => splash.remove(), 900);
+  }, 2000);
+});
+
 // ══════════════════════════════════════════════════
-//  CONFIG — ALL DEPLOYED ADDRESSES (UPDATED)
+//  CONFIG
 // ══════════════════════════════════════════════════
-const EUROSPACE_CONTRACT = "0x5548D8405F343a6075a46a45CB954bCeB8Ba4E79"; // MetaEuroCoin (EURO)
+const EUROSPACE_CONTRACT = "0x5548D8405F343a6075a46a45CB954bCeB8Ba4E79";
 const OWNER_ADDRESS      = "0x592B35c8917eD36c39Ef73D0F5e92B0173560b2e";
 
 const MONAD_CHAIN = {
   id:143, chainId:"0x8F", chainName:"Monad Mainnet",
   nativeCurrency:{name:"MON",symbol:"MON",decimals:18},
   rpcUrls:["https://rpc.monad.xyz"],
-  blockExplorerUrls:["https://monad.socialscan.io"]
+  blockExplorerUrls:["https://monadvision.com"]
 };
 
 const MONAD_RPCS = ["https://rpc.monad.xyz","https://monad.drpc.org"];
 
-// ── ABIs ──────────────────────────────────────────
 const ABI_EURO = [
   "function buyTokens() payable",
   "function buyEnabled() view returns (bool)",
@@ -505,7 +623,6 @@ const ABI_META = [
   "function transferFrom(address,address,uint256) returns (bool)"
 ];
 
-// ── 4-byte selectors ──────────────────────────────
 const SEL = {
   totalSupply:  "0x18160ddd",
   buyEnabled:   "0xf582d293",
@@ -518,16 +635,11 @@ const SEL = {
 
 const WC_PROJECT_ID = "fb6f5975280757260d74ece910c45ba8";
 
-// ══════════════════════════════════════════════════
-//  META TOKENS — ALL 16 DEPLOYED CONTRACTS
-// ══════════════════════════════════════════════════
 const META_TOKENS = [
-  // ── Original 4 (prices fixed via fix-prices.sh) ──
   {symbol:"mBTC",   name:"Meta Bitcoin",  color:"#F7931A", img:"META BTC.png",       contract:"0x5078A3531Dba3Dea11AB4aaF641DB6f0fE88579e"},
   {symbol:"mETH",   name:"Meta Ethereum", color:"#627EEA", img:"META ETH.png",       contract:"0x271028A77301bb705C293Bd1fFA79E239AB1Daec"},
   {symbol:"mSOL",   name:"Meta Solana",   color:"#9945FF", img:"META SOL.png",       contract:"0xEd59c5bA2180ce57a723Dbc04FF3A81e1ba84B3C"},
   {symbol:"mBNB",   name:"Meta BNB",      color:"#F3BA2F", img:"META BNB.png",       contract:"0xb1326c51F73814f071bb4d3db44c86dD03DC8C76"},
-  // ── New 12 (deployed with correct 1e15 price) ──
   {symbol:"mXRP",   name:"Meta XRP",      color:"#00AAE4", img:"META XRP.png",       contract:"0x379563529988bD76DeD9bc4a175AD59df6191B75"},
   {symbol:"mUSDC",  name:"Meta USDC",     color:"#2775CA", img:"META USDC.png",      contract:"0xe0Ed08D1bC86b98434861ae0403be968bD95465E"},
   {symbol:"mUSDT",  name:"Meta Tether",   color:"#26A17B", img:"META USDT.png",      contract:"0x085368cae9d4eCffe676806c3a8105433377164b"},
@@ -535,7 +647,7 @@ const META_TOKENS = [
   {symbol:"mDOGE",  name:"Meta Dogecoin", color:"#C2A633", img:"META DODGE.png",     contract:"0x111b31d8474Aee70767337FD794a7fb0A08788A8"},
   {symbol:"mLTC",   name:"Meta Litecoin", color:"#BFBBBB", img:"META LTC.png",       contract:"0x8abAe4dbf7A2e286d688fa7101bea0fAE4C0Dd75"},
   {symbol:"mTRX",   name:"Meta TRON",     color:"#EF0027", img:"META TRX.png",       contract:"0x1A3206c56993d4906ec26Fe85194399E0dBD8EBf"},
-  {symbol:"mBASE",  name:"Meta Base",     color:"#0052FF", img:"META BASE.png",      contract:"0xeA66DaF739823505817d4DAfEdBb43Dc0C2E5372"},
+  {symbol:"mBASE",  name:"Meta Base",     color:"#0052FF", img:"META BASE.png",      contract:"0xeA66DaF739823505817d4DAfEdBbb43Dc0C2E5372"},
   {symbol:"mEURO",  name:"Meta Euro",     color:"#003399", img:"META EUROSPACE.png", contract:"0x4443892C796f7A519C9D099417EC8422f88F5867"},
   {symbol:"mMONAD", name:"Meta Monad",    color:"#836EF9", img:"META MONAD.png",     contract:"0xbF5E34B1EBE37F9a98BFcE48645dc67Dd84E5fD6"},
   {symbol:"mEURC",  name:"Meta EURC",     color:"#FFD700", img:"META EURC.png",      contract:"0x7bD9bbFc0086B033ede5736e4Aa9C16a451D0904"},
@@ -557,9 +669,6 @@ let _isSelling      = false;
 let _tokensPerMON   = 0n;
 let _isOwner        = false;
 
-// ══════════════════════════════════════════════════
-//  ENVIRONMENT
-// ══════════════════════════════════════════════════
 const isTrustWallet = /TrustWallet/i.test(navigator.userAgent)||!!window.ethereum?.isTrust;
 const isMMApp       = /MetaMaskMobile/i.test(navigator.userAgent);
 const hasInjected   = !!window.ethereum;
@@ -590,9 +699,6 @@ function encodeBalanceOf(addr) {
   return SEL.balanceOf + '000000000000000000000000' + addr.toLowerCase().replace('0x','');
 }
 
-// ══════════════════════════════════════════════════
-//  CONTRACT DATA
-// ══════════════════════════════════════════════════
 async function loadContractData() {
   try {
     const [supplyHex, enabledHex, rateHex] = await Promise.all([
@@ -642,9 +748,6 @@ async function loadTokenBalance(token) {
   return 0;
 }
 
-// ══════════════════════════════════════════════════
-//  ENABLED CHECKS
-// ══════════════════════════════════════════════════
 async function checkEnabled(addr, isMeta) {
   const sel = isMeta ? SEL.tradeEnabled : SEL.buyEnabled;
   const hex = await ethCall(addr, sel);
@@ -784,9 +887,6 @@ async function connectInjected() {
   } finally { _connectingInjected=false; }
 }
 
-// ══════════════════════════════════════════════════
-//  CHAIN SWITCH
-// ══════════════════════════════════════════════════
 async function ensureMonadChain(ethLike) {
   try {
     await ethLike.request({method:'wallet_switchEthereumChain',params:[{chainId:MONAD_CHAIN.chainId}]});
@@ -801,9 +901,6 @@ async function ensureMonadChain(ethLike) {
   }
 }
 
-// ══════════════════════════════════════════════════
-//  FINALIZE CONNECTION
-// ══════════════════════════════════════════════════
 async function finalizeConnection(ethersProvider) {
   provider=ethersProvider;
   signer=await provider.getSigner();
@@ -815,9 +912,6 @@ async function finalizeConnection(ethersProvider) {
   loadContractData();
 }
 
-// ══════════════════════════════════════════════════
-//  DEEP LINKS
-// ══════════════════════════════════════════════════
 function connectTrustDeepLink() {
   closeWalletModal();
   window.location.href=`https://link.trustwallet.com/open_url?coin_id=60&url=${dappUrl}`;
@@ -827,9 +921,6 @@ function connectMMDeepLink() {
   window.location.href=`https://metamask.app.link/dapp/${dappHost}`;
 }
 
-// ══════════════════════════════════════════════════
-//  DISCONNECT
-// ══════════════════════════════════════════════════
 async function disconnectWallet() {
   stopHeartbeat();
   if (connectedVia==='walletconnect'&&wcProvider) {
@@ -851,9 +942,6 @@ async function disconnectWallet() {
   }
 }
 
-// ══════════════════════════════════════════════════
-//  WALLET UI
-// ══════════════════════════════════════════════════
 async function updateWalletUI() {
   const short=userAddress.slice(0,6)+'…'+userAddress.slice(-4);
   let bal='—';
@@ -876,9 +964,6 @@ async function updateWalletUI() {
   }
 }
 
-// ══════════════════════════════════════════════════
-//  WALLET MODAL SETUP
-// ══════════════════════════════════════════════════
 function setupWalletModal() {
   if (hasInjected) {
     const eth=window.ethereum;
@@ -1077,9 +1162,6 @@ async function waitForTx(txHash) {
   throw new Error('Not confirmed after 120s — check explorer');
 }
 
-// ══════════════════════════════════════════════════
-//  EXECUTE BUY (meta token)
-// ══════════════════════════════════════════════════
 async function executeTokenBuy() {
   if (!userAddress) { showModalStatus('Connect wallet first!','error'); return; }
   if (!currentToken||_isBuying) return;
@@ -1107,9 +1189,6 @@ async function executeTokenBuy() {
   }
 }
 
-// ══════════════════════════════════════════════════
-//  EXECUTE SELL (meta token)
-// ══════════════════════════════════════════════════
 async function executeTokenSell() {
   if (!userAddress) { showModalStatus('Connect wallet first!','error'); return; }
   if (!currentToken||_isSelling) return;
