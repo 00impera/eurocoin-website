@@ -557,12 +557,20 @@
 
 <script>
 // ── SPLASH ──────────────────────────────────────
+// Start loading data immediately in background while splash shows
+loadContractData();
+buildTokenGallery();
+updateCountdown();
+setInterval(updateCountdown, 1000);
+
 window.addEventListener('load', () => {
+  // Wait for splash animation to complete, then fade out smoothly
   setTimeout(() => {
     const splash = document.getElementById('splash');
+    if (!splash) return;
     splash.classList.add('fade-out');
-    setTimeout(() => splash.remove(), 900);
-  }, 2000);
+    setTimeout(() => { if (splash.parentNode) splash.remove(); }, 900);
+  }, 1800);
 });
 
 // ══════════════════════════════════════════════════
@@ -1416,13 +1424,7 @@ if (window.ethereum) {
   });
 }
 
-// ══════════════════════════════════════════════════
-//  BOOT
-// ══════════════════════════════════════════════════
-setInterval(updateCountdown,1000);
-updateCountdown();
-buildTokenGallery();
-window.addEventListener('load',loadContractData);
+// (boot is handled at top of script — data loads during splash)
 </script>
 </body>
 </html>
