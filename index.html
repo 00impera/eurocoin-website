@@ -190,6 +190,79 @@
 </style>
 </head>
 <body>
+
+<script>
+// ══════════════════════════════════════════════════
+//  TELEGRAM + METAMASK CONFLICT FIXES
+// ══════════════════════════════════════════════════
+
+// 1. Suppress MetaMask "orphaned data" console noise
+(function() {
+  const _warn = console.warn.bind(console);
+  const _error = console.error.bind(console);
+  const suppress = (msg) => {
+    const s = String(msg);
+    return s.includes('orphaned') ||
+           s.includes('metamask-multichain') ||
+           s.includes('ObjectMultiplex') ||
+           s.includes('SES Removing') ||
+           s.includes('unpermitted intrinsics');
+  };
+  console.warn  = (...a) => { if (!suppress(a[0])) _warn(...a);  };
+  console.error = (...a) => { if (!suppress(a[0])) _error(...a); };
+})();
+
+// 2. Safe ethereum getter — avoids SES lockdown crash
+//    when MetaMask tries to redefine window.ethereum in Telegram
+(function() {
+  try {
+    let _eth = window.ethereum;
+    Object.defineProperty(window, 'ethereum', {
+      get() { return _eth; },
+      set(v) {
+        if (v && typeof v === 'object') _eth = v;
+      },
+      configurable: true
+    });
+  } catch(_) { /* SES already locked — ignore */ }
+})();
+
+
+// 4. EIP-6963 provider announcement — catches MetaMask in restricted envs
+//    (Telegram WebApp blocks direct window.ethereum sometimes)
+(function() {
+  window.addEventListener('eip6963:announceProvider', (event) => {
+    try {
+      const { info, provider } = event.detail;
+      if (!window._eip6963Providers) window._eip6963Providers = [];
+      window._eip6963Providers.push({ info, provider });
+      // If no ethereum yet, use first announced provider
+      if (!window.ethereum) {
+        try { window.ethereum = provider; } catch(_) {}
+      }
+    } catch(_) {}
+  });
+  // Request providers to announce themselves
+  try {
+    window.dispatchEvent(new Event('eip6963:requestProvider'));
+  } catch(_) {}
+})();
+
+// 3. Fix Telegram WebApp theme colors for dark dapp
+(function() {
+  try {
+    if (window.Telegram?.WebApp) {
+      const tg = window.Telegram.WebApp;
+      tg.expand();
+      // Override the white bottom bar Telegram sets
+      if (tg.setBottomBarColor)  tg.setBottomBarColor('#00080f');
+      if (tg.setHeaderColor)     tg.setHeaderColor('#00080f');
+      if (tg.setBackgroundColor) tg.setBackgroundColor('#00080f');
+    }
+  } catch(_) {}
+})();
+</script>
+
 <div class="scan-line"></div>
 
 <!-- ══════════ WALLET MODAL ══════════ -->
@@ -571,7 +644,7 @@ let _isOwner        = false;
 // ══════════════════════════════════════════════════
 const isTrustWallet = /TrustWallet/i.test(navigator.userAgent)||!!window.ethereum?.isTrust;
 const isMMApp       = /MetaMaskMobile/i.test(navigator.userAgent);
-const hasInjected   = !!window.ethereum;
+const hasInjected   = !!(window.ethereum || (typeof window !== "undefined" && window.ethereum));
 const dappUrl       = encodeURIComponent(window.location.href);
 const dappHost      = window.location.host+window.location.pathname;
 if (window.Telegram?.WebApp) window.Telegram.WebApp.expand();
@@ -776,13 +849,16 @@ async function connectInjected() {
   _connectingInjected=true; closeWalletModal();
   try {
     showStatus('Connecting browser wallet…','info');
+    // Re-read window.ethereum in case it was injected after page load (Telegram)
+    const eth = window.ethereum;
+    if (!eth) { showStatus('No wallet found — use WalletConnect instead','warn'); return; }
     let accounts=[];
-    try { accounts=await window.ethereum.request({method:'eth_accounts'}); } catch(_) {}
+    try { accounts=await eth.request({method:'eth_accounts'}); } catch(_) {}
     if (!accounts||!accounts.length)
-      accounts=await window.ethereum.request({method:'eth_requestAccounts'});
-    await ensureMonadChain(window.ethereum);
+      accounts=await eth.request({method:'eth_requestAccounts'});
+    await ensureMonadChain(eth);
     connectedVia='injected';
-    await finalizeConnection(new ethers.BrowserProvider(window.ethereum));
+    await finalizeConnection(new ethers.BrowserProvider(eth));
     showStatus('✓ Connected!','success');
   } catch(e) {
     const msg=e?.message||String(e);
@@ -890,8 +966,12 @@ async function updateWalletUI() {
 //  WALLET MODAL SETUP
 // ══════════════════════════════════════════════════
 function setupWalletModal() {
-  if (hasInjected) {
-    const eth=window.ethereum;
+  // Re-check for ethereum (may arrive late in Telegram)
+  const ethNow = window.ethereum ||
+    (window._eip6963Providers && window._eip6963Providers[0]?.provider);
+  const injectedNow = !!ethNow;
+  if (injectedNow) {
+    const eth=ethNow||window.ethereum;
     const name=eth.isTrust?'Trust Wallet':eth.isRabby?'Rabby':eth.isMetaMask?'MetaMask':'Browser Wallet';
     const icon=eth.isTrust?'🛡️':eth.isRabby?'🐰':'🦊';
     document.getElementById('injIcon').textContent=icon;
@@ -905,7 +985,7 @@ function setupWalletModal() {
     }
   } else {
     document.getElementById('optInjected').classList.add('disabled');
-    document.getElementById('injDesc').textContent='No browser extension found';
+    document.getElementById('injDesc').textContent='No wallet detected — use WalletConnect';
   }
   document.getElementById('wcQrPanel').classList.remove('show');
   document.getElementById('wcModalStatus').className='wc-status';
@@ -1059,7 +1139,7 @@ function fillMaxSell() {
 async function sendBuyTx(toAddress, monAmount) {
   const weiHex='0x'+ethers.parseEther(monAmount.toString()).toString(16);
   const ethLike=connectedVia==='walletconnect'?wcProvider:window.ethereum;
-  if (!ethLike) throw new Error('No provider');
+  if (!ethLike) throw new Error('No wallet provider found — please reconnect');
   const txHash=await ethLike.request({
     method:'eth_sendTransaction',
     params:[{from:userAddress,to:toAddress,value:weiHex,data:'0xa6f2ae3a',gas:'0x493E0'}]
@@ -1351,11 +1431,11 @@ document.getElementById('buyTokenModal').addEventListener('click',e=>{
   if (e.target===document.getElementById('buyTokenModal')) closeBuyModal();
 });
 if (window.ethereum) {
-  window.ethereum.on('chainChanged',()=>window.location.reload());
-  window.ethereum.on('accountsChanged',accs=>{
+  try { window.ethereum.on('chainChanged',()=>window.location.reload()); } catch(_) {}
+  try { window.ethereum.on('accountsChanged',accs=>{
     if (!accs.length) disconnectWallet();
     else { userAddress=accs[0]; updateWalletUI().catch(console.error); }
-  });
+  }); } catch(_) {}
 }
 
 // ══════════════════════════════════════════════════
