@@ -46,9 +46,9 @@
   @keyframes splashLoad { 0%{width:0} 100%{width:100%} }
 
   .container { max-width:480px; margin:0 auto; padding:20px 16px 40px; position:relative; z-index:1; }
+
+  /* ── HEADER: no logo image, just text ── */
   .header { text-align:center; padding:30px 0 20px; }
-  .logo-img { width:140px; height:140px; border-radius:50%; margin:0 auto 16px; display:block; object-fit:cover; filter:drop-shadow(0 0 22px #00ff8899) drop-shadow(0 0 8px #0077ffaa); animation:float 3s ease-in-out infinite; border:2px solid var(--green); box-shadow:0 0 30px #00ff8844,0 0 60px #0077ff22; }
-  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
   h1 { font-family:'Orbitron',monospace; font-size:28px; font-weight:900; background:linear-gradient(90deg,var(--green),var(--cyan),var(--blue)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; filter:drop-shadow(0 0 16px #00ff8866); letter-spacing:4px; margin-bottom:4px; }
   .subtitle { font-size:11px; letter-spacing:3px; color:#4488aa; text-transform:uppercase; }
   .network-badge { display:inline-flex; align-items:center; gap:6px; background:#000f1f; border:1px solid #00ff8844; border-radius:20px; padding:6px 14px; font-size:11px; color:var(--cyan); margin-top:12px; letter-spacing:1px; }
@@ -222,11 +222,6 @@
     position:absolute; top:0; left:0; right:0; height:1px;
     background:linear-gradient(90deg,transparent,var(--green),var(--cyan),transparent);
   }
-  .footer-logo {
-    width:52px; height:52px; border-radius:50%; object-fit:cover;
-    border:1px solid #00ff8844; margin:0 auto 10px; display:block;
-    filter:drop-shadow(0 0 10px #00ff8855);
-  }
   .footer-brand {
     font-family:'Orbitron',monospace; font-size:16px; font-weight:900;
     background:linear-gradient(90deg,var(--green),var(--cyan),var(--blue));
@@ -249,6 +244,9 @@
   .footer-divider { height:1px; background:linear-gradient(90deg,transparent,#003d2a,transparent); margin:22px 0 14px; }
   .footer-copy { font-size:9px; color:#2a4a3a; letter-spacing:3px; margin-bottom:4px; }
   .footer-chain { font-size:9px; color:#1a3a2a; letter-spacing:2px; }
+
+  /* Buy card receive row — no logo image */
+  .receive-display-inner { display:flex; flex-direction:column; }
 </style>
 </head>
 <body>
@@ -376,8 +374,9 @@
 
 <!-- ══════════ MAIN PAGE ══════════ -->
 <div class="container">
+
+  <!-- Header: text only, no logo image -->
   <div class="header">
-    <img src="logo.png" alt="EUROSPACE" class="logo-img" onerror="this.src='https://files.catbox.moe/9o0wad.png'">
     <h1>EUROSPACE</h1>
     <div class="subtitle">Presale — Monad Network</div>
     <div class="network-badge"><div class="network-dot"></div>MONAD MAINNET · CHAIN ID 143</div>
@@ -448,12 +447,12 @@
     </div>
     <div class="input-group">
       <label class="input-label">You Receive</label>
+      <!-- No logo image in receive row -->
       <div class="receive-display">
         <div>
           <div class="receive-amount" id="receiveAmount">0.00</div>
           <div class="receive-label">EURO COIN</div>
         </div>
-        <img src="logo.png" style="width:32px;height:32px;border-radius:50%;object-fit:cover;" onerror="this.src='https://files.catbox.moe/9o0wad.png'">
       </div>
     </div>
     <button class="btn-connect-main" id="connectBtn" onclick="handleConnectBtnClick()">◈ Connect Wallet</button>
@@ -503,7 +502,6 @@
 
   <!-- ══ FOOTER ══ -->
   <div class="footer">
-    <img src="logo.png" class="footer-logo" onerror="this.src='https://files.catbox.moe/9o0wad.png'" alt="EUROSPACE">
     <div class="footer-brand">EUROSPACE</div>
     <div class="footer-sub">MONAD MAINNET · 2026</div>
 
