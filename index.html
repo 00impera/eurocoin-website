@@ -598,7 +598,7 @@ const SEL = {
   tokensPerMON: "0x19cb3e21",
   tradeEnabled: "0xd621e813",
   buyPrice:     "0x8620410b",
-  sellPrice:    "0xc4b7b3e5",
+  sellPrice:    "0x4b750334",
   balanceOf:    "0x70a08231",
 };
 
@@ -1142,7 +1142,7 @@ async function sendBuyTx(toAddress, monAmount) {
   if (!ethLike) throw new Error('No wallet provider found — please reconnect');
   const txHash=await ethLike.request({
     method:'eth_sendTransaction',
-    params:[{from:userAddress,to:toAddress,value:weiHex,data:'0xa6f2ae3a',gas:'0x493E0'}]
+    params:[{from:userAddress,to:toAddress,value:weiHex,data:'0xd0febe4c',gas:'0x493E0'}]
   });
   return await waitForTx(txHash);
 }
@@ -1150,7 +1150,7 @@ async function sendBuyTx(toAddress, monAmount) {
 async function sendSellTx(contract, tokenAmountWei) {
   // sellTokens(uint256) — selector 0x9dc29fac
   const amtHex=tokenAmountWei.toString(16).padStart(64,'0');
-  const data='0x9dc29fac'+amtHex;
+  const data='0x6c11bcd3'+amtHex;
   const ethLike=connectedVia==='walletconnect'?wcProvider:window.ethereum;
   if (!ethLike) throw new Error('No provider');
   const txHash=await ethLike.request({
