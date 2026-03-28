@@ -6,7 +6,6 @@
 <title>EUROSPACE — Monad Presale</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
-/* Suppress MetaMask/inpage.js noise inside Telegram webview */
 (function() {
   const isTG = !!(window.Telegram?.WebApp) ||
                navigator.userAgent.includes('TelegramWebApp') ||
@@ -44,7 +43,9 @@
   body { background:var(--dark); color:var(--text); font-family:'Share Tech Mono',monospace; min-height:100vh; overflow-x:hidden; }
   body::before { content:''; position:fixed; inset:0; background-image:linear-gradient(rgba(0,255,136,0.035) 1px,transparent 1px),linear-gradient(90deg,rgba(0,119,255,0.035) 1px,transparent 1px); background-size:44px 44px; pointer-events:none; z-index:0; }
   body::after  { content:''; position:fixed; inset:0; background:radial-gradient(ellipse 55% 35% at 15% 5%,#00ff8808 0%,transparent 65%),radial-gradient(ellipse 50% 30% at 85% 85%,#0077ff0b 0%,transparent 65%); pointer-events:none; z-index:0; }
-  .container { max-width:480px; margin:0 auto; padding:20px 16px 40px; position:relative; z-index:1; }
+  #crystalRain { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:1; }
+  .container { max-width:480px; margin:0 auto; padding:20px 16px 40px; position:relative; z-index:2; }
+  .scan-line  { position:fixed; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--green),var(--cyan),transparent); opacity:0.2; animation:scan 4s linear infinite; pointer-events:none; z-index:2; }
   .header { text-align:center; padding:30px 0 20px; }
   .logo-img { width:140px; height:140px; border-radius:50%; margin:0 auto 16px; display:block; object-fit:cover; filter:drop-shadow(0 0 22px #00ff8899) drop-shadow(0 0 8px #0077ffaa); animation:float 3s ease-in-out infinite; border:2px solid var(--green); box-shadow:0 0 30px #00ff8844,0 0 60px #0077ff22; }
   @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
@@ -199,7 +200,6 @@
   .btn-owner-action.danger { border-color:#ff446633; color:#ff4466; }
   .btn-owner-action.danger:hover { border-color:#ff4466; background:#ff446611; }
   @keyframes scan { 0%{transform:translateY(-100%)} 100%{transform:translateY(100vh)} }
-  .scan-line { position:fixed; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--green),var(--cyan),transparent); opacity:0.2; animation:scan 4s linear infinite; pointer-events:none; z-index:0; }
   .owner-panel { background:#000a1a; border:1px solid #00ff8822; border-radius:12px; padding:16px; margin-top:14px; display:none; }
   .owner-panel.show { display:block; }
   .owner-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
@@ -207,6 +207,63 @@
 </style>
 </head>
 <body>
+
+<!-- ══════════ CRYSTAL RAIN ══════════ -->
+<canvas id="crystalRain"></canvas>
+<script>
+(function(){
+  const canvas = document.getElementById('crystalRain');
+  const ctx = canvas.getContext('2d');
+  function resize(){ canvas.width=window.innerWidth; canvas.height=window.innerHeight; }
+  resize(); window.addEventListener('resize', resize);
+  const COLORS = ['#00ffe0','#00ff88','#0077ff','#00ccff','#88ffdd'];
+  const drops = Array.from({length:42},()=>({
+    x: Math.random()*window.innerWidth,
+    y: Math.random()*window.innerHeight,
+    size: 2+Math.random()*8,
+    speed: 0.35+Math.random()*0.9,
+    opacity: 0.05+Math.random()*0.11,
+    color: COLORS[Math.floor(Math.random()*COLORS.length)],
+    wobble: Math.random()*Math.PI*2,
+    wobbleSpeed: 0.008+Math.random()*0.018,
+    tail: 5+Math.floor(Math.random()*9),
+    history: []
+  }));
+  function drawDrop(d){
+    ctx.save();
+    for(let i=d.history.length-1;i>=0;i--){
+      const t=i/d.history.length;
+      ctx.globalAlpha=d.opacity*t*0.45;
+      ctx.beginPath();
+      ctx.ellipse(d.history[i].x,d.history[i].y,d.size*0.35*t,d.size*0.65*t,0,0,Math.PI*2);
+      ctx.strokeStyle=d.color; ctx.lineWidth=0.6; ctx.stroke();
+    }
+    ctx.globalAlpha=d.opacity;
+    ctx.beginPath();
+    ctx.moveTo(d.x, d.y-d.size);
+    ctx.bezierCurveTo(d.x+d.size*0.5,d.y-d.size*0.4, d.x+d.size*0.5,d.y+d.size*0.4, d.x,d.y+d.size);
+    ctx.bezierCurveTo(d.x-d.size*0.5,d.y+d.size*0.4, d.x-d.size*0.5,d.y-d.size*0.4, d.x,d.y-d.size);
+    ctx.strokeStyle=d.color; ctx.lineWidth=0.8; ctx.stroke();
+    ctx.globalAlpha=d.opacity*0.15; ctx.fillStyle=d.color; ctx.fill();
+    ctx.restore();
+  }
+  function animate(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    drops.forEach(d=>{
+      d.history.push({x:d.x,y:d.y});
+      if(d.history.length>d.tail) d.history.shift();
+      d.wobble+=d.wobbleSpeed;
+      d.x+=Math.sin(d.wobble)*0.28;
+      d.y+=d.speed;
+      if(d.y-d.size>canvas.height){ d.y=-d.size*2; d.x=Math.random()*canvas.width; d.history=[]; }
+      drawDrop(d);
+    });
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
+</script>
+
 <div class="scan-line"></div>
 
 <!-- ══════════ WALLET MODAL ══════════ -->
@@ -434,7 +491,6 @@
       <div class="contract-address" id="mainContractAddr">0x5548D8405F343a6075a46a45CB954bCeB8Ba4E79</div>
       <button class="copy-btn" id="copyBtn">COPY</button>
     </div>
-    <!-- ✅ FIXED: updated from testnet to mainnet explorer -->
     <a href="https://monad.socialscan.io/address/0x5548D8405F343a6075a46a45CB954bCeB8Ba4E79" target="_blank" class="explorer-link">🔍 View on Monad Explorer</a>
   </div>
 
@@ -461,13 +517,9 @@
 </div>
 
 <script>
-// ══════════════════════════════════════════════════
-//  CONFIG
-// ══════════════════════════════════════════════════
 const EUROSPACE_CONTRACT = "0x5548D8405F343a6075a46a45CB954bCeB8Ba4E79";
 const OWNER_ADDRESS      = "0x592B35c8917eD36c39Ef73D0F5e92B0173560b2e";
 
-// ✅ FIXED: correct mainnet chain config
 const MONAD_CHAIN = {
   id:143, chainId:"0x8F", chainName:"Monad Mainnet",
   nativeCurrency:{name:"MON",symbol:"MON",decimals:18},
@@ -531,31 +583,25 @@ const SEL = {
 
 const WC_PROJECT_ID = "fb6f5975280757260d74ece910c45ba8";
 
-// ══════════════════════════════════════════════════
-//  META TOKENS — ALL 16 CONTRACTS (MAINNET)
-// ══════════════════════════════════════════════════
 const META_TOKENS = [
-  {symbol:"mBTC",   name:"Meta Bitcoin",  color:"#F7931A", img:"META BTC.png",       contract:"0x5078A3531Dba3Dea11AB4aaF641DB6f0fE88579e"},
-  {symbol:"mETH",   name:"Meta Ethereum", color:"#627EEA", img:"META ETH.png",       contract:"0x271028A77301bb705C293Bd1fFA79E239AB1Daec"},
-  {symbol:"mSOL",   name:"Meta Solana",   color:"#9945FF", img:"META SOL.png",       contract:"0xEd59c5bA2180ce57a723Dbc04FF3A81e1ba84B3C"},
-  {symbol:"mBNB",   name:"Meta BNB",      color:"#F3BA2F", img:"META BNB.png",       contract:"0xb1326c51F73814f071bb4d3db44c86dD03DC8C76"},
-  {symbol:"mXRP",   name:"Meta XRP",      color:"#00AAE4", img:"META XRP.png",       contract:"0x379563529988bD76DeD9bc4a175AD59df6191B75"},
-  {symbol:"mUSDC",  name:"Meta USDC",     color:"#2775CA", img:"META USDC.png",      contract:"0xe0Ed08D1bC86b98434861ae0403be968bD95465E"},
-  {symbol:"mUSDT",  name:"Meta Tether",   color:"#26A17B", img:"META USDT.png",      contract:"0x085368cae9d4eCffe676806c3a8105433377164b"},
-  {symbol:"mMATIC", name:"Meta Polygon",  color:"#8247E5", img:"META MATIC.png",     contract:"0x43C60d3cec23b0E85678602A4F5C1156a7398daC"},
-  {symbol:"mDOGE",  name:"Meta Dogecoin", color:"#C2A633", img:"META DODGE.png",     contract:"0x111b31d8474Aee70767337FD794a7fb0A08788A8"},
-  {symbol:"mLTC",   name:"Meta Litecoin", color:"#BFBBBB", img:"META LTC.png",       contract:"0x8abAe4dbf7A2e286d688fa7101bea0fAE4C0Dd75"},
-  {symbol:"mTRX",   name:"Meta TRON",     color:"#EF0027", img:"META TRX.png",       contract:"0x1A3206c56993d4906ec26Fe85194399E0dBD8EBf"},
-  {symbol:"mBASE",  name:"Meta Base",     color:"#0052FF", img:"META BASE.png",      contract:"0xeA66DaF739823505817d4DAfEdBb43Dc0C2E5372"},
-  {symbol:"mEURO",  name:"Meta Euro",     color:"#003399", img:"META EUROSPACE.png", contract:"0x4443892C796f7A519C9D099417EC8422f88F5867"},
-  {symbol:"mMONAD", name:"Meta Monad",    color:"#836EF9", img:"META MONAD.png",     contract:"0xbF5E34B1EBE37F9a98BFcE48645dc67Dd84E5fD6"},
-  {symbol:"mEURC",  name:"Meta EURC",     color:"#FFD700", img:"META EURC.png",      contract:"0x7bD9bbFc0086B033ede5736e4Aa9C16a451D0904"},
-  {symbol:"mCRO",   name:"Meta Cronos",   color:"#002D74", img:"META CRONOS.png",    contract:"0x0127B3c3C864cfC1BB519beB935477299b961d46"},
+  {symbol:"mBTC",   name:"Meta Bitcoin",  color:"#F7931A", img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20BTC.png",     contract:"0x5078A3531Dba3Dea11AB4aaF641DB6f0fE88579e"},
+  {symbol:"mETH",   name:"Meta Ethereum", color:"#627EEA", img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20ETH.png",     contract:"0x271028A77301bb705C293Bd1fFA79E239AB1Daec"},
+  {symbol:"mSOL",   name:"Meta Solana",   color:"#9945FF", img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20SOL.png",     contract:"0xEd59c5bA2180ce57a723Dbc04FF3A81e1ba84B3C"},
+  {symbol:"mBNB",   name:"Meta BNB",      color:"#F3BA2F", img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20BNB.png",     contract:"0xb1326c51F73814f071bb4d3db44c86dD03DC8C76"},
+  {symbol:"mXRP",   name:"Meta XRP",      color:"#00AAE4", img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20XRP.png",     contract:"0x379563529988bD76DeD9bc4a175AD59df6191B75"},
+  {symbol:"mUSDC",  name:"Meta USDC",     color:"#2775CA", img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20USDC.png",    contract:"0xe0Ed08D1bC86b98434861ae0403be968bD95465E"},
+  {symbol:"mUSDT",  name:"Meta Tether",   color:"#26A17B", img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20USDT.png",    contract:"0x085368cae9d4eCffe676806c3a8105433377164b"},
+  {symbol:"mMATIC", name:"Meta Polygon",  color:"#8247E5", img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20MATIC.png",   contract:"0x43C60d3cec23b0E85678602A4F5C1156a7398daC"},
+  {symbol:"mDOGE",  name:"Meta Dogecoin", color:"#C2A633", img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20DODGE.png",   contract:"0x111b31d8474Aee70767337FD794a7fb0A08788A8"},
+  {symbol:"mLTC",   name:"Meta Litecoin", color:"#BFBBBB", img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20LTC.png",     contract:"0x8abAe4dbf7A2e286d688fa7101bea0fAE4C0Dd75"},
+  {symbol:"mTRX",   name:"Meta TRON",     color:"#EF0027", img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20TRX.png",     contract:"0x1A3206c56993d4906ec26Fe85194399E0dBD8EBf"},
+  {symbol:"mBASE",  name:"Meta Base",     color:"#0052FF", img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20BASE.png",    contract:"0xeA66DaF739823505817d4DAfEdBb43Dc0C2E5372"},
+  {symbol:"mEURO",  name:"Meta Euro",     color:"#003399", img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20EUROSPACE.png",contract:"0x4443892C796f7A519C9D099417EC8422f88F5867"},
+  {symbol:"mMONAD", name:"Meta Monad",    color:"#836EF9", img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20MONAD.png",   contract:"0xbF5E34B1EBE37F9a98BFcE48645dc67Dd84E5fD6"},
+  {symbol:"mEURC",  name:"Meta EURC",     color:"#FFD700", img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20EURC.png",    contract:"0x7bD9bbFc0086B033ede5736e4Aa9C16a451D0904"},
+  {symbol:"mCRO",   name:"Meta Cronos",   color:"#002D74", img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20CRONOS.png",  contract:"0x0127B3c3C864cfC1BB519beB935477299b961d46"},
 ];
 
-// ══════════════════════════════════════════════════
-//  STATE
-// ══════════════════════════════════════════════════
 let provider, signer, userAddress, euroContract;
 let currentToken        = null;
 let currentMetaContract = null;
@@ -575,9 +621,6 @@ const dappUrl       = encodeURIComponent(window.location.href);
 const dappHost      = window.location.host+window.location.pathname;
 if (window.Telegram?.WebApp) window.Telegram.WebApp.expand();
 
-// ══════════════════════════════════════════════════
-//  RPC HELPERS
-// ══════════════════════════════════════════════════
 async function rpcFetch(method, params) {
   for (const rpc of MONAD_RPCS) {
     try {
@@ -597,9 +640,6 @@ function encodeBalanceOf(addr) {
   return SEL.balanceOf + '000000000000000000000000' + addr.toLowerCase().replace('0x','');
 }
 
-// ══════════════════════════════════════════════════
-//  CONTRACT DATA
-// ══════════════════════════════════════════════════
 async function loadContractData() {
   try {
     const [supplyHex, enabledHex, rateHex] = await Promise.all([
@@ -655,9 +695,6 @@ async function checkEnabled(addr, isMeta) {
   return BigInt(hex) !== 0n;
 }
 
-// ══════════════════════════════════════════════════
-//  WALLETCONNECT v2
-// ══════════════════════════════════════════════════
 let _WCProvider = null;
 async function loadWCClass() {
   if (_WCProvider) return _WCProvider;
@@ -681,7 +718,7 @@ async function initWalletConnect() {
       name:"EUROSPACE Presale",
       description:"Buy EURO & Meta Tokens on Monad",
       url: window.location.origin,
-      icons:["https://files.catbox.moe/9o0wad.png"]
+      icons:["https://raw.githubusercontent.com/00impera/eurocoin-website/master/logo.png"]
     },
     showQrModal: false
   });
@@ -760,9 +797,6 @@ function showWcStatus(msg,type) {
   el.textContent=msg; el.className='wc-status '+type;
 }
 
-// ══════════════════════════════════════════════════
-//  INJECTED WALLET
-// ══════════════════════════════════════════════════
 let _connectingInjected=false;
 async function connectInjected() {
   if (!hasInjected||_connectingInjected) return;
@@ -889,9 +923,6 @@ function openWalletModal()  { setupWalletModal(); document.getElementById('walle
 function closeWalletModal() { document.getElementById('walletModal').classList.remove('show'); }
 function handleConnectBtnClick() { if (!userAddress) openWalletModal(); }
 
-// ══════════════════════════════════════════════════
-//  TOKEN GALLERY
-// ══════════════════════════════════════════════════
 function buildTokenGallery() {
   const gallery=document.getElementById('tokenGallery');
   const dots=document.getElementById('galleryDots');
@@ -930,22 +961,16 @@ function buildTokenGallery() {
   });
 }
 
-// ══════════════════════════════════════════════════
-//  BUY/SELL TOKEN MODAL
-// ══════════════════════════════════════════════════
 async function openBuyModal(token) {
   currentToken=token; _isBuying=false; _isSelling=false;
   currentMetaContract = signer ? new ethers.Contract(token.contract, ABI_META, signer) : null;
-
   const modal=document.getElementById('buyModalInner');
   modal.style.setProperty('--token-accent',token.color);
-
   const li=document.getElementById('buyModalLogo');
   const lf=document.getElementById('buyModalLogoFb');
   li.src=token.img; li.style.display='block'; lf.style.display='none';
   lf.textContent=token.symbol.replace('m','');
   li.style.borderColor=lf.style.borderColor=lf.style.color=token.color;
-
   document.getElementById('buyModalName').textContent=token.name;
   document.getElementById('buyModalName').style.color=token.color;
   document.getElementById('buyModalSym').textContent=token.symbol;
@@ -958,22 +983,18 @@ async function openBuyModal(token) {
   document.getElementById('modalReceiveAmount').textContent='0.00';
   document.getElementById('modalSellReceive').textContent='0.00';
   document.getElementById('modalStatus').className='modal-status';
-
   const buyBtn=document.getElementById('modalBuyBtn');
   buyBtn.style.background=`linear-gradient(135deg,${token.color}cc,${token.color})`;
   buyBtn.disabled=!signer;
   buyBtn.textContent=signer?`◈ Buy ${token.symbol}`:'◈ Connect Wallet First';
-
   const sellBtn=document.getElementById('modalSellBtn');
   sellBtn.style.borderColor=token.color;
   sellBtn.style.color=token.color;
   sellBtn.disabled=!signer;
   sellBtn.textContent=signer?`◈ Sell ${token.symbol}`:'◈ Connect Wallet First';
-
   const isTokenOwner=userAddress&&userAddress.toLowerCase()===OWNER_ADDRESS.toLowerCase();
   document.getElementById('tokenOwnerPanel').classList.toggle('show', !!isTokenOwner);
   document.getElementById('buyTokenModal').classList.add('show');
-
   const [priceHex, sellPriceHex] = await Promise.all([
     ethCall(token.contract, SEL.buyPrice),
     ethCall(token.contract, SEL.sellPrice),
@@ -981,7 +1002,6 @@ async function openBuyModal(token) {
   if (priceHex && priceHex!=='0x' && priceHex!=='0x0') {
     const bp=BigInt(priceHex);
     token._buyPriceWei=bp;
-    // ✅ FIXED: correct rate display — 1 MON = 1e18/buyPrice tokens
     const tpm=Number(10n**18n/bp);
     document.getElementById('buyModalPrice').textContent=
       `BUY: 1 MON = ${tpm.toLocaleString(undefined,{maximumFractionDigits:0})} ${token.symbol}`;
@@ -991,10 +1011,9 @@ async function openBuyModal(token) {
   }
   if (sellPriceHex && sellPriceHex!=='0x' && sellPriceHex!=='0x0') {
     token._sellPriceWei=BigInt(sellPriceHex);
-    // ✅ FIXED: show sell rate too
     const spm=Number(10n**18n/BigInt(sellPriceHex));
-    const currentPriceEl=document.getElementById('buyModalPrice');
-    currentPriceEl.textContent += ` · SELL: 1 MON = ${spm.toLocaleString(undefined,{maximumFractionDigits:0})} ${token.symbol}`;
+    document.getElementById('buyModalPrice').textContent +=
+      ` · SELL: 1 MON = ${spm.toLocaleString(undefined,{maximumFractionDigits:0})} ${token.symbol}`;
   }
   if (userAddress) loadTokenBalance(token);
 }
@@ -1026,9 +1045,6 @@ function fillMaxSell() {
   }
 }
 
-// ══════════════════════════════════════════════════
-//  TX HELPERS
-// ══════════════════════════════════════════════════
 async function sendBuyTx(toAddress, monAmount) {
   const weiHex = "0x" + ethers.parseEther(monAmount.toString()).toString(16);
   const ethLike = connectedVia === "walletconnect" ? wcProvider : window.ethereum;
@@ -1064,9 +1080,6 @@ async function waitForTx(txHash) {
   throw new Error('Not confirmed after 120s — check explorer');
 }
 
-// ══════════════════════════════════════════════════
-//  EXECUTE BUY
-// ══════════════════════════════════════════════════
 async function executeTokenBuy() {
   if (!userAddress) { showModalStatus('Connect wallet first!','error'); return; }
   if (!currentToken||_isBuying) return;
@@ -1094,9 +1107,6 @@ async function executeTokenBuy() {
   }
 }
 
-// ══════════════════════════════════════════════════
-//  EXECUTE SELL
-// ══════════════════════════════════════════════════
 async function executeTokenSell() {
   if (!userAddress) { showModalStatus('Connect wallet first!','error'); return; }
   if (!currentToken||_isSelling) return;
@@ -1140,9 +1150,6 @@ function showModalStatus(msg,type) {
   el.textContent=msg; el.className='modal-status '+type;
 }
 
-// ══════════════════════════════════════════════════
-//  OWNER — META TOKENS
-// ══════════════════════════════════════════════════
 async function doMintToken() {
   if (!currentMetaContract) return;
   const to=document.getElementById('mintToAddr').value.trim();
@@ -1186,9 +1193,6 @@ async function doWithdrawToken() {
   } catch(e) { showModalStatus('Withdraw error: '+(e?.reason||e?.message||'').slice(0,100),'error'); }
 }
 
-// ══════════════════════════════════════════════════
-//  OWNER — EURO CONTRACT
-// ══════════════════════════════════════════════════
 async function doMintEuro() {
   if (!euroContract||!_isOwner) return;
   const to=document.getElementById('euroMintTo').value.trim();
@@ -1236,9 +1240,6 @@ async function doWithdrawEuro() {
   } catch(e) { showStatus('Withdraw error: '+(e?.reason||e?.message||'').slice(0,100),'error'); }
 }
 
-// ══════════════════════════════════════════════════
-//  MAIN BUY — EURO COIN
-// ══════════════════════════════════════════════════
 function calcReceive() {
   const mon=parseFloat(document.getElementById('monAmount').value)||0;
   const rate=Number(_tokensPerMON);
@@ -1272,9 +1273,6 @@ function showStatus(msg,type) {
   el.textContent=msg; el.className='status '+type;
 }
 
-// ══════════════════════════════════════════════════
-//  UTILS
-// ══════════════════════════════════════════════════
 function copyContract() {
   navigator.clipboard.writeText(EUROSPACE_CONTRACT).then(()=>{
     document.getElementById('copyBtn').textContent='COPIED!';
@@ -1286,9 +1284,6 @@ function shareOnTwitter() {
   window.open('https://twitter.com/intent/tweet?text='+t,'_blank');
 }
 
-// ══════════════════════════════════════════════════
-//  COUNTDOWN
-// ══════════════════════════════════════════════════
 const PRESALE_END  = new Date('2026-04-20T23:59:59Z').getTime();
 const PRESALE_START= new Date('2026-03-21T00:00:00Z').getTime();
 function updateCountdown() {
@@ -1305,9 +1300,6 @@ function updateCountdown() {
     Math.min(100,((now-PRESALE_START)/(PRESALE_END-PRESALE_START))*100)+'%';
 }
 
-// ══════════════════════════════════════════════════
-//  EVENT LISTENERS & BOOT
-// ══════════════════════════════════════════════════
 document.getElementById('walletModal').addEventListener('click',e=>{
   if (e.target===document.getElementById('walletModal')) closeWalletModal();
 });
