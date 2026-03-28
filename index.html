@@ -5,6 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EUROSPACE — Monad Presale</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+/* Suppress MetaMask/inpage.js noise inside Telegram webview */
+(function() {
+  const isTG = !!(window.Telegram?.WebApp) ||
+               navigator.userAgent.includes('TelegramWebApp') ||
+               window.location.search.includes('tgWebAppData');
+  if (!isTG) return;
+  const NOISE = ['ObjectMultiplex','StreamMiddleware','MetaMask','malformed chunk','Failed to connect to MetaMask','MetaMask extension not found'];
+  const _filter = (args) => { const m = String(args[0] ?? ''); return NOISE.some(n => m.includes(n)); };
+  const _err  = console.error.bind(console);
+  const _warn = console.warn.bind(console);
+  const _log  = console.log.bind(console);
+  console.error = (...a) => { if (!_filter(a)) _err(...a); };
+  console.warn  = (...a) => { if (!_filter(a)) _warn(...a); };
+  console.log   = (...a) => { if (!_filter(a)) _log(...a); };
+  window.addEventListener('unhandledrejection', e => {
+    const m = String(e?.reason?.message ?? e?.reason ?? '');
+    if (NOISE.some(n => m.includes(n))) e.preventDefault();
+  });
+})();
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
