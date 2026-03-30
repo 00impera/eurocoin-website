@@ -242,100 +242,6 @@
     .token-card{flex:0 0 90px;}
     .gallery-nav-btn{width:28px;height:28px;}
   }
-
-  /* ═══════════════════════════════════════════════
-     COMPACT PATCH — overrides above defaults
-     ═══════════════════════════════════════════════ */
-  body{font-size:12px;}
-  .container{padding:12px 12px 28px;}
-  .card,.gallery-card,.dex-card,.countdown-card{padding:14px;margin:8px 0;}
-  .card-title{font-size:10px;letter-spacing:2px;margin-bottom:10px;}
-  .header{padding:18px 0 12px;}
-  .logo-img{width:100px;height:100px;margin-bottom:10px;}
-  h1{font-size:22px;letter-spacing:3px;}
-  .subtitle{font-size:10px;letter-spacing:2px;}
-  .network-badge{padding:4px 10px;font-size:10px;margin-top:8px;}
-  .countdown-title{font-size:10px;letter-spacing:2px;margin-bottom:10px;}
-  .countdown-grid{gap:6px;margin-bottom:8px;}
-  .countdown-box{padding:8px 4px;}
-  .countdown-num{font-size:20px;}
-  .countdown-label{font-size:7px;margin-top:2px;}
-  .countdown-end{font-size:9px;}
-  .presale-bar{margin:8px 0;}
-  .share-btn{font-size:10px;padding:6px 12px;margin-top:6px;}
-  .stats-grid{gap:8px;}
-  .stat-box{padding:10px 6px;}
-  .stat-value{font-size:12px;margin-bottom:2px;}
-  .stat-label{font-size:7px;}
-  .price-grid{gap:8px;margin-bottom:12px;}
-  .price-box{padding:10px;}
-  .price-label{font-size:8px;}
-  .price-value{font-size:15px;}
-  .price-unit{font-size:9px;}
-  .input-group{margin-bottom:10px;}
-  .input-label{font-size:9px;margin-bottom:4px;}
-  input[type="number"]{padding:10px 52px 10px 12px;font-size:14px;border-radius:8px;}
-  .input-unit{font-size:10px;}
-  .receive-display{padding:10px 12px;}
-  .receive-amount{font-size:17px;}
-  .receive-label{font-size:9px;}
-  .btn-connect-main{padding:12px;font-size:11px;letter-spacing:2px;border-radius:10px;margin-bottom:8px;}
-  .btn-buy{padding:12px;font-size:12px;letter-spacing:2px;border-radius:10px;}
-  .btn-buy-token{padding:11px;font-size:11px;letter-spacing:1.5px;border-radius:10px;}
-  .btn-sell-token{padding:11px;font-size:11px;letter-spacing:1.5px;border-radius:10px;margin-top:6px;}
-  .token-card{flex:0 0 clamp(84px,20vw,110px);padding:10px 8px 8px;gap:5px;}
-  .token-logo-wrap{width:40px;height:40px;}
-  .token-symbol{font-size:9px;}
-  .token-name{font-size:7px;}
-  .token-buy-btn{padding:4px 3px;font-size:7px;}
-  .gallery-nav-btn{width:28px;height:28px;font-size:14px;}
-  .gallery-nav{margin-top:8px;gap:10px;}
-  .gallery-dots{margin-top:8px;gap:4px;}
-  .dex-filter{gap:5px;margin-bottom:10px;}
-  .dex-filter-btn{padding:4px 9px;font-size:7.5px;}
-  .dex-grid{gap:6px;}
-  .dex-row{padding:8px 10px;gap:8px;border-radius:10px;}
-  .dex-logo{width:28px;height:28px;}
-  .dex-sym{font-size:10px;}
-  .dex-name{font-size:8px;}
-  .dex-actions{gap:4px;margin-top:4px;}
-  .dex-btn{padding:2px 6px;font-size:6.5px;}
-  .dex-right{min-width:74px;}
-  .dex-price{font-size:9px;}
-  .dex-pair-label{font-size:7px;}
-  .dex-live-dot{width:4px;height:4px;}
-  .contract-box{padding:10px;}
-  .contract-address{font-size:9px;}
-  .copy-btn{font-size:9px;padding:3px 7px;}
-  .explorer-link{font-size:9px;margin-top:8px;padding:7px;}
-  .steps{gap:8px;}
-  .step{gap:10px;}
-  .step-num{width:24px;height:24px;min-width:24px;font-size:10px;}
-  .step-text{font-size:10px;padding-top:3px;}
-  .step-text strong{font-size:10px;margin-bottom:1px;}
-  .wallet-info{font-size:9px;padding:8px 12px;}
-  .w-src-badge{font-size:7px;}
-  .btn-disconnect{font-size:8px;padding:2px 7px;}
-  .container>div:last-of-type{padding:16px 0 28px;}
-  .container>div:last-of-type a{padding:8px 14px;font-size:11px;}
-  @media(min-width:600px){
-    .container{padding:16px 20px 32px;}
-    h1{font-size:26px;}
-    .logo-img{width:110px;height:110px;}
-    .countdown-num{font-size:24px;}
-  }
-  @media(min-width:900px){
-    h1{font-size:30px;}
-    .logo-img{width:120px;height:120px;}
-    .countdown-num{font-size:26px;}
-    .dex-row{padding:9px 12px;}
-  }
-  @media(max-width:380px){
-    h1{font-size:18px;letter-spacing:1px;}
-    .countdown-num{font-size:16px;}
-    .token-card{flex:0 0 80px;}
-    .logo-img{width:80px;height:80px;}
-  }
 </style>
 </head>
 <body>
@@ -574,6 +480,7 @@ async function rpcFetch(method,params){
 const ethCall=(addr,data)=>rpcFetch('eth_call',[{to:addr,data},'latest']);
 function encodeBalanceOf(addr){return SEL.balanceOf+'000000000000000000000000'+addr.toLowerCase().replace('0x','');}
 
+// DEX PRICE FETCHING
 async function fetchPairReserves(pairAddr){
   try{
     const res=await ethCall(pairAddr,'0x0902f1ac');
@@ -699,7 +606,19 @@ let _connectingInjected=false;
 async function connectInjected(){
   if(!hasInjected||_connectingInjected)return;_connectingInjected=true;closeWalletModal();
   try{showStatus('Connecting browser wallet…','info');let accounts=[];try{accounts=await window.ethereum.request({method:'eth_accounts'});}catch(_){}if(!accounts||!accounts.length)accounts=await window.ethereum.request({method:'eth_requestAccounts'});await ensureMonadChain(window.ethereum);connectedVia='injected';await finalizeConnection(new ethers.BrowserProvider(window.ethereum));showStatus('✓ Connected!','success');}
-  catch(e){const msg=e?.message||String(e);if(msg.toLowerCase().includes('already pending'))showStatus('MetaMask popup already open — check MetaMask','warn');else if(msg.toLowerCase().includes('user rejected')||e?.code===4001)showStatus('Connection cancelled','warn');else showStatus('Connection failed: '+msg.slice(0,80),'error');}
+  catch(e){const msg=e?.message||String(e);if(msg.toLowerCase().includes('already pending')){
+      showStatus('MetaMask has a pending request — open MetaMask and approve it, then try again','warn');
+      // Try to recover by requesting existing accounts (no new popup)
+      try{
+        const accs=await window.ethereum.request({method:'eth_accounts'});
+        if(accs&&accs.length){
+          await ensureMonadChain(window.ethereum);
+          connectedVia='injected';
+          await finalizeConnection(new ethers.BrowserProvider(window.ethereum));
+          showStatus('✓ Connected!','success');
+        }
+      }catch(_){}
+    }else if(msg.toLowerCase().includes('user rejected')||e?.code===4001)showStatus('Connection cancelled','warn');else showStatus('Connection failed: '+msg.slice(0,80),'error');}
   finally{_connectingInjected=false;}
 }
 async function ensureMonadChain(ethLike){try{await ethLike.request({method:'wallet_switchEthereumChain',params:[{chainId:MONAD_CHAIN.chainId}]});}catch(e){if(e.code===4902||e.code===-32603){await ethLike.request({method:'wallet_addEthereumChain',params:[{chainId:MONAD_CHAIN.chainId,chainName:MONAD_CHAIN.chainName,nativeCurrency:MONAD_CHAIN.nativeCurrency,rpcUrls:MONAD_CHAIN.rpcUrls,blockExplorerUrls:MONAD_CHAIN.blockExplorerUrls}]});}else throw e;}}
