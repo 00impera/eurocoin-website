@@ -12,12 +12,14 @@
   const NOISE = ['ObjectMultiplex','StreamMiddleware','MetaMask','malformed chunk','Failed to connect to MetaMask','MetaMask extension not found'];
   const _filter = (args) => { const m = String(args[0] ?? ''); return NOISE.some(n => m.includes(n)); };
   const _err=console.error.bind(console),_warn=console.warn.bind(console),_log=console.log.bind(console);
-  console.error=(...a)=>{if(!_filter(a))_err(...a);}; console.warn=(...a)=>{if(!_filter(a))_warn(...a);}; console.log=(...a)=>{if(!_filter(a))_log(...a);};
+  console.error=(...a)=>{if(!_filter(a))_err(...a);};
+  console.warn=(...a)=>{if(!_filter(a))_warn(...a);};
+  console.log=(...a)=>{if(!_filter(a))_log(...a);};
   window.addEventListener('unhandledrejection',e=>{const m=String(e?.reason?.message??e?.reason??'');if(NOISE.some(n=>m.includes(n)))e.preventDefault();});
 })();
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js" integrity="sha512-/nYbMJSRkPCPvBgUFNYSJkJx5074E3J6c5K6vfhXxrADReFj6bGIFkOmFbzrpnfbpFl8t6m5A2mvtcFi0aCpQ==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSLX2PTSD9QsKqFCRBCFJxuGBRSR0V3UEOEQ==" crossorigin="anonymous"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
   :root{--cyan:#00ffe0;--blue:#0077ff;--green:#00ff88;--dark:#00080f;--card:#000f1f;--border:#003d2a;--text:#aaffe0;--glow-green:0 0 18px #00ff8877,0 0 40px #00ffe044;}
@@ -83,6 +85,30 @@
   .status.error{display:block;background:#ff004411;border:1px solid #ff004444;color:#ff4466;}
   .status.info{display:block;background:#00ffe011;border:1px solid #00ff8844;color:var(--cyan);}
   .status.warn{display:block;background:#ffaa0011;border:1px solid #ffaa0044;color:#ffaa00;}
+
+  /* TX HISTORY */
+  .tx-history{background:#00080f;border:1px solid #004433;border-radius:10px;padding:10px;margin-top:12px;max-height:180px;overflow-y:auto;}
+  .tx-history-title{font-size:9px;letter-spacing:2px;color:#009966;text-transform:uppercase;margin-bottom:8px;}
+  .tx-item{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #002211;font-size:9px;gap:8px;}
+  .tx-item:last-child{border-bottom:none;}
+  .tx-item-icon{font-size:12px;flex-shrink:0;}
+  .tx-item-info{flex:1;min-width:0;}
+  .tx-item-desc{color:var(--cyan);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .tx-item-time{color:#4488aa;font-size:8px;margin-top:2px;}
+  .tx-item-link{color:#00cc88;text-decoration:none;font-size:8px;white-space:nowrap;flex-shrink:0;}
+  .tx-item-link:hover{color:var(--green);}
+  .tx-empty{font-size:10px;color:#4488aa;text-align:center;padding:8px;}
+
+  /* SLIPPAGE WARNING */
+  .slippage-warn{display:none;background:#ffaa0011;border:1px solid #ffaa0044;border-radius:8px;padding:8px 12px;font-size:10px;color:#ffaa00;margin-top:8px;letter-spacing:0.5px;}
+  .slippage-warn.show{display:block;}
+
+  /* DEX REFRESH INDICATOR */
+  .dex-refresh-badge{display:inline-flex;align-items:center;gap:5px;font-size:9px;color:#4488aa;letter-spacing:1px;margin-left:8px;}
+  .dex-refresh-dot{width:5px;height:5px;border-radius:50%;background:#4488aa;}
+  .dex-refresh-dot.refreshing{background:#00ff88;animation:pulse 0.5s infinite;}
+  .dex-stale{font-size:8px;color:#ff8844;margin-left:4px;}
+
   .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:300;align-items:center;justify-content:center;backdrop-filter:blur(8px);}
   .modal-overlay.show{display:flex;}
   .modal-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px 24px;width:92%;max-width:380px;position:relative;max-height:90vh;overflow-y:auto;}
@@ -113,6 +139,8 @@
   .modal-note b{color:var(--cyan);}
   .buy-modal-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px;width:92%;max-width:400px;position:relative;max-height:92vh;overflow-y:auto;}
   .buy-modal-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--token-accent,var(--green)),var(--cyan),transparent);border-radius:20px 20px 0 0;}
+  /* Swipe to close handle */
+  .buy-modal-box::after{content:'';position:absolute;top:8px;left:50%;transform:translateX(-50%);width:36px;height:4px;background:#004433;border-radius:2px;}
   .buy-modal-header{display:flex;align-items:center;gap:14px;margin-bottom:20px;}
   .buy-modal-logo{width:54px;height:54px;border-radius:50%;object-fit:cover;border:2px solid var(--token-accent,var(--green));}
   .buy-modal-logo-fb{width:54px;height:54px;border-radius:50%;border:2px solid var(--token-accent,var(--green));display:none;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:12px;font-weight:700;background:#001433;}
@@ -125,6 +153,12 @@
   .modal-status.error{display:block;background:#ff004411;border:1px solid #ff004444;color:#ff4466;}
   .modal-status.info{display:block;background:#00ffe011;border:1px solid #00ff8844;color:var(--cyan);}
   .modal-status.warn{display:block;background:#ffaa0011;border:1px solid #ffaa0044;color:#ffaa00;}
+  /* TX Progress in modal */
+  .tx-progress{display:none;margin-top:10px;padding:10px;background:#00080f;border:1px solid #004433;border-radius:8px;}
+  .tx-progress.show{display:block;}
+  .tx-progress-bar{height:4px;background:#002211;border-radius:2px;overflow:hidden;margin-bottom:6px;}
+  .tx-progress-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--cyan));border-radius:2px;transition:width 0.5s;width:0%;}
+  .tx-progress-label{font-size:9px;color:#4488aa;text-align:center;letter-spacing:1px;}
   .sell-section{margin-top:14px;padding-top:14px;border-top:1px solid #004433;}
   .sell-section .input-label{color:#ff8844;}
   .sell-balance{font-size:10px;color:#4488aa;text-align:right;margin-bottom:4px;cursor:pointer;}
@@ -186,7 +220,6 @@
   .owner-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
   .owner-label{font-size:9px;color:#009966;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
   .mint-panel-title{font-family:'Orbitron',monospace;font-size:10px;letter-spacing:2px;color:#00cc88;margin-bottom:12px;}
-
   /* DEX LIVE SECTION */
   .dex-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin:16px 0;position:relative;overflow:hidden;}
   .dex-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--green),var(--cyan),transparent);}
@@ -208,40 +241,19 @@
   .dex-btn-trade:hover{border-color:#0077ff;background:#0077ff11;}
   .dex-right{text-align:right;flex-shrink:0;min-width:90px;}
   .dex-price{font-family:'Orbitron',monospace;font-size:10px;color:var(--cyan);}
+  .dex-price.stale{color:#ff8844;}
   .dex-pair-label{font-size:8px;color:#4488aa;margin-top:2px;}
   .dex-live-dot{width:5px;height:5px;border-radius:50%;background:#00ff88;animation:pulse 2s infinite;box-shadow:0 0 5px #00ff88;flex-shrink:0;}
+  .dex-live-dot.stale{background:#ff8844;box-shadow:0 0 5px #ff8844;animation:none;}
   .dex-chart-panel{margin-top:12px;border-radius:12px;overflow:hidden;border:1px solid #004433;display:none;}
   .dex-chart-panel.show{display:block;}
   .dex-chart-label{font-size:9px;color:#4488aa;text-align:center;padding:8px;background:#00080f;letter-spacing:1px;border-bottom:1px solid #004433;}
   .dex-chart-iframe{width:100%;height:380px;border:none;display:block;}
   .dex-loading{text-align:center;padding:24px;font-size:10px;color:#4488aa;letter-spacing:2px;}
-
-  @media(min-width:600px){
-    .container{max-width:580px;margin:0 auto;}
-    .token-card{flex:0 0 120px;}
-    h1{font-size:34px;}
-  }
-  @media(min-width:900px){
-    .container{max-width:860px;margin:0 auto;}
-    .dex-grid{display:grid;grid-template-columns:1fr 1fr;}
-    .token-card{flex:0 0 130px;}
-    h1{font-size:40px;}
-    .stats-grid{grid-template-columns:repeat(3,1fr);}
-    .price-grid{grid-template-columns:repeat(2,1fr);}
-  }
-  @media(min-width:1200px){
-    .container{max-width:1100px;margin:0 auto;}
-    .dex-grid{display:grid;grid-template-columns:1fr 1fr 1fr;}
-    .stats-grid{grid-template-columns:repeat(3,1fr);}
-    .token-card{flex:0 0 140px;}
-  }
-  @media(max-width:380px){
-    .container{padding:12px 10px 30px;}
-    h1{font-size:22px;letter-spacing:2px;}
-    .countdown-num{font-size:22px;}
-    .token-card{flex:0 0 90px;}
-    .gallery-nav-btn{width:28px;height:28px;}
-  }
+  @media(min-width:600px){.container{max-width:580px;margin:0 auto;}.token-card{flex:0 0 120px;}h1{font-size:34px;}}
+  @media(min-width:900px){.container{max-width:860px;margin:0 auto;}.dex-grid{display:grid;grid-template-columns:1fr 1fr;}.token-card{flex:0 0 130px;}h1{font-size:40px;}.stats-grid{grid-template-columns:repeat(3,1fr);}.price-grid{grid-template-columns:repeat(2,1fr);}}
+  @media(min-width:1200px){.container{max-width:1100px;margin:0 auto;}.dex-grid{display:grid;grid-template-columns:1fr 1fr 1fr;}.stats-grid{grid-template-columns:repeat(3,1fr);}.token-card{flex:0 0 140px;}}
+  @media(max-width:380px){.container{padding:12px 10px 30px;}h1{font-size:22px;letter-spacing:2px;}.countdown-num{font-size:22px;}.token-card{flex:0 0 90px;}.gallery-nav-btn{width:28px;height:28px;}}
 </style>
 </head>
 <body>
@@ -253,12 +265,7 @@
   resize();window.addEventListener('resize',resize);
   const COLORS=['#00ffe0','#00ff88','#0077ff','#00ccff','#88ffdd'];
   const drops=Array.from({length:42},()=>({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,size:2+Math.random()*8,speed:0.35+Math.random()*0.9,opacity:0.05+Math.random()*0.11,color:COLORS[Math.floor(Math.random()*COLORS.length)],wobble:Math.random()*Math.PI*2,wobbleSpeed:0.008+Math.random()*0.018,tail:5+Math.floor(Math.random()*9),history:[]}));
-  function drawDrop(d){
-    ctx.save();
-    for(let i=d.history.length-1;i>=0;i--){const t=i/d.history.length;ctx.globalAlpha=d.opacity*t*0.45;ctx.beginPath();ctx.ellipse(d.history[i].x,d.history[i].y,d.size*0.35*t,d.size*0.65*t,0,0,Math.PI*2);ctx.strokeStyle=d.color;ctx.lineWidth=0.6;ctx.stroke();}
-    ctx.globalAlpha=d.opacity;ctx.beginPath();ctx.moveTo(d.x,d.y-d.size);ctx.bezierCurveTo(d.x+d.size*0.5,d.y-d.size*0.4,d.x+d.size*0.5,d.y+d.size*0.4,d.x,d.y+d.size);ctx.bezierCurveTo(d.x-d.size*0.5,d.y+d.size*0.4,d.x-d.size*0.5,d.y-d.size*0.4,d.x,d.y-d.size);ctx.strokeStyle=d.color;ctx.lineWidth=0.8;ctx.stroke();
-    ctx.globalAlpha=d.opacity*0.15;ctx.fillStyle=d.color;ctx.fill();ctx.restore();
-  }
+  function drawDrop(d){ctx.save();for(let i=d.history.length-1;i>=0;i--){const t=i/d.history.length;ctx.globalAlpha=d.opacity*t*0.45;ctx.beginPath();ctx.ellipse(d.history[i].x,d.history[i].y,d.size*0.35*t,d.size*0.65*t,0,0,Math.PI*2);ctx.strokeStyle=d.color;ctx.lineWidth=0.6;ctx.stroke();}ctx.globalAlpha=d.opacity;ctx.beginPath();ctx.moveTo(d.x,d.y-d.size);ctx.bezierCurveTo(d.x+d.size*0.5,d.y-d.size*0.4,d.x+d.size*0.5,d.y+d.size*0.4,d.x,d.y+d.size);ctx.bezierCurveTo(d.x-d.size*0.5,d.y+d.size*0.4,d.x-d.size*0.5,d.y-d.size*0.4,d.x,d.y-d.size);ctx.strokeStyle=d.color;ctx.lineWidth=0.8;ctx.stroke();ctx.globalAlpha=d.opacity*0.15;ctx.fillStyle=d.color;ctx.fill();ctx.restore();}
   function animate(){ctx.clearRect(0,0,canvas.width,canvas.height);drops.forEach(d=>{d.history.push({x:d.x,y:d.y});if(d.history.length>d.tail)d.history.shift();d.wobble+=d.wobbleSpeed;d.x+=Math.sin(d.wobble)*0.28;d.y+=d.speed;if(d.y-d.size>canvas.height){d.y=-d.size*2;d.x=Math.random()*canvas.width;d.history=[];}drawDrop(d);});requestAnimationFrame(animate);}
   animate();
 })();
@@ -290,14 +297,17 @@
       <div id="buyModalLogoFb" class="buy-modal-logo-fb"></div>
       <div><div class="buy-modal-name" id="buyModalName">—</div><div class="buy-modal-sym" id="buyModalSym">—</div><div class="buy-modal-price" id="buyModalPrice">Loading rate…</div><div class="buy-modal-contract" id="buyModalContract"></div></div>
     </div>
-    <div class="input-group"><label class="input-label">You Pay (MON)</label><div class="input-wrapper"><input type="number" id="modalMonAmount" placeholder="0.0" min="0" step="0.01" oninput="calcModalReceive()"><span class="input-unit">MON</span></div></div>
+    <div class="input-group"><label class="input-label">You Pay (MON)</label><div class="input-wrapper"><input type="number" id="modalMonAmount" placeholder="0.0" min="0" step="0.01" oninput="calcModalReceive();checkSlippage()"><span class="input-unit">MON</span></div></div>
+    <div class="slippage-warn" id="slippageWarn">⚠ Large order — price impact may be significant on this pair. Consider splitting into smaller trades.</div>
     <div class="input-group"><label class="input-label">You Receive</label><div class="receive-display"><div><div class="receive-amount" id="modalReceiveAmount">0.00</div><div class="receive-label" id="modalReceiveLabel">TOKENS</div></div></div></div>
     <button class="btn-buy-token" id="modalBuyBtn" onclick="executeTokenBuy()" disabled>◈ Buy Now</button>
+    <div class="tx-progress" id="buyTxProgress"><div class="tx-progress-bar"><div class="tx-progress-fill" id="buyTxFill"></div></div><div class="tx-progress-label" id="buyTxLabel">Waiting…</div></div>
     <div class="sell-section">
       <div class="sell-balance" id="sellBalanceRow" onclick="fillMaxSell()">Balance: <span id="sellBalance">—</span></div>
       <div class="input-group"><label class="input-label" style="color:#ff8844">Sell Tokens → MON</label><div class="input-wrapper"><input type="number" id="modalSellAmount" placeholder="0.0" min="0" step="1" oninput="calcModalSellReceive()"><span class="input-unit" id="sellInputUnit">TKN</span></div></div>
       <div class="input-group"><label class="input-label" style="color:#ff8844">You Get (MON)</label><div class="receive-display"><div><div class="receive-amount" id="modalSellReceive" style="color:#ff8844">0.00</div><div class="receive-label">MON</div></div></div></div>
       <button class="btn-sell-token" id="modalSellBtn" onclick="executeTokenSell()" disabled>◈ Sell Tokens</button>
+      <div class="tx-progress" id="sellTxProgress"><div class="tx-progress-bar"><div class="tx-progress-fill" id="sellTxFill"></div></div><div class="tx-progress-label" id="sellTxLabel">Waiting…</div></div>
     </div>
     <div class="owner-panel" id="tokenOwnerPanel">
       <div class="mint-panel-title">⚙ OWNER PANEL</div>
@@ -355,7 +365,7 @@
 
   <!-- DEX LIVE SECTION -->
   <div class="dex-card">
-    <div class="card-title">⬡ DEX · 17 Pairs</div>
+    <div class="card-title">⬡ DEX · 17 Pairs <span class="dex-refresh-badge"><span class="dex-refresh-dot" id="dexRefreshDot"></span><span id="dexRefreshLabel">live</span></span></div>
     <div class="dex-filter">
       <button class="dex-filter-btn active" onclick="filterDex('all',this)">ALL 17</button>
       <button class="dex-filter-btn" onclick="filterDex('meta',this)">META</button>
@@ -400,6 +410,12 @@
     </div>
   </div>
 
+  <!-- TX HISTORY -->
+  <div class="card">
+    <div class="card-title">⬡ Transaction History (this session)</div>
+    <div class="tx-history" id="txHistory"><div class="tx-empty">No transactions yet this session</div></div>
+  </div>
+
   <div class="card">
     <div class="card-title">⬡ Contract Address</div>
     <div class="contract-box" onclick="copyContract()"><div class="contract-address" id="mainContractAddr">0x5548D8405F343a6075a46a45CB954bCeB8Ba4E79</div><button class="copy-btn" id="copyBtn">COPY</button></div>
@@ -429,43 +445,49 @@
 </div>
 
 <script>
+// ── CONFIG ──────────────────────────────────────────────────────────────────
 const EUROSPACE_CONTRACT="0x5548D8405F343a6075a46a45CB954bCeB8Ba4E79";
 const OWNER_ADDRESS="0x592B35c8917eD36c39Ef73D0F5e92B0173560b2e";
 const MONAD_CHAIN={id:143,chainId:"0x8F",chainName:"Monad Mainnet",nativeCurrency:{name:"MON",symbol:"MON",decimals:18},rpcUrls:["https://rpc.monad.xyz"],blockExplorerUrls:["https://monad.socialscan.io"]};
 const MONAD_RPCS=["https://rpc.monad.xyz","https://monad.drpc.org"];
 const WC_PROJECT_ID="fb6f5975280757260d74ece910c45ba8";
+const RPC_TIMEOUT_MS=8000;
+const SLIPPAGE_WARN_MON=5; // warn if buying > 5 MON at once
+
 const ABI_EURO=["function buyTokens() payable","function buyEnabled() view returns (bool)","function tokensPerMON() view returns (uint256)","function pricePerToken() view returns (uint256)","function owner() view returns (address)","function toggleBuy(bool _enabled)","function setPrice(uint256 _pricePerToken, uint256 _tokensPerMON)","function withdraw()","function mint(address,uint256)","function name() view returns (string)","function symbol() view returns (string)","function decimals() view returns (uint8)","function totalSupply() view returns (uint256)","function balanceOf(address) view returns (uint256)","function transfer(address,uint256) returns (bool)","function approve(address,uint256) returns (bool)","function transferFrom(address,address,uint256) returns (bool)"];
 const ABI_META=["function buyTokens() payable","function sellTokens(uint256 tokenAmount)","function tradeEnabled() view returns (bool)","function buyPrice() view returns (uint256)","function sellPrice() view returns (uint256)","function owner() view returns (address)","function setTradeEnabled(bool _enabled)","function setPrices(uint256 _buyPrice, uint256 _sellPrice)","function deposit() payable","function withdraw()","function mint(address,uint256)","function name() view returns (string)","function symbol() view returns (string)","function decimals() view returns (uint8)","function totalSupply() view returns (uint256)","function balanceOf(address) view returns (uint256)","function transfer(address,uint256) returns (bool)","function approve(address,uint256) returns (bool)","function transferFrom(address,address,uint256) returns (bool)"];
 const SEL={totalSupply:"0x18160ddd",buyEnabled:"0xf582d293",tokensPerMON:"0x19cb3e21",tradeEnabled:"0xd621e813",buyPrice:"0x8620410b",sellPrice:"0xc4b7b3e5",balanceOf:"0x70a08231"};
 const WMOON="0x2ce8c8f4961a54b2e87585f4178467006b76b418";
 
 const ALL_PAIRS=[
-  {symbol:"EURO",  name:"Meta EuroCoin", color:"#00ff88",cat:"euro",  img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/logo.png",                                    pair:"0x9E32FdD909a5BdcCfb874DEE72F24169AfE4eC02",contract:"0x5548D8405F343a6075a46a45CB954bCeB8Ba4E79"},
-  {symbol:"mBTC",  name:"Meta Bitcoin",  color:"#F7931A",cat:"meta",  img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20BTC.png",                               pair:"0x47Dc73D3e1C520056AdF52349A6A282e5262D56d",contract:"0x5078A3531Dba3Dea11AB4aaF641DB6f0fE88579e"},
-  {symbol:"mETH",  name:"Meta Ethereum", color:"#627EEA",cat:"meta",  img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20ETH.png",                               pair:"0xDE92BC23146222B86e638B6E88E23917eD378a6E",contract:"0x271028A77301bb705C293Bd1fFA79E239AB1Daec"},
-  {symbol:"mSOL",  name:"Meta Solana",   color:"#9945FF",cat:"meta",  img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20SOL.png",                               pair:"0xf8dbc8Cc478506fb0844C670B35b90A7AD6Ad912", contract:"0xEd59c5bA2180ce57a723Dbc04FF3A81e1ba84B3C"},
-  {symbol:"mBNB",  name:"Meta BNB",      color:"#F3BA2F",cat:"meta",  img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20BNB.png",                               pair:"0xd77B55A199EA0DC81EB4c7c36d45fBda4D6477B6",contract:"0xb1326c51F73814f071bb4d3db44c86dD03DC8C76"},
-  {symbol:"mXRP",  name:"Meta XRP",      color:"#00AAE4",cat:"meta",  img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20XRP.png",                               pair:"0x69884c6C8Fe6F833aEEDE2A4c0949e667C7F79fB",contract:"0x379563529988bD76DeD9bc4a175AD59df6191B75"},
-  {symbol:"mUSDC", name:"Meta USDC",     color:"#2775CA",cat:"stable",img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20USDC.png",                              pair:"0x3BE5B19348d6Ccbc20e0DCf3Cab0aDF9e4643dCa",contract:"0xe0Ed08D1bC86b98434861ae0403be968bD95465E"},
-  {symbol:"mUSDT", name:"Meta Tether",   color:"#26A17B",cat:"stable",img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20USDT.png",                              pair:"0xAB4CFB051E73db47f75c4A2c31dFaAFd3A82A8b8",contract:"0x085368cae9d4eCffe676806c3a8105433377164b"},
-  {symbol:"mMATIC",name:"Meta Polygon",  color:"#8247E5",cat:"meta",  img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20MATIC.png",                             pair:"0x5F5908aD27AFf28b0BDbAD8F93470e83310aE365",contract:"0x43C60d3cec23b0E85678602A4F5C1156a7398daC"},
-  {symbol:"mDOGE", name:"Meta Dogecoin", color:"#C2A633",cat:"meta",  img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20DODGE.png",                             pair:"0x8e71b96897c6D5EF3954b06636c24EdB4866b488",contract:"0x111b31d8474Aee70767337FD794a7fb0A08788A8"},
-  {symbol:"mLTC",  name:"Meta Litecoin", color:"#BFBBBB",cat:"meta",  img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20LTC.png",                               pair:"0xd4faf6a3B43105395C1f3db6525eA0fBF5B3aF9a",contract:"0x8abAe4dbf7A2e286d688fa7101bea0fAE4C0Dd75"},
-  {symbol:"mTRX",  name:"Meta TRON",     color:"#EF0027",cat:"meta",  img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20TRX.png",                               pair:"0x77A4Ad2ac41775A543353C8255cd88C7bF58e404",contract:"0x1A3206c56993d4906ec26Fe85194399E0dBD8EBf"},
-  {symbol:"mBASE", name:"Meta Base",     color:"#0052FF",cat:"meta",  img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20BASE.png",                              pair:"0x9f1b9A6D727DF983a74F11252EDa0Fa96132cc12",contract:"0xeA66DaF739823505817d4DAfEdBb43Dc0C2E5372"},
-  {symbol:"mEURO", name:"Meta Euro",     color:"#4488ff",cat:"euro",  img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20EUROSPACE.png",                         pair:"0x2f3B240444F5b8Dc6f211373ff29CCE0Ba798114",contract:"0x4443892C796f7A519C9D099417EC8422f88F5867"},
-  {symbol:"mMONAD",name:"Meta Monad",    color:"#836EF9",cat:"meta",  img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20MONAD.png",                             pair:"0xc7a8f6A2452D1ec709006E36A3B89f4Df7188a9a",contract:"0xbF5E34B1EBE37F9a98BFcE48645dc67Dd84E5fD6"},
-  {symbol:"mEURC", name:"Meta EURC",     color:"#FFD700",cat:"euro",  img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20EURC.png",                              pair:"0x669d78953a14a147DA6730dA255b4E7A7b15b111",contract:"0x7bD9bbFc0086B033ede5736e4Aa9C16a451D0904"},
-  {symbol:"mCRO",  name:"Meta Cronos",   color:"#002D74",cat:"meta",  img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20CRONOS.png",                            pair:"0x7D9e8050Ba0c0a6c8336A49a5Af6748AA6BD855C",contract:"0x0127B3c3C864cfC1BB519beB935477299b961d46"},
+  {symbol:"EURO",  name:"Meta EuroCoin", color:"#00ff88",cat:"euro",  img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/logo.png",pair:"0x9E32FdD909a5BdcCfb874DEE72F24169AfE4eC02",contract:"0x5548D8405F343a6075a46a45CB954bCeB8Ba4E79"},
+  {symbol:"mBTC",  name:"Meta Bitcoin",  color:"#F7931A",cat:"meta",  img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20BTC.png",pair:"0x47Dc73D3e1C520056AdF52349A6A282e5262D56d",contract:"0x5078A3531Dba3Dea11AB4aaF641DB6f0fE88579e"},
+  {symbol:"mETH",  name:"Meta Ethereum", color:"#627EEA",cat:"meta",  img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20ETH.png",pair:"0xDE92BC23146222B86e638B6E88E23917eD378a6E",contract:"0x271028A77301bb705C293Bd1fFA79E239AB1Daec"},
+  {symbol:"mSOL",  name:"Meta Solana",   color:"#9945FF",cat:"meta",  img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20SOL.png",pair:"0xf8dbc8Cc478506fb0844C670B35b90A7AD6Ad912",contract:"0xEd59c5bA2180ce57a723Dbc04FF3A81e1ba84B3C"},
+  {symbol:"mBNB",  name:"Meta BNB",      color:"#F3BA2F",cat:"meta",  img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20BNB.png",pair:"0xd77B55A199EA0DC81EB4c7c36d45fBda4D6477B6",contract:"0xb1326c51F73814f071bb4d3db44c86dD03DC8C76"},
+  {symbol:"mXRP",  name:"Meta XRP",      color:"#00AAE4",cat:"meta",  img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20XRP.png",pair:"0x69884c6C8Fe6F833aEEDE2A4c0949e667C7F79fB",contract:"0x379563529988bD76DeD9bc4a175AD59df6191B75"},
+  {symbol:"mUSDC", name:"Meta USDC",     color:"#2775CA",cat:"stable",img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20USDC.png",pair:"0x3BE5B19348d6Ccbc20e0DCf3Cab0aDF9e4643dCa",contract:"0xe0Ed08D1bC86b98434861ae0403be968bD95465E"},
+  {symbol:"mUSDT", name:"Meta Tether",   color:"#26A17B",cat:"stable",img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20USDT.png",pair:"0xAB4CFB051E73db47f75c4A2c31dFaAFd3A82A8b8",contract:"0x085368cae9d4eCffe676806c3a8105433377164b"},
+  {symbol:"mMATIC",name:"Meta Polygon",  color:"#8247E5",cat:"meta",  img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20MATIC.png",pair:"0x5F5908aD27AFf28b0BDbAD8F93470e83310aE365",contract:"0x43C60d3cec23b0E85678602A4F5C1156a7398daC"},
+  {symbol:"mDOGE", name:"Meta Dogecoin", color:"#C2A633",cat:"meta",  img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20DODGE.png",pair:"0x8e71b96897c6D5EF3954b06636c24EdB4866b488",contract:"0x111b31d8474Aee70767337FD794a7fb0A08788A8"},
+  {symbol:"mLTC",  name:"Meta Litecoin", color:"#BFBBBB",cat:"meta",  img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20LTC.png",pair:"0xd4faf6a3B43105395C1f3db6525eA0fBF5B3aF9a",contract:"0x8abAe4dbf7A2e286d688fa7101bea0fAE4C0Dd75"},
+  {symbol:"mTRX",  name:"Meta TRON",     color:"#EF0027",cat:"meta",  img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20TRX.png",pair:"0x77A4Ad2ac41775A543353C8255cd88C7bF58e404",contract:"0x1A3206c56993d4906ec26Fe85194399E0dBD8EBf"},
+  {symbol:"mBASE", name:"Meta Base",     color:"#0052FF",cat:"meta",  img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20BASE.png",pair:"0x9f1b9A6D727DF983a74F11252EDa0Fa96132cc12",contract:"0xeA66DaF739823505817d4DAfEdBb43Dc0C2E5372"},
+  {symbol:"mEURO", name:"Meta Euro",     color:"#4488ff",cat:"euro",  img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20EUROSPACE.png",pair:"0x2f3B240444F5b8Dc6f211373ff29CCE0Ba798114",contract:"0x4443892C796f7A519C9D099417EC8422f88F5867"},
+  {symbol:"mMONAD",name:"Meta Monad",    color:"#836EF9",cat:"meta",  img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20MONAD.png",pair:"0xc7a8f6A2452D1ec709006E36A3B89f4Df7188a9a",contract:"0xbF5E34B1EBE37F9a98BFcE48645dc67Dd84E5fD6"},
+  {symbol:"mEURC", name:"Meta EURC",     color:"#FFD700",cat:"euro",  img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20EURC.png",pair:"0x669d78953a14a147DA6730dA255b4E7A7b15b111",contract:"0x7bD9bbFc0086B033ede5736e4Aa9C16a451D0904"},
+  {symbol:"mCRO",  name:"Meta Cronos",   color:"#002D74",cat:"meta",  img:"https://raw.githubusercontent.com/00impera/eurocoin-website/master/META%20CRONOS.png",pair:"0x7D9e8050Ba0c0a6c8336A49a5Af6748AA6BD855C",contract:"0x0127B3c3C864cfC1BB519beB935477299b961d46"},
 ];
 
 const META_TOKENS=ALL_PAIRS.slice(1).map(p=>({symbol:p.symbol,name:p.name,color:p.color,img:p.img,contract:p.contract}));
 
+// ── STATE ───────────────────────────────────────────────────────────────────
 let provider,signer,userAddress,euroContract;
 let currentToken=null,currentMetaContract=null,wcProvider=null;
 let wcUri='',connectedVia='',_heartbeatTimer=null;
 let _isBuying=false,_isSelling=false,_tokensPerMON=0n,_isOwner=false;
 let _dexPrices={},_dexFilter='all',_selectedPair=null;
+let _txHistory=[];
 
 const isTrustWallet=/TrustWallet/i.test(navigator.userAgent)||!!window.ethereum?.isTrust;
 const isMMApp=/MetaMaskMobile/i.test(navigator.userAgent);
@@ -474,13 +496,70 @@ const dappUrl=encodeURIComponent(window.location.href);
 const dappHost=window.location.host+window.location.pathname;
 if(window.Telegram?.WebApp)window.Telegram.WebApp.expand();
 
+// ── RPC with TIMEOUT ─────────────────────────────────────────────────────────
 async function rpcFetch(method,params){
-  for(const rpc of MONAD_RPCS){try{const r=await fetch(rpc,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method,params})});const d=await r.json();if(d.result!==undefined)return d.result;}catch(_){continue;}}return null;
+  for(const rpc of MONAD_RPCS){
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(),RPC_TIMEOUT_MS);
+    try{
+      const r=await fetch(rpc,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method,params}),signal:controller.signal});
+      clearTimeout(timer);
+      const d=await r.json();
+      if(d.result!==undefined)return d.result;
+    }catch(e){
+      clearTimeout(timer);
+      if(e.name==='AbortError')console.warn('RPC timeout:',rpc);
+      continue;
+    }
+  }
+  return null;
 }
 const ethCall=(addr,data)=>rpcFetch('eth_call',[{to:addr,data},'latest']);
 function encodeBalanceOf(addr){return SEL.balanceOf+'000000000000000000000000'+addr.toLowerCase().replace('0x','');}
 
-// DEX PRICE FETCHING
+// ── SLIPPAGE WARNING ─────────────────────────────────────────────────────────
+function checkSlippage(){
+  const mon=parseFloat(document.getElementById('modalMonAmount').value)||0;
+  const warn=document.getElementById('slippageWarn');
+  if(mon>SLIPPAGE_WARN_MON)warn.classList.add('show');
+  else warn.classList.remove('show');
+}
+
+// ── TX HISTORY ───────────────────────────────────────────────────────────────
+function addTxHistory(type,symbol,amount,txHash){
+  _txHistory.unshift({type,symbol,amount,txHash,time:new Date()});
+  if(_txHistory.length>20)_txHistory.pop();
+  renderTxHistory();
+}
+function renderTxHistory(){
+  const el=document.getElementById('txHistory');
+  if(!_txHistory.length){el.innerHTML='<div class="tx-empty">No transactions yet this session</div>';return;}
+  el.innerHTML=_txHistory.map(tx=>{
+    const icon=tx.type==='buy'?'🟢':tx.type==='sell'?'🔴':'⚡';
+    const desc=tx.type==='buy'?`Bought ${tx.amount} ${tx.symbol}`:tx.type==='sell'?`Sold ${tx.amount} ${tx.symbol}`:`${tx.symbol}: ${tx.amount}`;
+    const timeStr=tx.time.toLocaleTimeString();
+    const link=`https://monad.socialscan.io/tx/${tx.txHash}`;
+    return`<div class="tx-item"><span class="tx-item-icon">${icon}</span><div class="tx-item-info"><div class="tx-item-desc">${desc}</div><div class="tx-item-time">${timeStr}</div></div><a class="tx-item-link" href="${link}" target="_blank">VIEW ↗</a></div>`;
+  }).join('');
+}
+
+// ── TX PROGRESS BAR ───────────────────────────────────────────────────────────
+function setTxProgress(prefix,pct,label){
+  const prog=document.getElementById(prefix+'TxProgress');
+  const fill=document.getElementById(prefix+'TxFill');
+  const lbl=document.getElementById(prefix+'TxLabel');
+  if(!prog)return;
+  prog.classList.add('show');
+  fill.style.width=pct+'%';
+  lbl.textContent=label;
+  if(pct>=100)setTimeout(()=>{prog.classList.remove('show');fill.style.width='0%';},2000);
+}
+function hideTxProgress(prefix){
+  const prog=document.getElementById(prefix+'TxProgress');
+  if(prog){prog.classList.remove('show');const fill=document.getElementById(prefix+'TxFill');if(fill)fill.style.width='0%';}
+}
+
+// ── DEX PRICE FETCHING ────────────────────────────────────────────────────────
 async function fetchPairReserves(pairAddr){
   try{
     const res=await ethCall(pairAddr,'0x0902f1ac');
@@ -493,17 +572,31 @@ async function fetchPairReserves(pairAddr){
 }
 
 async function loadAllDexPrices(){
+  // Show refreshing state
+  const dot=document.getElementById('dexRefreshDot');
+  const lbl=document.getElementById('dexRefreshLabel');
+  if(dot)dot.classList.add('refreshing');
+  if(lbl)lbl.textContent='updating…';
+
   const promises=ALL_PAIRS.map(async p=>{
     const data=await fetchPairReserves(p.pair);
-    if(!data)return;
+    if(!data){
+      // Mark as stale if we already had a price
+      if(_dexPrices[p.pair])_dexPrices[p.pair].stale=true;
+      return;
+    }
     const tc=p.contract.toLowerCase();
     let priceWMON;
-    if(tc<WMOON){priceWMON=Number(data.r1*1000000n/data.r0)/1000000;}
-    else{priceWMON=Number(data.r0*1000000n/data.r1)/1000000;}
-    _dexPrices[p.pair]={priceWMON};
+    if(tc<WMOON)priceWMON=Number(data.r1*1000000n/data.r0)/1000000;
+    else priceWMON=Number(data.r0*1000000n/data.r1)/1000000;
+    _dexPrices[p.pair]={priceWMON,stale:false,updatedAt:Date.now()};
   });
   await Promise.all(promises);
   renderDexGrid();
+
+  // Done
+  if(dot)dot.classList.remove('refreshing');
+  if(lbl)lbl.textContent='live';
 }
 
 function renderDexGrid(){
@@ -513,10 +606,11 @@ function renderDexGrid(){
   grid.innerHTML=filtered.map(p=>{
     const pd=_dexPrices[p.pair];
     const priceStr=pd?pd.priceWMON.toFixed(6)+' WMON':'loading…';
+    const isStale=pd?.stale;
     const dexUrl=`https://dexscreener.com/monad/${p.pair}`;
     const isSelected=_selectedPair===p.pair;
     return`<div class="dex-row" style="border-left-color:${p.color}" onclick="toggleDexChart('${p.pair}','${p.symbol}','${p.name}')">
-      <div class="dex-live-dot"></div>
+      <div class="dex-live-dot${isStale?' stale':''}"></div>
       <img class="dex-logo" src="${p.img}" alt="${p.symbol}" onerror="this.src='https://files.catbox.moe/9o0wad.png'">
       <div class="dex-info">
         <div class="dex-sym" style="color:${p.color}">${p.symbol}</div>
@@ -527,7 +621,7 @@ function renderDexGrid(){
         </div>
       </div>
       <div class="dex-right">
-        <div class="dex-price">${priceStr}</div>
+        <div class="dex-price${isStale?' stale':''}">${priceStr}${isStale?' ⚠':''}</div>
         <div class="dex-pair-label">${isSelected?'▼ CHART':'tap for chart'}</div>
       </div>
     </div>`;
@@ -545,12 +639,7 @@ function toggleDexChart(pair,sym,name){
   const panel=document.getElementById('dexChartPanel');
   const frame=document.getElementById('dexChartFrame');
   const label=document.getElementById('dexChartLabel');
-  if(_selectedPair===pair){
-    panel.classList.remove('show');
-    _selectedPair=null;
-    renderDexGrid();
-    return;
-  }
+  if(_selectedPair===pair){panel.classList.remove('show');_selectedPair=null;renderDexGrid();return;}
   _selectedPair=pair;
   label.textContent=`${sym} / WMON  ·  ${name}  ·  Live Chart`;
   frame.src=`https://dexscreener.com/monad/${pair}?embed=1&theme=dark&trades=0&info=0`;
@@ -568,6 +657,7 @@ function openBuyModalByPair(pairAddr){
 
 setInterval(loadAllDexPrices,30000);
 
+// ── CONTRACT DATA ─────────────────────────────────────────────────────────────
 async function loadContractData(){
   try{
     const[supplyHex,enabledHex,rateHex]=await Promise.all([ethCall(EUROSPACE_CONTRACT,SEL.totalSupply),ethCall(EUROSPACE_CONTRACT,SEL.buyEnabled),ethCall(EUROSPACE_CONTRACT,SEL.tokensPerMON)]);
@@ -584,6 +674,7 @@ async function loadTokenBalance(token){
 }
 async function checkEnabled(addr,isMeta){const sel=isMeta?SEL.tradeEnabled:SEL.buyEnabled;const hex=await ethCall(addr,sel);if(hex===null||hex==='0x')return true;return BigInt(hex)!==0n;}
 
+// ── WALLETCONNECT ─────────────────────────────────────────────────────────────
 let _WCProvider=null;
 async function loadWCClass(){if(_WCProvider)return _WCProvider;const mod=await import('https://esm.sh/@walletconnect/ethereum-provider@2.13.0');_WCProvider=mod.EthereumProvider;return _WCProvider;}
 async function initWalletConnect(){
@@ -592,52 +683,150 @@ async function initWalletConnect(){
   wcProvider=await EthereumProvider.init({projectId:WC_PROJECT_ID,chains:[MONAD_CHAIN.id],optionalChains:[1,137],rpcMap:{[MONAD_CHAIN.id]:MONAD_CHAIN.rpcUrls[0]},metadata:{name:"EUROSPACE Presale",description:"Buy EURO & Meta Tokens on Monad",url:window.location.origin,icons:["https://raw.githubusercontent.com/00impera/eurocoin-website/master/logo.png"]},showQrModal:false});
   wcProvider.on('display_uri',uri=>{wcUri=uri;renderQR(uri);showWcStatus('📱 Scan with your wallet','info');});
   wcProvider.on('connect',async()=>{connectedVia='walletconnect';try{await ensureMonadChain(wcProvider);}catch(_){}await finalizeConnection(new ethers.BrowserProvider(wcProvider));closeWalletModal();startHeartbeat();});
-  wcProvider.on('disconnect',error=>{const msg=(error?.message||String(error||'')).toLowerCase();const isPing=msg.includes('ping')||msg.includes('timeout')||msg.includes('socket');if(isPing&&connectedVia==='walletconnect'&&userAddress){setTimeout(async()=>{try{if(wcProvider?.session){const p=new ethers.BrowserProvider(wcProvider);provider=p;signer=await p.getSigner();euroContract=new ethers.Contract(EUROSPACE_CONTRACT,ABI_EURO,signer);}}catch(e){disconnectWallet();}},2000);}else{stopHeartbeat();disconnectWallet();}});
+  wcProvider.on('disconnect',error=>{
+    const msg=(error?.message||String(error||'')).toLowerCase();
+    const isPing=msg.includes('ping')||msg.includes('timeout')||msg.includes('socket');
+    if(isPing&&connectedVia==='walletconnect'&&userAddress){
+      setTimeout(async()=>{try{if(wcProvider?.session){const p=new ethers.BrowserProvider(wcProvider);provider=p;signer=await p.getSigner();euroContract=new ethers.Contract(EUROSPACE_CONTRACT,ABI_EURO,signer);}}catch(e){disconnectWallet();}},2000);
+    }else{stopHeartbeat();disconnectWallet();}
+  });
   wcProvider.on('accountsChanged',accs=>{if(!accs.length)disconnectWallet();else{userAddress=accs[0];updateWalletUI().catch(console.error);}});
   return wcProvider;
 }
 function startHeartbeat(){stopHeartbeat();_heartbeatTimer=setInterval(async()=>{if(connectedVia==='walletconnect'&&wcProvider?.session){try{await wcProvider.request({method:'eth_chainId'});}catch(_){}}},25000);}
 function stopHeartbeat(){if(_heartbeatTimer){clearInterval(_heartbeatTimer);_heartbeatTimer=null;}}
-async function connectWalletConnect(){try{showWcStatus('Initialising WalletConnect…','info');document.getElementById('wcQrPanel').classList.remove('show');const wcp=await initWalletConnect();if(wcp.session){connectedVia='walletconnect';await finalizeConnection(new ethers.BrowserProvider(wcp));closeWalletModal();startHeartbeat();return;}await wcp.connect();}catch(e){showWcStatus('WC error: '+(e?.message||String(e)).slice(0,60),'error');}}
-function renderQR(uri){const panel=document.getElementById('wcQrPanel');const cont=document.getElementById('wcQrContainer');panel.classList.add('show');cont.innerHTML='';new QRCode(cont,{text:uri,width:220,height:220,colorDark:'#00ff88',colorLight:'#00080f',correctLevel:QRCode.CorrectLevel.M});}
+async function connectWalletConnect(){
+  try{
+    showWcStatus('Initialising WalletConnect…','info');
+    document.getElementById('wcQrPanel').classList.remove('show');
+    const wcp=await initWalletConnect();
+    if(wcp.session){connectedVia='walletconnect';await finalizeConnection(new ethers.BrowserProvider(wcp));closeWalletModal();startHeartbeat();return;}
+    await wcp.connect();
+  }catch(e){showWcStatus('WC error: '+(e?.message||String(e)).slice(0,60),'error');}
+}
+function renderQR(uri){
+  const panel=document.getElementById('wcQrPanel');const cont=document.getElementById('wcQrContainer');
+  panel.classList.add('show');cont.innerHTML='';
+  new QRCode(cont,{text:uri,width:220,height:220,colorDark:'#00ff88',colorLight:'#00080f',correctLevel:QRCode.CorrectLevel.M});
+}
 function copyWcUri(){if(!wcUri)return;navigator.clipboard.writeText(wcUri).then(()=>{const el=document.getElementById('wcUriCopyBtn');el.textContent='✓ Copied!';setTimeout(()=>el.textContent='📋 Copy connection URI',2000);});}
 function showWcStatus(msg,type){const el=document.getElementById('wcModalStatus');el.textContent=msg;el.className='wc-status '+type;}
+
+// ── INJECTED WALLET ───────────────────────────────────────────────────────────
 let _connectingInjected=false;
 async function connectInjected(){
-  if(!hasInjected||_connectingInjected)return;_connectingInjected=true;closeWalletModal();
-  try{showStatus('Connecting browser wallet…','info');let accounts=[];try{accounts=await window.ethereum.request({method:'eth_accounts'});}catch(_){}if(!accounts||!accounts.length)accounts=await window.ethereum.request({method:'eth_requestAccounts'});await ensureMonadChain(window.ethereum);connectedVia='injected';await finalizeConnection(new ethers.BrowserProvider(window.ethereum));showStatus('✓ Connected!','success');}
-  catch(e){const msg=e?.message||String(e);if(msg.toLowerCase().includes('already pending')){
-      showStatus('MetaMask has a pending request — open MetaMask and approve it, then try again','warn');
-      // Try to recover by requesting existing accounts (no new popup)
+  if(!hasInjected||_connectingInjected)return;
+  _connectingInjected=true;
+  closeWalletModal();
+  try{
+    showStatus('Connecting browser wallet…','info');
+    let accounts=[];
+    try{accounts=await window.ethereum.request({method:'eth_accounts'});}catch(_){}
+    if(!accounts||!accounts.length)accounts=await window.ethereum.request({method:'eth_requestAccounts'});
+    await ensureMonadChain(window.ethereum);
+    connectedVia='injected';
+    await finalizeConnection(new ethers.BrowserProvider(window.ethereum));
+    showStatus('✓ Connected!','success');
+  }catch(e){
+    const msg=e?.message||String(e);
+    if(msg.toLowerCase().includes('already pending')){
+      showStatus('MetaMask has a pending request — open MetaMask and approve it','warn');
       try{
         const accs=await window.ethereum.request({method:'eth_accounts'});
-        if(accs&&accs.length){
-          await ensureMonadChain(window.ethereum);
-          connectedVia='injected';
-          await finalizeConnection(new ethers.BrowserProvider(window.ethereum));
-          showStatus('✓ Connected!','success');
-        }
+        if(accs&&accs.length){await ensureMonadChain(window.ethereum);connectedVia='injected';await finalizeConnection(new ethers.BrowserProvider(window.ethereum));showStatus('✓ Connected!','success');}
       }catch(_){}
-    }else if(msg.toLowerCase().includes('user rejected')||e?.code===4001)showStatus('Connection cancelled','warn');else showStatus('Connection failed: '+msg.slice(0,80),'error');}
-  finally{_connectingInjected=false;}
+    }else if(msg.toLowerCase().includes('user rejected')||e?.code===4001){
+      showStatus('Connection cancelled','warn');
+    }else{
+      showStatus('Connection failed: '+msg.slice(0,80),'error');
+    }
+  }finally{_connectingInjected=false;}
 }
-async function ensureMonadChain(ethLike){try{await ethLike.request({method:'wallet_switchEthereumChain',params:[{chainId:MONAD_CHAIN.chainId}]});}catch(e){if(e.code===4902||e.code===-32603){await ethLike.request({method:'wallet_addEthereumChain',params:[{chainId:MONAD_CHAIN.chainId,chainName:MONAD_CHAIN.chainName,nativeCurrency:MONAD_CHAIN.nativeCurrency,rpcUrls:MONAD_CHAIN.rpcUrls,blockExplorerUrls:MONAD_CHAIN.blockExplorerUrls}]});}else throw e;}}
-async function finalizeConnection(ethersProvider){provider=ethersProvider;signer=await provider.getSigner();userAddress=await signer.getAddress();euroContract=new ethers.Contract(EUROSPACE_CONTRACT,ABI_EURO,signer);await updateWalletUI();document.getElementById('buyBtn').disabled=false;await checkOwner();loadContractData();}
+async function ensureMonadChain(ethLike){
+  try{await ethLike.request({method:'wallet_switchEthereumChain',params:[{chainId:MONAD_CHAIN.chainId}]});}
+  catch(e){
+    if(e.code===4902||e.code===-32603){
+      await ethLike.request({method:'wallet_addEthereumChain',params:[{chainId:MONAD_CHAIN.chainId,chainName:MONAD_CHAIN.chainName,nativeCurrency:MONAD_CHAIN.nativeCurrency,rpcUrls:MONAD_CHAIN.rpcUrls,blockExplorerUrls:MONAD_CHAIN.blockExplorerUrls}]});
+    }else throw e;
+  }
+}
+async function finalizeConnection(ethersProvider){
+  provider=ethersProvider;signer=await provider.getSigner();userAddress=await signer.getAddress();
+  euroContract=new ethers.Contract(EUROSPACE_CONTRACT,ABI_EURO,signer);
+  await updateWalletUI();
+  document.getElementById('buyBtn').disabled=false;
+  await checkOwner();
+  loadContractData();
+}
 function connectTrustDeepLink(){closeWalletModal();window.location.href=`https://link.trustwallet.com/open_url?coin_id=60&url=${dappUrl}`;}
 function connectMMDeepLink(){closeWalletModal();window.location.href=`https://metamask.app.link/dapp/${dappHost}`;}
-async function disconnectWallet(){stopHeartbeat();if(connectedVia==='walletconnect'&&wcProvider){try{await wcProvider.disconnect();}catch(_){}wcProvider=null;_WCProvider=null;}provider=signer=userAddress=euroContract=null;connectedVia='';_isOwner=false;document.getElementById('walletInfo').classList.remove('show');document.getElementById('connectBtn').textContent='◈ Connect Wallet';document.getElementById('connectBtn').classList.remove('hidden');document.getElementById('buyBtn').disabled=true;document.getElementById('statusMsg').className='status';document.getElementById('euroOwnerPanel').classList.remove('show');if(currentToken){document.getElementById('modalBuyBtn').disabled=true;document.getElementById('modalSellBtn').disabled=true;document.getElementById('tokenOwnerPanel').classList.remove('show');}}
-async function updateWalletUI(){const short=userAddress.slice(0,6)+'…'+userAddress.slice(-4);let bal='—';try{const b=await provider.getBalance(userAddress);bal=parseFloat(ethers.formatEther(b)).toFixed(3)+' MON';}catch(_){}document.getElementById('walletAddr').textContent=short;document.getElementById('walletBal').textContent=bal;const badge=document.getElementById('walletSrcBadge');badge.textContent=connectedVia==='walletconnect'?'WC v2':'BROWSER';badge.className=connectedVia==='walletconnect'?'w-src-badge wc':'w-src-badge';document.getElementById('walletInfo').classList.add('show');document.getElementById('connectBtn').classList.add('hidden');if(currentToken){document.getElementById('modalBuyBtn').disabled=false;document.getElementById('modalBuyBtn').textContent='◈ Buy '+currentToken.symbol;document.getElementById('modalSellBtn').disabled=false;document.getElementById('modalSellBtn').textContent='◈ Sell '+currentToken.symbol;}}
-function setupWalletModal(){if(hasInjected){const eth=window.ethereum;const name=eth.isTrust?'Trust Wallet':eth.isRabby?'Rabby':eth.isMetaMask?'MetaMask':'Browser Wallet';const icon=eth.isTrust?'🛡️':eth.isRabby?'🐰':'🦊';document.getElementById('injIcon').textContent=icon;document.getElementById('injName').innerHTML=name+' <span class="w-badge detected">DETECTED</span>';document.getElementById('injDesc').textContent='Tap to connect';document.getElementById('walletModalSubtitle').textContent='Wallet detected — or choose another method';document.getElementById('walletNote').style.display='none';if(isTrustWallet||isMMApp){document.getElementById('optTrust').style.display='none';document.getElementById('optMM').style.display='none';}}else{document.getElementById('optInjected').classList.add('disabled');document.getElementById('injDesc').textContent='No browser extension found';}document.getElementById('wcQrPanel').classList.remove('show');document.getElementById('wcModalStatus').className='wc-status';}
+async function disconnectWallet(){
+  stopHeartbeat();
+  if(connectedVia==='walletconnect'&&wcProvider){try{await wcProvider.disconnect();}catch(_){}wcProvider=null;_WCProvider=null;}
+  provider=signer=userAddress=euroContract=null;connectedVia='';_isOwner=false;
+  document.getElementById('walletInfo').classList.remove('show');
+  document.getElementById('connectBtn').textContent='◈ Connect Wallet';
+  document.getElementById('connectBtn').classList.remove('hidden');
+  document.getElementById('buyBtn').disabled=true;
+  document.getElementById('statusMsg').className='status';
+  document.getElementById('euroOwnerPanel').classList.remove('show');
+  if(currentToken){
+    document.getElementById('modalBuyBtn').disabled=true;
+    document.getElementById('modalSellBtn').disabled=true;
+    document.getElementById('tokenOwnerPanel').classList.remove('show');
+  }
+}
+async function updateWalletUI(){
+  const short=userAddress.slice(0,6)+'…'+userAddress.slice(-4);
+  let bal='—';
+  try{const b=await provider.getBalance(userAddress);bal=parseFloat(ethers.formatEther(b)).toFixed(3)+' MON';}catch(_){}
+  document.getElementById('walletAddr').textContent=short;
+  document.getElementById('walletBal').textContent=bal;
+  const badge=document.getElementById('walletSrcBadge');
+  badge.textContent=connectedVia==='walletconnect'?'WC v2':'BROWSER';
+  badge.className=connectedVia==='walletconnect'?'w-src-badge wc':'w-src-badge';
+  document.getElementById('walletInfo').classList.add('show');
+  document.getElementById('connectBtn').classList.add('hidden');
+  if(currentToken){
+    document.getElementById('modalBuyBtn').disabled=false;
+    document.getElementById('modalBuyBtn').textContent='◈ Buy '+currentToken.symbol;
+    document.getElementById('modalSellBtn').disabled=false;
+    document.getElementById('modalSellBtn').textContent='◈ Sell '+currentToken.symbol;
+  }
+}
+function setupWalletModal(){
+  if(hasInjected){
+    const eth=window.ethereum;
+    const name=eth.isTrust?'Trust Wallet':eth.isRabby?'Rabby':eth.isMetaMask?'MetaMask':'Browser Wallet';
+    const icon=eth.isTrust?'🛡️':eth.isRabby?'🐰':'🦊';
+    document.getElementById('injIcon').textContent=icon;
+    document.getElementById('injName').innerHTML=name+' <span class="w-badge detected">DETECTED</span>';
+    document.getElementById('injDesc').textContent='Tap to connect';
+    document.getElementById('walletModalSubtitle').textContent='Wallet detected — or choose another method';
+    document.getElementById('walletNote').style.display='none';
+    if(isTrustWallet||isMMApp){document.getElementById('optTrust').style.display='none';document.getElementById('optMM').style.display='none';}
+  }else{
+    document.getElementById('optInjected').classList.add('disabled');
+    document.getElementById('injDesc').textContent='No browser extension found';
+  }
+  document.getElementById('wcQrPanel').classList.remove('show');
+  document.getElementById('wcModalStatus').className='wc-status';
+}
 function openWalletModal(){setupWalletModal();document.getElementById('walletModal').classList.add('show');}
 function closeWalletModal(){document.getElementById('walletModal').classList.remove('show');}
 function handleConnectBtnClick(){if(!userAddress)openWalletModal();}
 
+// ── GALLERY ───────────────────────────────────────────────────────────────────
 function scrollGallery(dir){
   const g=document.getElementById('tokenGallery');
-  g.scrollBy({left:dir*122*3,behavior:'smooth'});
+  // FIX: use actual card width instead of hardcoded 122
+  const card=g.querySelector('.token-card');
+  const cardW=(card?card.offsetWidth:110)+12;
+  g.scrollBy({left:dir*cardW*3,behavior:'smooth'});
 }
 function buildTokenGallery(){
-  const gallery=document.getElementById('tokenGallery');const dots=document.getElementById('galleryDots');
+  const gallery=document.getElementById('tokenGallery');
+  const dots=document.getElementById('galleryDots');
   META_TOKENS.forEach((token,i)=>{
     const card=document.createElement('div');card.className='token-card';card.style.setProperty('--token-color',token.color);card.onclick=()=>openBuyModal(token);
     const lw=document.createElement('div');lw.className='token-logo-wrap';
@@ -647,57 +836,313 @@ function buildTokenGallery(){
     const sym=document.createElement('div');sym.className='token-symbol';sym.textContent=token.symbol;
     const nm=document.createElement('div');nm.className='token-name';nm.textContent=token.name;
     const btn=document.createElement('button');btn.className='token-buy-btn';btn.textContent='◈ BUY/SELL';btn.style.setProperty('--token-color',token.color);btn.onclick=e=>{e.stopPropagation();openBuyModal(token);};
-    card.appendChild(lw);card.appendChild(sym);card.appendChild(nm);card.appendChild(btn);gallery.appendChild(card);
+    card.appendChild(lw);card.appendChild(sym);card.appendChild(nm);card.appendChild(btn);
+    gallery.appendChild(card);
     const dot=document.createElement('div');dot.className='gallery-dot'+(i===0?' active':'');dot.dataset.index=i;dots.appendChild(dot);
   });
-  gallery.addEventListener('scroll',()=>{const idx=Math.round(gallery.scrollLeft/122);document.querySelectorAll('.gallery-dot').forEach((d,i)=>d.classList.toggle('active',i===idx));},{passive:true});
-  dots.addEventListener('click',e=>{if(e.target.classList.contains('gallery-dot'))gallery.scrollTo({left:+e.target.dataset.index*122,behavior:'smooth'});});
+  // FIX: dynamic card width for scroll tracking
+  gallery.addEventListener('scroll',()=>{
+    const card=gallery.querySelector('.token-card');
+    const cardW=card?card.offsetWidth+12:122;
+    const idx=Math.round(gallery.scrollLeft/cardW);
+    document.querySelectorAll('.gallery-dot').forEach((d,i)=>d.classList.toggle('active',i===idx));
+  },{passive:true});
+  dots.addEventListener('click',e=>{
+    if(e.target.classList.contains('gallery-dot')){
+      const card=gallery.querySelector('.token-card');
+      const cardW=card?card.offsetWidth+12:122;
+      gallery.scrollTo({left:+e.target.dataset.index*cardW,behavior:'smooth'});
+    }
+  });
+
+  // Swipe to close buy modal on mobile
+  let touchStartY=0;
+  document.getElementById('buyModalInner').addEventListener('touchstart',e=>{touchStartY=e.touches[0].clientY;},{passive:true});
+  document.getElementById('buyModalInner').addEventListener('touchmove',e=>{
+    const dy=e.touches[0].clientY-touchStartY;
+    if(dy>60&&!_isBuying&&!_isSelling)closeBuyModal();
+  },{passive:true});
 }
 
+// ── BUY/SELL MODAL ────────────────────────────────────────────────────────────
 async function openBuyModal(token){
-  currentToken=token;_isBuying=false;_isSelling=false;currentMetaContract=signer?new ethers.Contract(token.contract,ABI_META,signer):null;
+  currentToken=token;_isBuying=false;_isSelling=false;
+  currentMetaContract=signer?new ethers.Contract(token.contract,ABI_META,signer):null;
   const modal=document.getElementById('buyModalInner');modal.style.setProperty('--token-accent',token.color);
   const li=document.getElementById('buyModalLogo');const lf=document.getElementById('buyModalLogoFb');
-  li.src=token.img;li.style.display='block';lf.style.display='none';lf.textContent=token.symbol.replace('m','');li.style.borderColor=lf.style.borderColor=lf.style.color=token.color;
-  document.getElementById('buyModalName').textContent=token.name;document.getElementById('buyModalName').style.color=token.color;document.getElementById('buyModalSym').textContent=token.symbol;document.getElementById('buyModalPrice').textContent='Loading rate…';document.getElementById('buyModalContract').textContent=token.contract;document.getElementById('modalReceiveLabel').textContent=token.symbol;document.getElementById('sellInputUnit').textContent=token.symbol;document.getElementById('modalMonAmount').value='';document.getElementById('modalSellAmount').value='';document.getElementById('modalReceiveAmount').textContent='0.00';document.getElementById('modalSellReceive').textContent='0.00';document.getElementById('modalStatus').className='modal-status';
-  const buyBtn=document.getElementById('modalBuyBtn');buyBtn.style.background=`linear-gradient(135deg,${token.color}cc,${token.color})`;buyBtn.disabled=!signer;buyBtn.textContent=signer?`◈ Buy ${token.symbol}`:'◈ Connect Wallet First';
-  const sellBtn=document.getElementById('modalSellBtn');sellBtn.style.borderColor=token.color;sellBtn.style.color=token.color;sellBtn.disabled=!signer;sellBtn.textContent=signer?`◈ Sell ${token.symbol}`:'◈ Connect Wallet First';
-  const isTokenOwner=userAddress&&userAddress.toLowerCase()===OWNER_ADDRESS.toLowerCase();document.getElementById('tokenOwnerPanel').classList.toggle('show',!!isTokenOwner);document.getElementById('buyTokenModal').classList.add('show');
+  li.src=token.img;li.style.display='block';lf.style.display='none';lf.textContent=token.symbol.replace('m','');
+  li.style.borderColor=lf.style.borderColor=lf.style.color=token.color;
+  document.getElementById('buyModalName').textContent=token.name;
+  document.getElementById('buyModalName').style.color=token.color;
+  document.getElementById('buyModalSym').textContent=token.symbol;
+  document.getElementById('buyModalPrice').textContent='Loading rate…';
+  document.getElementById('buyModalContract').textContent=token.contract;
+  document.getElementById('modalReceiveLabel').textContent=token.symbol;
+  document.getElementById('sellInputUnit').textContent=token.symbol;
+  document.getElementById('modalMonAmount').value='';
+  document.getElementById('modalSellAmount').value='';
+  document.getElementById('modalReceiveAmount').textContent='0.00';
+  document.getElementById('modalSellReceive').textContent='0.00';
+  document.getElementById('modalStatus').className='modal-status';
+  document.getElementById('slippageWarn').classList.remove('show');
+  hideTxProgress('buy');hideTxProgress('sell');
+  const buyBtn=document.getElementById('modalBuyBtn');
+  buyBtn.style.background=`linear-gradient(135deg,${token.color}cc,${token.color})`;
+  buyBtn.disabled=!signer;buyBtn.textContent=signer?`◈ Buy ${token.symbol}`:'◈ Connect Wallet First';
+  const sellBtn=document.getElementById('modalSellBtn');
+  sellBtn.style.borderColor=token.color;sellBtn.style.color=token.color;
+  sellBtn.disabled=!signer;sellBtn.textContent=signer?`◈ Sell ${token.symbol}`:'◈ Connect Wallet First';
+  const isTokenOwner=userAddress&&userAddress.toLowerCase()===OWNER_ADDRESS.toLowerCase();
+  document.getElementById('tokenOwnerPanel').classList.toggle('show',!!isTokenOwner);
+  document.getElementById('buyTokenModal').classList.add('show');
   const[priceHex,sellPriceHex]=await Promise.all([ethCall(token.contract,SEL.buyPrice),ethCall(token.contract,SEL.sellPrice)]);
-  if(priceHex&&priceHex!=='0x'&&priceHex!=='0x0'){const bp=BigInt(priceHex);token._buyPriceWei=bp;const tpm=Number(10n**18n/bp);document.getElementById('buyModalPrice').textContent=`BUY: 1 MON = ${tpm.toLocaleString(undefined,{maximumFractionDigits:0})} ${token.symbol}`;calcModalReceive();}else{document.getElementById('buyModalPrice').textContent='Rate unavailable';}
-  if(sellPriceHex&&sellPriceHex!=='0x'&&sellPriceHex!=='0x0'){token._sellPriceWei=BigInt(sellPriceHex);const spm=Number(10n**18n/BigInt(sellPriceHex));document.getElementById('buyModalPrice').textContent+=` · SELL: 1 MON = ${spm.toLocaleString(undefined,{maximumFractionDigits:0})} ${token.symbol}`;}
+  if(priceHex&&priceHex!=='0x'&&priceHex!=='0x0'){
+    const bp=BigInt(priceHex);token._buyPriceWei=bp;
+    const tpm=Number(10n**18n/bp);
+    document.getElementById('buyModalPrice').textContent=`BUY: 1 MON = ${tpm.toLocaleString(undefined,{maximumFractionDigits:0})} ${token.symbol}`;
+    calcModalReceive();
+  }else{document.getElementById('buyModalPrice').textContent='Rate unavailable';}
+  if(sellPriceHex&&sellPriceHex!=='0x'&&sellPriceHex!=='0x0'){
+    token._sellPriceWei=BigInt(sellPriceHex);
+    const spm=Number(10n**18n/BigInt(sellPriceHex));
+    document.getElementById('buyModalPrice').textContent+=` · SELL: 1 MON = ${spm.toLocaleString(undefined,{maximumFractionDigits:0})} ${token.symbol}`;
+  }
   if(userAddress)loadTokenBalance(token);
 }
-function closeBuyModal(){if(_isBuying||_isSelling)return;document.getElementById('buyTokenModal').classList.remove('show');currentToken=null;currentMetaContract=null;_isBuying=false;_isSelling=false;}
-function calcModalReceive(){if(!currentToken||!currentToken._buyPriceWei)return;const mon=parseFloat(document.getElementById('modalMonAmount').value)||0;document.getElementById('modalReceiveAmount').textContent=(mon*Number(10n**18n/currentToken._buyPriceWei)).toFixed(2);}
-function calcModalSellReceive(){if(!currentToken||!currentToken._sellPriceWei)return;const tkn=parseFloat(document.getElementById('modalSellAmount').value)||0;document.getElementById('modalSellReceive').textContent=(tkn*Number(currentToken._sellPriceWei)/1e18).toFixed(6);}
-function fillMaxSell(){const num=parseFloat(document.getElementById('sellBalance').textContent)||0;if(num>0){document.getElementById('modalSellAmount').value=Math.floor(num).toString();calcModalSellReceive();}}
+function closeBuyModal(){
+  if(_isBuying||_isSelling)return;
+  document.getElementById('buyTokenModal').classList.remove('show');
+  currentToken=null;currentMetaContract=null;_isBuying=false;_isSelling=false;
+}
+function calcModalReceive(){
+  if(!currentToken||!currentToken._buyPriceWei)return;
+  const mon=parseFloat(document.getElementById('modalMonAmount').value)||0;
+  document.getElementById('modalReceiveAmount').textContent=(mon*Number(10n**18n/currentToken._buyPriceWei)).toFixed(2);
+}
+function calcModalSellReceive(){
+  if(!currentToken||!currentToken._sellPriceWei)return;
+  const tkn=parseFloat(document.getElementById('modalSellAmount').value)||0;
+  document.getElementById('modalSellReceive').textContent=(tkn*Number(currentToken._sellPriceWei)/1e18).toFixed(6);
+}
+function fillMaxSell(){
+  const num=parseFloat(document.getElementById('sellBalance').textContent)||0;
+  if(num>0){document.getElementById('modalSellAmount').value=Math.floor(num).toString();calcModalSellReceive();}
+}
 
-async function sendBuyTx(toAddress,monAmount){const weiHex="0x"+ethers.parseEther(monAmount.toString()).toString(16);const ethLike=connectedVia==="walletconnect"?wcProvider:window.ethereum;if(!ethLike)throw new Error("No provider");const txHash=await ethLike.request({method:"eth_sendTransaction",params:[{from:userAddress,to:toAddress,value:weiHex,data:"0xd0febe4c",gas:"0x493E0"}]});return await waitForTx(txHash);}
-async function sendSellTx(contract,tokenAmountWei){const amtHex=tokenAmountWei.toString(16).padStart(64,'0');const data='0x8e19899e'+amtHex;const ethLike=connectedVia==='walletconnect'?wcProvider:window.ethereum;if(!ethLike)throw new Error('No provider');const txHash=await ethLike.request({method:'eth_sendTransaction',params:[{from:userAddress,to:contract,data,gas:'0x493E0'}]});return await waitForTx(txHash);}
-async function waitForTx(txHash){for(let i=0;i<60;i++){const receipt=await rpcFetch('eth_getTransactionReceipt',[txHash]);if(receipt){if(receipt.status==='0x0')throw new Error('Transaction reverted on-chain');return txHash;}await new Promise(r=>setTimeout(r,2000));}throw new Error('Not confirmed after 120s — check explorer');}
-async function executeTokenBuy(){if(!userAddress){showModalStatus('Connect wallet first!','error');return;}if(!currentToken||_isBuying)return;const mon=parseFloat(document.getElementById('modalMonAmount').value);if(!mon||mon<=0){showModalStatus('Enter MON amount!','error');return;}const token=currentToken;const btn=document.getElementById('modalBuyBtn');try{_isBuying=true;btn.disabled=true;btn.textContent='◈ Checking…';const enabled=await checkEnabled(token.contract,true);if(!enabled){showModalStatus('⚠ Trading not open for this token','warn');return;}btn.textContent='◈ Processing…';showModalStatus('Sending transaction…','info');await sendBuyTx(token.contract,mon);const tpm=token._buyPriceWei?Number(10n**18n/token._buyPriceWei):0;showModalStatus('✓ Got '+(mon*tpm).toFixed(2)+' '+token.symbol+'!','success');document.getElementById('modalMonAmount').value='';document.getElementById('modalReceiveAmount').textContent='0.00';loadTokenBalance(token);loadContractData();}catch(e){showModalStatus('Error: '+(e?.reason||e?.message||'failed').slice(0,100),'error');}finally{_isBuying=false;btn.disabled=false;btn.textContent='◈ Buy '+token.symbol;}}
-async function executeTokenSell(){if(!userAddress){showModalStatus('Connect wallet first!','error');return;}if(!currentToken||_isSelling)return;const tkn=parseFloat(document.getElementById('modalSellAmount').value);if(!tkn||tkn<=0){showModalStatus('Enter token amount!','error');return;}const token=currentToken;const btn=document.getElementById('modalSellBtn');try{_isSelling=true;btn.disabled=true;btn.textContent='◈ Checking…';const enabled=await checkEnabled(token.contract,true);if(!enabled){showModalStatus('⚠ Trading not open','warn');return;}btn.textContent='◈ Approving…';showModalStatus('Approving tokens…','info');const ethLike=connectedVia==='walletconnect'?wcProvider:window.ethereum;const tknWei=BigInt(Math.floor(tkn*1e18));const approveData='0x095ea7b3'+'000000000000000000000000'+token.contract.replace('0x','')+tknWei.toString(16).padStart(64,'0');const approveTx=await ethLike.request({method:'eth_sendTransaction',params:[{from:userAddress,to:token.contract,data:approveData,gas:'0x15F90'}]});await waitForTx(approveTx);btn.textContent='◈ Selling…';showModalStatus('Selling tokens…','info');await sendSellTx(token.contract,tknWei);const monOut=token._sellPriceWei?tkn*Number(token._sellPriceWei)/1e18:0;showModalStatus('✓ Sold! Got ~'+monOut.toFixed(6)+' MON','success');document.getElementById('modalSellAmount').value='';document.getElementById('modalSellReceive').textContent='0.00';loadTokenBalance(token);}catch(e){showModalStatus('Error: '+(e?.reason||e?.message||'failed').slice(0,100),'error');}finally{_isSelling=false;btn.disabled=false;btn.textContent='◈ Sell '+token.symbol;}}
+// ── TX HELPERS ────────────────────────────────────────────────────────────────
+async function sendBuyTx(toAddress,monAmount){
+  const weiHex="0x"+ethers.parseEther(monAmount.toString()).toString(16);
+  const ethLike=connectedVia==="walletconnect"?wcProvider:window.ethereum;
+  if(!ethLike)throw new Error("No provider");
+  const txHash=await ethLike.request({method:"eth_sendTransaction",params:[{from:userAddress,to:toAddress,value:weiHex,data:"0xd0febe4c",gas:"0x493E0"}]});
+  return await waitForTx(txHash,'buy');
+}
+async function sendSellTx(contract,tokenAmountWei){
+  const amtHex=tokenAmountWei.toString(16).padStart(64,'0');
+  const data='0x8e19899e'+amtHex;
+  const ethLike=connectedVia==='walletconnect'?wcProvider:window.ethereum;
+  if(!ethLike)throw new Error('No provider');
+  const txHash=await ethLike.request({method:'eth_sendTransaction',params:[{from:userAddress,to:contract,data,gas:'0x493E0'}]});
+  return await waitForTx(txHash,'sell');
+}
+async function waitForTx(txHash,progressPrefix){
+  // Poll with progress feedback
+  for(let i=0;i<60;i++){
+    const pct=Math.min(95,Math.round((i/60)*100));
+    if(progressPrefix)setTxProgress(progressPrefix,pct,`Confirming… (${i*2}s)`);
+    const receipt=await rpcFetch('eth_getTransactionReceipt',[txHash]);
+    if(receipt){
+      if(receipt.status==='0x0')throw new Error('Transaction reverted on-chain');
+      if(progressPrefix)setTxProgress(progressPrefix,100,'✓ Confirmed!');
+      return txHash;
+    }
+    await new Promise(r=>setTimeout(r,2000));
+  }
+  throw new Error('Not confirmed after 120s — check explorer');
+}
+
+// ── BUY TOKEN ─────────────────────────────────────────────────────────────────
+async function executeTokenBuy(){
+  if(!userAddress){showModalStatus('Connect wallet first!','error');return;}
+  if(!currentToken||_isBuying)return;
+  const mon=parseFloat(document.getElementById('modalMonAmount').value);
+  if(!mon||mon<=0){showModalStatus('Enter MON amount!','error');return;}
+  const token=currentToken;
+  const btn=document.getElementById('modalBuyBtn');
+  try{
+    _isBuying=true;btn.disabled=true;btn.textContent='◈ Checking…';
+    const enabled=await checkEnabled(token.contract,true);
+    if(!enabled){showModalStatus('⚠ Trading not open for this token','warn');return;}
+    btn.textContent='◈ Processing…';
+    showModalStatus('Sending transaction…','info');
+    const txHash=await sendBuyTx(token.contract,mon);
+    const tpm=token._buyPriceWei?Number(10n**18n/token._buyPriceWei):0;
+    const received=(mon*tpm).toFixed(2);
+    showModalStatus('✓ Got '+received+' '+token.symbol+'!','success');
+    addTxHistory('buy',token.symbol,received,txHash);
+    document.getElementById('modalMonAmount').value='';
+    document.getElementById('modalReceiveAmount').textContent='0.00';
+    document.getElementById('slippageWarn').classList.remove('show');
+    loadTokenBalance(token);loadContractData();
+  }catch(e){
+    showModalStatus('Error: '+(e?.reason||e?.message||'failed').slice(0,100),'error');
+    hideTxProgress('buy');
+  }finally{
+    _isBuying=false;btn.disabled=false;btn.textContent='◈ Buy '+token.symbol;
+  }
+}
+
+// ── SELL TOKEN ────────────────────────────────────────────────────────────────
+async function executeTokenSell(){
+  if(!userAddress){showModalStatus('Connect wallet first!','error');return;}
+  if(!currentToken||_isSelling)return;
+  const tkn=parseFloat(document.getElementById('modalSellAmount').value);
+  if(!tkn||tkn<=0){showModalStatus('Enter token amount!','error');return;}
+  const token=currentToken;
+  const btn=document.getElementById('modalSellBtn');
+  try{
+    _isSelling=true;btn.disabled=true;btn.textContent='◈ Checking…';
+    const enabled=await checkEnabled(token.contract,true);
+    if(!enabled){showModalStatus('⚠ Trading not open','warn');return;}
+    btn.textContent='◈ Approving…';
+    showModalStatus('Approving tokens…','info');
+    const ethLike=connectedVia==='walletconnect'?wcProvider:window.ethereum;
+    const tknWei=BigInt(Math.floor(tkn*1e18));
+    const approveData='0x095ea7b3'+'000000000000000000000000'+token.contract.replace('0x','')+tknWei.toString(16).padStart(64,'0');
+    const approveTx=await ethLike.request({method:'eth_sendTransaction',params:[{from:userAddress,to:token.contract,data:approveData,gas:'0x15F90'}]});
+    await waitForTx(approveTx,'sell');
+    btn.textContent='◈ Selling…';
+    showModalStatus('Selling tokens…','info');
+    const txHash=await sendSellTx(token.contract,tknWei);
+    const monOut=token._sellPriceWei?tkn*Number(token._sellPriceWei)/1e18:0;
+    const monStr=monOut.toFixed(6);
+    showModalStatus('✓ Sold! Got ~'+monStr+' MON','success');
+    addTxHistory('sell',token.symbol,tkn.toString(),txHash);
+    document.getElementById('modalSellAmount').value='';
+    document.getElementById('modalSellReceive').textContent='0.00';
+    loadTokenBalance(token);
+  }catch(e){
+    showModalStatus('Error: '+(e?.reason||e?.message||'failed').slice(0,100),'error');
+    hideTxProgress('sell');
+  }finally{
+    _isSelling=false;btn.disabled=false;btn.textContent='◈ Sell '+token.symbol;
+  }
+}
+
 function showModalStatus(msg,type){const el=document.getElementById('modalStatus');el.textContent=msg;el.className='modal-status '+type;}
-async function doMintToken(){if(!currentMetaContract)return;const to=document.getElementById('mintToAddr').value.trim();const amt=document.getElementById('mintAmt').value.trim();if(!to||!amt){showModalStatus('Enter address and amount','warn');return;}try{showModalStatus('Minting…','info');const tx=await currentMetaContract.mint(to,ethers.parseEther(amt));await tx.wait();showModalStatus('✓ Minted '+amt+' '+currentToken.symbol+' to '+to.slice(0,10)+'…','success');}catch(e){showModalStatus('Mint error: '+(e?.reason||e?.message||'').slice(0,100),'error');}}
-async function doToggleTrade(enabled){if(!currentMetaContract)return;try{showModalStatus((enabled?'Enabling':'Disabling')+' trading…','info');const tx=await currentMetaContract.setTradeEnabled(enabled);await tx.wait();showModalStatus('✓ Trading '+(enabled?'enabled':'disabled'),'success');}catch(e){showModalStatus('Toggle error: '+(e?.reason||e?.message||'').slice(0,100),'error');}}
-async function doSetPrices(){if(!currentMetaContract)return;const bp=document.getElementById('newBuyPrice').value.trim();const sp=document.getElementById('newSellPrice').value.trim();if(!bp||!sp){showModalStatus('Enter both prices in wei','warn');return;}try{showModalStatus('Setting prices…','info');const tx=await currentMetaContract.setPrices(BigInt(bp),BigInt(sp));await tx.wait();showModalStatus('✓ Prices updated','success');}catch(e){showModalStatus('Price error: '+(e?.reason||e?.message||'').slice(0,100),'error');}}
-async function doWithdrawToken(){if(!currentMetaContract)return;try{showModalStatus('Withdrawing…','info');const tx=await currentMetaContract.withdraw();await tx.wait();showModalStatus('✓ MON withdrawn to owner','success');}catch(e){showModalStatus('Withdraw error: '+(e?.reason||e?.message||'').slice(0,100),'error');}}
-async function doMintEuro(){if(!euroContract||!_isOwner)return;const to=document.getElementById('euroMintTo').value.trim();const amt=document.getElementById('euroMintAmt').value.trim();if(!to||!amt){showStatus('Enter address and amount','warn');return;}try{showStatus('Minting EURO…','info');const tx=await euroContract.mint(to,ethers.parseEther(amt));await tx.wait();showStatus('✓ Minted '+amt+' EURO to '+to.slice(0,10)+'…','success');loadContractData();}catch(e){showStatus('Mint error: '+(e?.reason||e?.message||'').slice(0,100),'error');}}
-async function doToggleBuy(enabled){if(!euroContract||!_isOwner)return;try{showStatus((enabled?'Enabling':'Disabling')+' presale…','info');const tx=await euroContract.toggleBuy(enabled);await tx.wait();showStatus('✓ Presale '+(enabled?'enabled':'disabled'),'success');loadContractData();}catch(e){showStatus('Toggle error: '+(e?.reason||e?.message||'').slice(0,100),'error');}}
-async function doSetEuroPrice(){if(!euroContract||!_isOwner)return;const rate=document.getElementById('newTokensPerMON').value.trim();if(!rate){showStatus('Enter tokensPerMON value','warn');return;}try{showStatus('Setting rate…','info');const rateN=BigInt(rate);const pricePerToken=10n**18n/rateN;const tx=await euroContract.setPrice(pricePerToken,rateN);await tx.wait();showStatus('✓ Rate set to '+rate+' EURO/MON','success');loadContractData();}catch(e){showStatus('Price error: '+(e?.reason||e?.message||'').slice(0,100),'error');}}
-async function doWithdrawEuro(){if(!euroContract||!_isOwner)return;try{showStatus('Withdrawing…','info');const tx=await euroContract.withdraw();await tx.wait();showStatus('✓ MON withdrawn to owner','success');}catch(e){showStatus('Withdraw error: '+(e?.reason||e?.message||'').slice(0,100),'error');}}
-function calcReceive(){const mon=parseFloat(document.getElementById('monAmount').value)||0;const rate=Number(_tokensPerMON);document.getElementById('receiveAmount').textContent=rate>0?(mon*rate).toFixed(2):'—';}
-async function buyEuro(){if(!userAddress){showStatus('Connect wallet first!','error');return;}const mon=parseFloat(document.getElementById('monAmount').value);if(!mon||mon<=0){showStatus('Enter MON amount!','error');return;}const btn=document.getElementById('buyBtn');try{btn.disabled=true;btn.textContent='◈ Checking…';const enabled=await checkEnabled(EUROSPACE_CONTRACT,false);if(!enabled){showStatus('⚠ Presale not open','warn');return;}btn.textContent='◈ Processing…';showStatus('Sending transaction…','info');await sendBuyTx(EUROSPACE_CONTRACT,mon);const rate=Number(_tokensPerMON);showStatus('✓ Got '+(mon*rate).toFixed(2)+' EURO COIN','success');document.getElementById('monAmount').value='';document.getElementById('receiveAmount').textContent='0.00';loadContractData();}catch(e){showStatus('Error: '+(e?.reason||e?.message||'failed').slice(0,100),'error');}finally{btn.disabled=false;btn.textContent='◈ Buy Euro Coin';}}
+
+// ── OWNER ACTIONS ─────────────────────────────────────────────────────────────
+async function doMintToken(){
+  if(!currentMetaContract)return;
+  const to=document.getElementById('mintToAddr').value.trim();const amt=document.getElementById('mintAmt').value.trim();
+  if(!to||!amt){showModalStatus('Enter address and amount','warn');return;}
+  try{showModalStatus('Minting…','info');const tx=await currentMetaContract.mint(to,ethers.parseEther(amt));await tx.wait();showModalStatus('✓ Minted '+amt+' '+currentToken.symbol+' to '+to.slice(0,10)+'…','success');}
+  catch(e){showModalStatus('Mint error: '+(e?.reason||e?.message||'').slice(0,100),'error');}
+}
+async function doToggleTrade(enabled){
+  if(!currentMetaContract)return;
+  try{showModalStatus((enabled?'Enabling':'Disabling')+' trading…','info');const tx=await currentMetaContract.setTradeEnabled(enabled);await tx.wait();showModalStatus('✓ Trading '+(enabled?'enabled':'disabled'),'success');}
+  catch(e){showModalStatus('Toggle error: '+(e?.reason||e?.message||'').slice(0,100),'error');}
+}
+async function doSetPrices(){
+  if(!currentMetaContract)return;
+  const bp=document.getElementById('newBuyPrice').value.trim();const sp=document.getElementById('newSellPrice').value.trim();
+  if(!bp||!sp){showModalStatus('Enter both prices in wei','warn');return;}
+  try{showModalStatus('Setting prices…','info');const tx=await currentMetaContract.setPrices(BigInt(bp),BigInt(sp));await tx.wait();showModalStatus('✓ Prices updated','success');}
+  catch(e){showModalStatus('Price error: '+(e?.reason||e?.message||'').slice(0,100),'error');}
+}
+async function doWithdrawToken(){
+  if(!currentMetaContract)return;
+  try{showModalStatus('Withdrawing…','info');const tx=await currentMetaContract.withdraw();await tx.wait();showModalStatus('✓ MON withdrawn to owner','success');}
+  catch(e){showModalStatus('Withdraw error: '+(e?.reason||e?.message||'').slice(0,100),'error');}
+}
+async function doMintEuro(){
+  if(!euroContract||!_isOwner)return;
+  const to=document.getElementById('euroMintTo').value.trim();const amt=document.getElementById('euroMintAmt').value.trim();
+  if(!to||!amt){showStatus('Enter address and amount','warn');return;}
+  try{showStatus('Minting EURO…','info');const tx=await euroContract.mint(to,ethers.parseEther(amt));await tx.wait();showStatus('✓ Minted '+amt+' EURO to '+to.slice(0,10)+'…','success');loadContractData();}
+  catch(e){showStatus('Mint error: '+(e?.reason||e?.message||'').slice(0,100),'error');}
+}
+async function doToggleBuy(enabled){
+  if(!euroContract||!_isOwner)return;
+  try{showStatus((enabled?'Enabling':'Disabling')+' presale…','info');const tx=await euroContract.toggleBuy(enabled);await tx.wait();showStatus('✓ Presale '+(enabled?'enabled':'disabled'),'success');loadContractData();}
+  catch(e){showStatus('Toggle error: '+(e?.reason||e?.message||'').slice(0,100),'error');}
+}
+async function doSetEuroPrice(){
+  if(!euroContract||!_isOwner)return;
+  const rate=document.getElementById('newTokensPerMON').value.trim();
+  if(!rate){showStatus('Enter tokensPerMON value','warn');return;}
+  try{showStatus('Setting rate…','info');const rateN=BigInt(rate);const pricePerToken=10n**18n/rateN;const tx=await euroContract.setPrice(pricePerToken,rateN);await tx.wait();showStatus('✓ Rate set to '+rate+' EURO/MON','success');loadContractData();}
+  catch(e){showStatus('Price error: '+(e?.reason||e?.message||'').slice(0,100),'error');}
+}
+async function doWithdrawEuro(){
+  if(!euroContract||!_isOwner)return;
+  try{showStatus('Withdrawing…','info');const tx=await euroContract.withdraw();await tx.wait();showStatus('✓ MON withdrawn to owner','success');}
+  catch(e){showStatus('Withdraw error: '+(e?.reason||e?.message||'').slice(0,100),'error');}
+}
+
+// ── EURO BUY ──────────────────────────────────────────────────────────────────
+function calcReceive(){
+  const mon=parseFloat(document.getElementById('monAmount').value)||0;
+  const rate=Number(_tokensPerMON);
+  document.getElementById('receiveAmount').textContent=rate>0?(mon*rate).toFixed(2):'—';
+}
+async function buyEuro(){
+  if(!userAddress){showStatus('Connect wallet first!','error');return;}
+  const mon=parseFloat(document.getElementById('monAmount').value);
+  if(!mon||mon<=0){showStatus('Enter MON amount!','error');return;}
+  const btn=document.getElementById('buyBtn');
+  try{
+    btn.disabled=true;btn.textContent='◈ Checking…';
+    const enabled=await checkEnabled(EUROSPACE_CONTRACT,false);
+    if(!enabled){showStatus('⚠ Presale not open','warn');return;}
+    btn.textContent='◈ Processing…';showStatus('Sending transaction…','info');
+    const txHash=await sendBuyTx(EUROSPACE_CONTRACT,mon);
+    const rate=Number(_tokensPerMON);
+    const received=(mon*rate).toFixed(2);
+    showStatus('✓ Got '+received+' EURO COIN','success');
+    addTxHistory('buy','EURO',received,txHash);
+    document.getElementById('monAmount').value='';
+    document.getElementById('receiveAmount').textContent='0.00';
+    loadContractData();
+  }catch(e){
+    showStatus('Error: '+(e?.reason||e?.message||'failed').slice(0,100),'error');
+  }finally{
+    btn.disabled=false;btn.textContent='◈ Buy Euro Coin';
+  }
+}
+
 function showStatus(msg,type){const el=document.getElementById('statusMsg');el.textContent=msg;el.className='status '+type;}
 function copyContract(){navigator.clipboard.writeText(EUROSPACE_CONTRACT).then(()=>{document.getElementById('copyBtn').textContent='COPIED!';setTimeout(()=>document.getElementById('copyBtn').textContent='COPY',2000);});}
-function shareOnTwitter(){const t=encodeURIComponent('🚀 EUROSPACE Presale is LIVE on Monad Mainnet!\n\n💶 Buy EURO COIN + 16 Meta Tokens\n⛓ Chain ID 143 · 1000 tokens per MON\n\n#EUROSPACE #Monad #Crypto #Presale\n\n');window.open('https://twitter.com/intent/tweet?text='+t,'_blank');}
+
+function shareOnTwitter(){
+  const daysLeft=Math.ceil((new Date('2026-04-20T23:59:59Z').getTime()-Date.now())/86400000);
+  const t=encodeURIComponent(`🚀 EUROSPACE Presale is LIVE on Monad Mainnet!\n\n💶 Buy EURO COIN + 16 Meta Tokens\n⛓ Chain ID 143 · 1000 tokens per MON\n⏰ Only ${daysLeft} days left!\n\n#EUROSPACE #Monad #Crypto #Presale\n\n`);
+  window.open('https://twitter.com/intent/tweet?text='+t,'_blank');
+}
+
+// ── COUNTDOWN ─────────────────────────────────────────────────────────────────
 const PRESALE_END=new Date('2026-04-20T23:59:59Z').getTime();
 const PRESALE_START=new Date('2026-03-21T00:00:00Z').getTime();
-function updateCountdown(){const now=Date.now(),diff=PRESALE_END-now;if(diff<=0){['cd-days','cd-hours','cd-mins','cd-secs'].forEach(id=>document.getElementById(id).textContent='00');return;}document.getElementById('cd-days').textContent=String(Math.floor(diff/86400000)).padStart(2,'0');document.getElementById('cd-hours').textContent=String(Math.floor(diff%86400000/3600000)).padStart(2,'0');document.getElementById('cd-mins').textContent=String(Math.floor(diff%3600000/60000)).padStart(2,'0');document.getElementById('cd-secs').textContent=String(Math.floor(diff%60000/1000)).padStart(2,'0');document.getElementById('presale-progress').style.width=Math.min(100,((now-PRESALE_START)/(PRESALE_END-PRESALE_START))*100)+'%';}
+function updateCountdown(){
+  const now=Date.now(),diff=PRESALE_END-now;
+  if(diff<=0){['cd-days','cd-hours','cd-mins','cd-secs'].forEach(id=>document.getElementById(id).textContent='00');return;}
+  document.getElementById('cd-days').textContent=String(Math.floor(diff/86400000)).padStart(2,'0');
+  document.getElementById('cd-hours').textContent=String(Math.floor(diff%86400000/3600000)).padStart(2,'0');
+  document.getElementById('cd-mins').textContent=String(Math.floor(diff%3600000/60000)).padStart(2,'0');
+  document.getElementById('cd-secs').textContent=String(Math.floor(diff%60000/1000)).padStart(2,'0');
+  document.getElementById('presale-progress').style.width=Math.min(100,((now-PRESALE_START)/(PRESALE_END-PRESALE_START))*100)+'%';
+}
+
+// ── EVENT LISTENERS ───────────────────────────────────────────────────────────
 document.getElementById('walletModal').addEventListener('click',e=>{if(e.target===document.getElementById('walletModal'))closeWalletModal();});
 document.getElementById('buyTokenModal').addEventListener('click',e=>{if(e.target===document.getElementById('buyTokenModal'))closeBuyModal();});
-if(window.ethereum){window.ethereum.on('chainChanged',()=>window.location.reload());window.ethereum.on('accountsChanged',accs=>{if(!accs.length)disconnectWallet();else{userAddress=accs[0];updateWalletUI().catch(console.error);}});}
+if(window.ethereum){
+  window.ethereum.on('chainChanged',()=>window.location.reload());
+  window.ethereum.on('accountsChanged',accs=>{if(!accs.length)disconnectWallet();else{userAddress=accs[0];updateWalletUI().catch(console.error);}});
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
 setInterval(updateCountdown,1000);
 updateCountdown();
 buildTokenGallery();
