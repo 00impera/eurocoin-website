@@ -18,8 +18,28 @@
   window.addEventListener('unhandledrejection',e=>{const m=String(e?.reason?.message??e?.reason??'');if(NOISE.some(n=>m.includes(n)))e.preventDefault();});
 })();
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js" integrity="sha512-/nYbMJSRkPCPvBgUFNYSJkJx5074E3J6c5K6vfhXxrADReFj6bGIFkOmFbzrpnfbpFl8t6m5A2mvtcFi0aCpQ==" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSLX2PTSD9QsKqFCRBCFJxuGBRSR0V3UEOEQ==" crossorigin="anonymous"></script>
+<script>
+// ── ETHERS DYNAMIC LOADER — works in Telegram WebView & all browsers ─────────
+window._ethersReady = new Promise(function(resolve, reject) {
+  function tryLoad(src, next) {
+    var s = document.createElement('script');
+    s.src = src;
+    s.onload = function() {
+      if (window.ethers) { resolve(); } else if (next) { tryLoad(next, null); } else { reject(new Error('ethers failed')); }
+    };
+    s.onerror = function() {
+      if (next) { tryLoad(next, null); } else { reject(new Error('ethers failed to load from all sources')); }
+    };
+    document.head.appendChild(s);
+  }
+  // Primary CDN → fallback unpkg → fallback jsdelivr
+  tryLoad(
+    'https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js',
+    'https://unpkg.com/ethers@6.7.0/dist/ethers.umd.min.js'
+  );
+});
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
   :root{--cyan:#00ffe0;--blue:#0077ff;--green:#00ff88;--dark:#00080f;--card:#000f1f;--border:#003d2a;--text:#aaffe0;--glow-green:0 0 18px #00ff8877,0 0 40px #00ffe044;}
@@ -655,7 +675,7 @@ function openBuyModalByPair(pairAddr){
   openBuyModal({symbol:p.symbol,name:p.name,color:p.color,img:p.img,contract:p.contract});
 }
 
-setInterval(loadAllDexPrices,30000);
+// DEX price interval started inside _ethersReady below
 
 // ── CONTRACT DATA ─────────────────────────────────────────────────────────────
 async function loadContractData(){
@@ -1137,16 +1157,34 @@ function updateCountdown(){
 // ── EVENT LISTENERS ───────────────────────────────────────────────────────────
 document.getElementById('walletModal').addEventListener('click',e=>{if(e.target===document.getElementById('walletModal'))closeWalletModal();});
 document.getElementById('buyTokenModal').addEventListener('click',e=>{if(e.target===document.getElementById('buyTokenModal'))closeBuyModal();});
-if(window.ethereum){
-  window.ethereum.on('chainChanged',()=>window.location.reload());
-  window.ethereum.on('accountsChanged',accs=>{if(!accs.length)disconnectWallet();else{userAddress=accs[0];updateWalletUI().catch(console.error);}});
-}
+// Note: ethereum chain/account listeners are attached inside _ethersReady.then()
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 setInterval(updateCountdown,1000);
 updateCountdown();
-buildTokenGallery();
-window.addEventListener('load',()=>{loadContractData();loadAllDexPrices();});
+
+// Wait for ethers.js to be fully loaded before initialising wallet logic
+window._ethersReady.then(function() {
+  // All code that needs ethers runs here
+  buildTokenGallery();
+  // Attach ethereum wallet events
+  if(window.ethereum){
+    window.ethereum.on('chainChanged',()=>window.location.reload());
+    window.ethereum.on('accountsChanged',function(accs){
+      if(!accs.length) disconnectWallet();
+      else { userAddress=accs[0]; updateWalletUI().catch(console.error); }
+    });
+  }
+  // Load initial data
+  loadContractData();
+  loadAllDexPrices();
+  // Start DEX price refresh interval (30s)
+  setInterval(loadAllDexPrices, 30000);
+}).catch(function(err) {
+  console.error('ethers load error:', err);
+  var el = document.getElementById('statusMsg');
+  if(el){ el.textContent = '⚠ Failed to load Web3 library. Please refresh.'; el.className = 'status error'; }
+});
 </script>
 </body>
 </html>
