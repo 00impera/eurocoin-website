@@ -25,9 +25,9 @@
 
 | Contract | Address |
 |----------|---------|
-| **EURO Token** | `0x28b5cc805D90213D2699CC3B00e28e3f0fbeCA8e` |
+| **EURO Token** | `0x5548D8405F343a6075a46a45CB954bCeB8Ba4E79` |
 
-🔗 [View on Monad Explorer](https://monad.socialscan.io/address/0x28b5cc805D90213D2699CC3B00e28e3f0fbeCA8e)
+🔗 [View on Monad Explorer](https://monad.socialscan.io/address/0x5548D8405F343a6075a46a45CB954bCeB8Ba4E79)
 
 ---
 
