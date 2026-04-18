@@ -5,7 +5,6 @@ import {
   useReadContract,
   useSendTransaction,
   ThirdwebProvider,
-  useConnectModal,
 } from "thirdweb/react";
 import {
   createThirdwebClient,
@@ -283,13 +282,6 @@ h1{font-family:'Orbitron',monospace;font-size:26px;font-weight:900;background:li
 // ── MAIN APP ──────────────────────────────────────────────────────────────────
 function EurospaceApp() {
   const account = useActiveAccount();
-  const { open, isOpen } = useConnectModal();
-
-  useEffect(() => {
-    if (!account && !isOpen && typeof open === "function") {
-      open({ client, chain: MONAD_MAINNET });
-    }
-  }, [account, isOpen, open]);
 
   const [tokensPerMON,  setTokensPerMON]  = useState(0n);
   const [totalSupply,   setTotalSupply]   = useState("—");
@@ -383,10 +375,11 @@ function EurospaceApp() {
     setDexPrices(results);
   }
 
+  // ── PRESALE COUNTDOWN — ends April 18 2027 (1 year from today) ──
   const [countdown,setCountdown]=useState({d:"00",h:"00",m:"00",s:"00",pct:0});
   useEffect(()=>{
-    const END=new Date("2026-04-20T23:59:59Z").getTime();
-    const START=new Date("2026-03-21T00:00:00Z").getTime();
+    const END  = new Date("2027-04-18T23:59:59Z").getTime();
+    const START = new Date("2026-04-18T00:00:00Z").getTime();
     function tick(){
       const now=Date.now(),diff=END-now;
       if(diff<=0){setCountdown({d:"00",h:"00",m:"00",s:"00",pct:100});return;}
@@ -522,6 +515,7 @@ function EurospaceApp() {
       <style dangerouslySetInnerHTML={{__html:STYLES}}/>
       <div className="scan-line"/>
 
+      {/* NEAR wallet modal */}
       {nearModal&&(
         <div className="modal-overlay show" onClick={e=>{if(e.target.className.includes("modal-overlay"))setNearModal(false);}}>
           <div className="modal-box">
@@ -541,6 +535,7 @@ function EurospaceApp() {
         </div>
       )}
 
+      {/* Token trade modal */}
       {tokenModal&&(
         <div className="modal-overlay show" onClick={e=>{if(e.target.className.includes("modal-overlay"))setTokenModal(null);}}>
           <div className="modal-box">
@@ -584,22 +579,41 @@ function EurospaceApp() {
           <div className="net-badge"><div className="net-dot"/>MONAD MAINNET · CHAIN ID 143</div>
         </div>
 
+        {/* ── Wallet connection bar ── */}
         <div className="connect-bar">
-          <ConnectButton client={client} chain={MONAD_MAINNET} theme="dark" btnTitle="◈ Connect EVM Wallet" connectModal={{title:"Connect to EUROSPACE",size:"compact"}}/>
-          {nearAccount?<div className="near-badge" onClick={disconnectNear}><span className="near-dot"/>{nearAccount.slice(0,14)}… ✕</div>:<div className="near-badge" onClick={()=>setNearModal(true)}>🌊 Connect NEAR</div>}
+          <ConnectButton
+            client={client}
+            chain={MONAD_MAINNET}
+            theme="dark"
+            btnTitle="◈ Connect Wallet"
+            connectModal={{
+              title:"Connect to EUROSPACE",
+              size:"compact",
+              welcomeScreen:{
+                title:"EUROSPACE",
+                subtitle:"Connect your wallet to buy EURO on Monad",
+              },
+            }}
+            wallets={undefined}
+          />
+          {nearAccount
+            ? <div className="near-badge" onClick={disconnectNear}><span className="near-dot"/>{nearAccount.slice(0,14)}… ✕</div>
+            : <div className="near-badge" onClick={()=>setNearModal(true)}>🌊 Connect NEAR</div>
+          }
         </div>
 
         {account&&(
           <div className="wallet-bar show">
             <div style={{display:"flex",alignItems:"center",gap:8}}>
               <span>{shortAddr(account.address)}</span>
-              <span className="w-badge">ThirdWeb</span>
+              <span className="w-badge">EVM</span>
               {isOwner&&<span className="w-badge" style={{background:"#ffd70022",borderColor:"#ffd70044",color:"#ffd700"}}>OWNER</span>}
             </div>
             <div style={{fontSize:10,color:"#009966"}}>EURO: {fmt(twEuroBalance)} EURO</div>
           </div>
         )}
 
+        {/* ── Tabs ── */}
         <div className="tabs">
           {[
             {id:"presale", label:"PRESALE"},
@@ -613,13 +627,22 @@ function EurospaceApp() {
           ))}
         </div>
 
+        {/* ══════════════════════ PRESALE TAB ══════════════════════ */}
         {tab==="presale"&&<>
           <div className="card">
             <div className="card-title">⬡ Presale Ends In</div>
-            <div className="cd-grid">{[{v:countdown.d,l:"Days"},{v:countdown.h,l:"Hours"},{v:countdown.m,l:"Mins"},{v:countdown.s,l:"Secs"}].map(x=><div key={x.l} className="cd-box"><div className="cd-num">{x.v}</div><div className="cd-lbl">{x.l}</div></div>)}</div>
+            <div className="cd-grid">
+              {[{v:countdown.d,l:"Days"},{v:countdown.h,l:"Hours"},{v:countdown.m,l:"Mins"},{v:countdown.s,l:"Secs"}].map(x=>(
+                <div key={x.l} className="cd-box">
+                  <div className="cd-num">{x.v}</div>
+                  <div className="cd-lbl">{x.l}</div>
+                </div>
+              ))}
+            </div>
             <div className="presale-bar"><div className="presale-fill" style={{width:countdown.pct+"%"}}/></div>
-            <div style={{textAlign:"center",fontSize:10,color:"#4488aa"}}>Ends: April 20, 2026</div>
+            <div style={{textAlign:"center",fontSize:10,color:"#4488aa"}}>Ends: April 18, 2027</div>
           </div>
+
           <div className="card">
             <div className="card-title">⬡ Live Stats</div>
             <div className="stats-grid">
@@ -628,30 +651,109 @@ function EurospaceApp() {
               <div className="stat-box"><div className="stat-val" style={{color:buyStatus==="OPEN"?"#00ff88":"#ff4466"}}>{buyStatus}</div><div className="stat-lbl">Presale</div></div>
             </div>
           </div>
+
           <div className="card">
             <div className="card-title">⬡ Buy Euro Coin</div>
             <div className="price-grid">
-              <div className="price-box"><div className="price-lbl">You Receive</div><div className="price-val">{Number(tokensPerMON).toLocaleString()}</div><div style={{fontSize:9,color:"#009966",marginTop:2}}>EURO per MON</div></div>
-              <div className="price-box"><div className="price-lbl">Network</div><div className="price-val" style={{fontSize:13}}>MONAD</div><div style={{fontSize:9,color:"#009966",marginTop:2}}>Chain ID 143</div></div>
+              <div className="price-box">
+                <div className="price-lbl">You Receive</div>
+                <div className="price-val">{Number(tokensPerMON).toLocaleString()}</div>
+                <div style={{fontSize:9,color:"#009966",marginTop:2}}>EURO per MON</div>
+              </div>
+              <div className="price-box">
+                <div className="price-lbl">Network</div>
+                <div className="price-val" style={{fontSize:13}}>MONAD</div>
+                <div style={{fontSize:9,color:"#009966",marginTop:2}}>Chain ID 143</div>
+              </div>
             </div>
-            <div className="field"><label>You Pay</label><div className="field-wrap"><input type="number" placeholder="0.0" min="0" step="0.01" value={monAmount} onChange={e=>setMonAmount(e.target.value)}/><span className="field-unit">MON</span></div></div>
-            <div className="receive-box"><div><div className="receive-amt">{receiveAmount}</div><div className="receive-lbl">EURO COIN</div></div><img src="/logo.png" style={{width:30,height:30,borderRadius:"50%",objectFit:"cover"}} alt="EURO"/></div>
-            {!account?<div className="tw-connect-wrap"><ConnectButton client={client} chain={MONAD_MAINNET} theme="dark" btnTitle="◈ Connect Wallet to Buy"/></div>:<button className="btn-buy" onClick={handleBuyEuro} disabled={!monAmount||txStatus==="pending"}>{txStatus==="pending"?"◈ Processing…":"◈ Buy Euro Coin"}</button>}
-            {txStatus==="success"&&<div className="status-msg success">✓ Bought {receiveAmount} EURO!{txHash&&<><br/><a href={`https://monad.socialscan.io/tx/${txHash}`} target="_blank" rel="noopener noreferrer" style={{color:"#00ff88"}}>View TX ↗</a></>}</div>}
+            <div className="field">
+              <label>You Pay</label>
+              <div className="field-wrap">
+                <input type="number" placeholder="0.0" min="0" step="0.01" value={monAmount} onChange={e=>setMonAmount(e.target.value)}/>
+                <span className="field-unit">MON</span>
+              </div>
+            </div>
+            <div className="receive-box">
+              <div>
+                <div className="receive-amt">{receiveAmount}</div>
+                <div className="receive-lbl">EURO COIN</div>
+              </div>
+              <img src="/logo.png" style={{width:30,height:30,borderRadius:"50%",objectFit:"cover"}} alt="EURO"/>
+            </div>
+
+            {!account
+              ? (
+                <div className="tw-connect-wrap">
+                  <ConnectButton
+                    client={client}
+                    chain={MONAD_MAINNET}
+                    theme="dark"
+                    btnTitle="◈ Connect Wallet to Buy"
+                    connectModal={{title:"Connect to EUROSPACE",size:"compact"}}
+                    wallets={undefined}
+                  />
+                </div>
+              )
+              : (
+                <button className="btn-buy" onClick={handleBuyEuro} disabled={!monAmount||txStatus==="pending"}>
+                  {txStatus==="pending"?"◈ Processing…":"◈ Buy Euro Coin"}
+                </button>
+              )
+            }
+
+            {txStatus==="success"&&(
+              <div className="status-msg success">
+                ✓ Bought {receiveAmount} EURO!
+                {txHash&&<><br/><a href={`https://monad.socialscan.io/tx/${txHash}`} target="_blank" rel="noopener noreferrer" style={{color:"#00ff88"}}>View TX ↗</a></>}
+              </div>
+            )}
             {txStatus==="error"&&<div className="status-msg error">Transaction failed. Check wallet.</div>}
-            {isOwner&&(<div style={{marginTop:16,padding:14,background:"#000a1a",border:"1px solid #00ff8822",borderRadius:12}}><div className="card-title">⚙ OWNER PANEL</div><div style={{display:"flex",gap:8,flexWrap:"wrap"}}><button className="btn-sm" onClick={()=>{sendTx(prepareContractCall({contract:euroTWContract,method:"toggleBuy",params:[true],abi:[{name:"toggleBuy",type:"function",inputs:[{type:"bool"}],outputs:[],stateMutability:"nonpayable"}]}),{onSuccess:()=>alert("Enabled!"),onError:e=>alert(e?.message)});}}>✓ Enable</button><button className="btn-sm danger" onClick={()=>{sendTx(prepareContractCall({contract:euroTWContract,method:"toggleBuy",params:[false],abi:[{name:"toggleBuy",type:"function",inputs:[{type:"bool"}],outputs:[],stateMutability:"nonpayable"}]}),{onSuccess:()=>alert("Disabled!"),onError:e=>alert(e?.message)});}}>✕ Disable</button></div></div>)}
+
+            {isOwner&&(
+              <div style={{marginTop:16,padding:14,background:"#000a1a",border:"1px solid #00ff8822",borderRadius:12}}>
+                <div className="card-title">⚙ OWNER PANEL</div>
+                <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                  <button className="btn-sm" onClick={()=>{
+                    sendTx(prepareContractCall({contract:euroTWContract,method:"toggleBuy",params:[true],abi:[{name:"toggleBuy",type:"function",inputs:[{type:"bool"}],outputs:[],stateMutability:"nonpayable"}]}),
+                    {onSuccess:()=>alert("Enabled!"),onError:e=>alert(e?.message)});
+                  }}>✓ Enable</button>
+                  <button className="btn-sm danger" onClick={()=>{
+                    sendTx(prepareContractCall({contract:euroTWContract,method:"toggleBuy",params:[false],abi:[{name:"toggleBuy",type:"function",inputs:[{type:"bool"}],outputs:[],stateMutability:"nonpayable"}]}),
+                    {onSuccess:()=>alert("Disabled!"),onError:e=>alert(e?.message)});
+                  }}>✕ Disable</button>
+                </div>
+              </div>
+            )}
           </div>
+
           <div className="card">
             <div className="card-title">⬡ Contract Address</div>
-            <div className="contract-box" onClick={()=>navigator.clipboard.writeText(EURO_CONTRACT)}><div className="contract-addr">{EURO_CONTRACT}</div><button className="copy-btn">COPY</button></div>
+            <div className="contract-box" onClick={()=>navigator.clipboard.writeText(EURO_CONTRACT)}>
+              <div className="contract-addr">{EURO_CONTRACT}</div>
+              <button className="copy-btn">COPY</button>
+            </div>
             <a href={`https://monad.socialscan.io/address/${EURO_CONTRACT}`} target="_blank" rel="noopener noreferrer" className="explorer-link">🔍 View on Monad Explorer</a>
           </div>
+
           <div className="card">
             <div className="card-title">⬡ How To Buy</div>
-            <div className="steps">{[{n:1,title:"Connect Wallet",desc:"ThirdWeb: MetaMask, WalletConnect, Trust, Coinbase, 300+"},{n:2,title:"Switch to Monad",desc:"Chain ID 143 — added automatically"},{n:3,title:"Enter MON Amount",desc:"Type how much MON to spend"},{n:4,title:"Buy EURO Coin",desc:"Tokens sent instantly to your wallet"}].map(s=><div key={s.n} className="step"><div className="step-num">{s.n}</div><div className="step-text"><strong>{s.title}</strong>{s.desc}</div></div>)}</div>
+            <div className="steps">
+              {[
+                {n:1,title:"Connect Wallet",desc:"Click ◈ Connect Wallet — MetaMask, WalletConnect, Trust, Coinbase and 300+ wallets supported"},
+                {n:2,title:"Switch to Monad",desc:"Chain ID 143 is added automatically when you connect"},
+                {n:3,title:"Enter MON Amount",desc:"Type how much MON to spend in the field above"},
+                {n:4,title:"Buy EURO Coin",desc:"Tokens are sent instantly to your wallet on-chain"},
+              ].map(s=>(
+                <div key={s.n} className="step">
+                  <div className="step-num">{s.n}</div>
+                  <div className="step-text"><strong>{s.title}</strong>{s.desc}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </>}
 
+        {/* ══════════════════════ EVM SWAP TAB ══════════════════════ */}
         {tab==="evmswap"&&(
           <div className="card">
             <div className="card-title">⚡ EVM Swap — MON → Any Token</div>
@@ -660,7 +762,7 @@ function EurospaceApp() {
               Uses each token's on-chain <code style={{color:"var(--cyan)",fontSize:10}}>buyTokens()</code> — no router, no slippage config needed.
             </div>
             {!account
-              ? <div className="tw-connect-wrap"><ConnectButton client={client} chain={MONAD_MAINNET} theme="dark" btnTitle="Connect Wallet to Swap"/></div>
+              ? <div className="tw-connect-wrap"><ConnectButton client={client} chain={MONAD_MAINNET} theme="dark" btnTitle="Connect Wallet to Swap" wallets={undefined}/></div>
               : <>
                   <div className="swap-row">
                     <div className="field" style={{marginBottom:0}}>
@@ -694,6 +796,7 @@ function EurospaceApp() {
           </div>
         )}
 
+        {/* ══════════════════════ TOKENS TAB ══════════════════════ */}
         {tab==="tokens"&&(
           <div className="card">
             <div className="card-title">⬡ 17 Meta Tokens — Tap to Trade</div>
@@ -707,14 +810,19 @@ function EurospaceApp() {
                 </div>
               ))}
             </div>
-            <div style={{marginTop:12,fontSize:10,color:"#4488aa",textAlign:"center"}}>Tap any token · ThirdWeb powers all transactions</div>
+            <div style={{marginTop:12,fontSize:10,color:"#4488aa",textAlign:"center"}}>Tap any token · connect wallet to trade</div>
           </div>
         )}
 
+        {/* ══════════════════════ DEX TAB ══════════════════════ */}
         {tab==="dex"&&(
           <div className="card">
             <div className="card-title">⬡ DEX Live · {ALL_PAIRS.length} Pairs</div>
-            <div className="dex-filter">{["all","meta","stable","euro"].map(f=><button key={f} className={`dex-flt ${dexFilter===f?"active":""}`} onClick={()=>setDexFilter(f)}>{f.toUpperCase()}</button>)}</div>
+            <div className="dex-filter">
+              {["all","meta","stable","euro"].map(f=>(
+                <button key={f} className={`dex-flt ${dexFilter===f?"active":""}`} onClick={()=>setDexFilter(f)}>{f.toUpperCase()}</button>
+              ))}
+            </div>
             <div className="dex-grid-list">
               {filteredPairs.map(p=>{
                 const pd=dexPrices[p.pair];
@@ -735,10 +843,15 @@ function EurospaceApp() {
                 );
               })}
             </div>
-            {selectedPair&&(<div style={{marginTop:12,borderRadius:12,overflow:"hidden",border:"1px solid #004433"}}><iframe src={`https://dexscreener.com/monad/${selectedPair}?embed=1&theme=dark&trades=0&info=0`} style={{width:"100%",height:360,border:"none",display:"block"}} title="DEX Chart"/></div>)}
+            {selectedPair&&(
+              <div style={{marginTop:12,borderRadius:12,overflow:"hidden",border:"1px solid #004433"}}>
+                <iframe src={`https://dexscreener.com/monad/${selectedPair}?embed=1&theme=dark&trades=0&info=0`} style={{width:"100%",height:360,border:"none",display:"block"}} title="DEX Chart"/>
+              </div>
+            )}
           </div>
         )}
 
+        {/* ══════════════════════ NEAR SWAP TAB ══════════════════════ */}
         {tab==="swap"&&(
           <div className="card">
             <div className="card-title">⬡ Swap → EURO via NEAR Intents</div>
@@ -747,17 +860,26 @@ function EurospaceApp() {
               Get a quote, then click <strong style={{color:"var(--green)"}}>⚡ SEND NOW</strong> to trigger your wallet automatically.
             </div>
             {!account
-              ? <div style={{textAlign:"center",padding:"20px 0"}}><ConnectButton client={client} chain={MONAD_MAINNET} theme="dark" btnTitle="Connect Wallet to Swap"/></div>
+              ? <div style={{textAlign:"center",padding:"20px 0"}}><ConnectButton client={client} chain={MONAD_MAINNET} theme="dark" btnTitle="Connect Wallet to Swap" wallets={undefined}/></div>
               : <>
-                  <div className="field"><label>From Token</label>
+                  <div className="field">
+                    <label>From Token</label>
                     <select value={swapOrigin} onChange={e=>setSwapOrigin(e.target.value)}>
                       <option value="">Select token…</option>
                       {swapTokens.map(t=><option key={t.assetId} value={t.assetId}>{t.symbol} — {t.blockchain?.toUpperCase()||""}{t.price?" ($"+Number(t.price).toFixed(2)+")":""}</option>)}
                     </select>
                   </div>
-                  <div className="field"><label>Amount to Swap</label><div className="field-wrap"><input type="number" placeholder="0.00" value={swapAmount} onChange={e=>setSwapAmount(e.target.value)}/></div></div>
-                  <div className="field"><label>Receive To (EVM Address)</label><input value={account.address} readOnly style={{color:"#4488aa",paddingRight:14}}/></div>
-                  <button className="btn-buy" onClick={handleNearQuote} disabled={!swapOrigin||!swapAmount||swapLoading}>{swapLoading?"⬡ Fetching Quote…":"◈ Get Best Quote"}</button>
+                  <div className="field">
+                    <label>Amount to Swap</label>
+                    <div className="field-wrap"><input type="number" placeholder="0.00" value={swapAmount} onChange={e=>setSwapAmount(e.target.value)}/></div>
+                  </div>
+                  <div className="field">
+                    <label>Receive To (EVM Address)</label>
+                    <input value={account.address} readOnly style={{color:"#4488aa",paddingRight:14}}/>
+                  </div>
+                  <button className="btn-buy" onClick={handleNearQuote} disabled={!swapOrigin||!swapAmount||swapLoading}>
+                    {swapLoading?"⬡ Fetching Quote…":"◈ Get Best Quote"}
+                  </button>
                   {swapError&&<div className="status-msg error">{swapError}</div>}
                   {swapQuote&&!swapError&&(
                     <>
@@ -783,12 +905,18 @@ function EurospaceApp() {
                       {sendStatus&&<div className={`status-msg ${sendStatus.type}`}>{sendStatus.msg}</div>}
                     </>
                   )}
-                  {nearAccount&&(<div style={{marginTop:14,padding:12,background:"#00c1de11",border:"1px solid #00c1de33",borderRadius:10}}><div style={{fontSize:9,color:"var(--near)",letterSpacing:2,marginBottom:6}}>NEAR ACCOUNT LINKED</div><div style={{fontSize:11,color:"#4488aa"}}>{nearAccount}</div></div>)}
+                  {nearAccount&&(
+                    <div style={{marginTop:14,padding:12,background:"#00c1de11",border:"1px solid #00c1de33",borderRadius:10}}>
+                      <div style={{fontSize:9,color:"var(--near)",letterSpacing:2,marginBottom:6}}>NEAR ACCOUNT LINKED</div>
+                      <div style={{fontSize:11,color:"#4488aa"}}>{nearAccount}</div>
+                    </div>
+                  )}
                 </>
             }
           </div>
         )}
 
+        {/* ══════════════════════ TX HISTORY TAB ══════════════════════ */}
         {tab==="history"&&(
           <div className="card">
             <div className="card-title">⬡ Transaction History (this session)</div>
@@ -808,6 +936,7 @@ function EurospaceApp() {
           </div>
         )}
 
+        {/* ══════════════════════ FOOTER ══════════════════════ */}
         <div className="footer">
           <div className="footer-title">EUROSPACE</div>
           MONAD MAINNET · 2026
