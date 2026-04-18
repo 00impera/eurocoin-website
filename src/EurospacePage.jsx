@@ -293,7 +293,7 @@ function EurospaceApp() {
     }
   }, [account, isOpen, open]);
 
-  const [tokensPerMON, ...
+   const [tokensPerMON,  setTokensPerMON]  = useState(0n);
 
   const [tokensPerMON,  setTokensPerMON]  = useState(0n);
   const [totalSupply,   setTotalSupply]   = useState("—");
