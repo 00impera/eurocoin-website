@@ -5,6 +5,7 @@ import {
   useReadContract,
   useSendTransaction,
   ThirdwebProvider,
+  useConnectModal, 
 } from "thirdweb/react";
 import {
   createThirdwebClient,
@@ -283,7 +284,14 @@ h1{font-family:'Orbitron',monospace;font-size:26px;font-weight:900;background:li
 
 // ── MAIN APP ──────────────────────────────────────────────────────────────────
 function EurospaceApp() {
-  const account = useActiveAccount();
+ const account = useActiveAccount();
+const { open, isOpen } = useConnectModal();
+
+useEffect(() => {
+  if (!account && !isOpen) {
+    open({ client, chain: MONAD_MAINNET });
+  }
+}, [account, isOpen]);
 
   const [tokensPerMON,  setTokensPerMON]  = useState(0n);
   const [totalSupply,   setTotalSupply]   = useState("—");
