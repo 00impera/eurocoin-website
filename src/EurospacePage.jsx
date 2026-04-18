@@ -284,14 +284,16 @@ h1{font-family:'Orbitron',monospace;font-size:26px;font-weight:900;background:li
 
 // ── MAIN APP ──────────────────────────────────────────────────────────────────
 function EurospaceApp() {
- const account = useActiveAccount();
-const { open, isOpen } = useConnectModal();
+  const account = useActiveAccount();
+  const { open, isOpen } = useConnectModal();
 
-useEffect(() => {
-  if (!account && !isOpen && typeof open === "function") {
-    open({ client, chain: MONAD_MAINNET });
-  }
-}, [account, isOpen, open]);
+  useEffect(() => {
+    if (!account && !isOpen && typeof open === "function") {
+      open({ client, chain: MONAD_MAINNET });
+    }
+  }, [account, isOpen, open]);
+
+  const [tokensPerMON, ...
 
   const [tokensPerMON,  setTokensPerMON]  = useState(0n);
   const [totalSupply,   setTotalSupply]   = useState("—");
