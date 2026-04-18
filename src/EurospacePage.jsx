@@ -41,13 +41,13 @@ const ALL_PAIRS = [
   { symbol:"mUSDT",  name:"Meta Tether",    color:"#26A17B", cat:"stable", img:"/META USDT.png",      pair:"0xAB4CFB051E73db47f75c4A2c31dFaAFd3A82A8b8", contract:"0x085368cae9d4eCffe676806c3a8105433377164b" },
   { symbol:"mMATIC", name:"Meta Polygon",   color:"#8247E5", cat:"meta",   img:"/META MATIC.png",     pair:"0x5F5908aD27AFf28b0BDbAD8F93470e83310aE365", contract:"0x43C60d3cec23b0E85678602A4F5C1156a7398daC" },
   { symbol:"mDOGE",  name:"Meta Dogecoin",  color:"#C2A633", cat:"meta",   img:"/META DODGE.png",     pair:"0x8e71b96897c6D5EF3954b06636c24EdB4866b488", contract:"0x111b31d8474Aee70767337FD794a7fb0A08788A8" },
-  { symbol:"mLTC",   name:"Meta Litecoin",  color:"#BFBBBB", cat:"meta",   img:"/META LTC.png",       pair:"0xd4faf6a3B43105395C1f3db6525eA0fBF5B3aF9a", contract:"0x8abAe4dbf7A2e286d688fa7101bea0fAE4C0Dd75" },
-  { symbol:"mTRX",   name:"Meta TRON",      color:"#EF0027", cat:"meta",   img:"/META TRX.png",       pair:"0x77A4Ad2ac41775A543353C8255cd88C7bF58e404", contract:"0x1A3206c56993d4906ec26Fe85194399E0dBD8EBf" },
-  { symbol:"mBASE",  name:"Meta Base",      color:"#0052FF", cat:"meta",   img:"/META BASE.png",      pair:"0x9f1b9A6D727DF983a74F11252EDa0Fa96132cc12", contract:"0xeA66DaF739823505817d4DAfEdBb43Dc0C2E5372" },
-  { symbol:"mEURO",  name:"Meta Euro",      color:"#4488ff", cat:"euro",   img:"/META EUROSPACE.png", pair:"0x2f3B240444F5b8Dc6f211373ff29CCE0Ba798114", contract:"0x4443892C796f7A519C9D099417EC8422f88F5867" },
+  { symbol:"mLTC",   name:"Meta Litecoin",  color:"#a8a8a8", cat:"meta",   img:"/META LTC.png",       pair:"0xd4faf6a3B43105395C1f3db6525eA0fBF5B3aF9a", contract:"0x8abAe4dbf7A2e286d688fa7101bea0fAE4C0Dd75" },
+  { symbol:"mTRX",   name:"Meta TRON",      color:"#EF4444", cat:"meta",   img:"/META TRX.png",       pair:"0x77A4Ad2ac41775A543353C8255cd88C7bF58e404", contract:"0x1A3206c56993d4906ec26Fe85194399E0dBD8EBf" },
+  { symbol:"mBASE",  name:"Meta Base",      color:"#2563eb", cat:"meta",   img:"/META BASE.png",      pair:"0x9f1b9A6D727DF983a74F11252EDa0Fa96132cc12", contract:"0xeA66DaF739823505817d4DAfEdBb43Dc0C2E5372" },
+  { symbol:"mEURO",  name:"Meta Euro",      color:"#3b82f6", cat:"euro",   img:"/META EUROSPACE.png", pair:"0x2f3B240444F5b8Dc6f211373ff29CCE0Ba798114", contract:"0x4443892C796f7A519C9D099417EC8422f88F5867" },
   { symbol:"mMONAD", name:"Meta Monad",     color:"#836EF9", cat:"meta",   img:"/META MONAD.png",     pair:"0xc7a8f6A2452D1ec709006E36A3B89f4Df7188a9a", contract:"0xbF5E34B1EBE37F9a98BFcE48645dc67Dd84E5fD6" },
   { symbol:"mEURC",  name:"Meta EURC",      color:"#FFD700", cat:"euro",   img:"/META EURC.png",      pair:"0x669d78953a14a147DA6730dA255b4E7A7b15b111", contract:"0x7bD9bbFc0086B033ede5736e4Aa9C16a451D0904" },
-  { symbol:"mCRO",   name:"Meta Cronos",    color:"#002D74", cat:"meta",   img:"/META CRONOS.png",    pair:"0x7D9e8050Ba0c0a6c8336A49a5Af6748AA6BD855C", contract:"0x0127B3c3C864cfC1BB519beB935477299b961d46" },
+  { symbol:"mCRO",   name:"Meta Cronos",    color:"#60a5fa", cat:"meta",   img:"/META CRONOS.png",    pair:"0x7D9e8050Ba0c0a6c8336A49a5Af6748AA6BD855C", contract:"0x0127B3c3C864cfC1BB519beB935477299b961d46" },
 ];
 
 const NEAR_WALLETS = [
@@ -130,153 +130,331 @@ function fmt(val,dec=18,digits=4) {
 }
 
 const STYLES = `
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;500;600;700&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
 :root{
-  --cyan:#00ffe0;--blue:#0077ff;--green:#00ff88;--dark:#00080f;--card:#000f1f;
-  --border:#003d2a;--text:#aaffe0;--glow:0 0 18px #00ff8877,0 0 40px #00ffe044;
-  --near:#00c1de;
+  --bg:        #0d1117;
+  --bg2:       #161b22;
+  --card:      #1c2333;
+  --card2:     #21262d;
+  --primary:   #2563eb;
+  --primary-h: #1d4ed8;
+  --accent:    #00ff88;
+  --gold:      #FFD700;
+  --cyan:      #00e5ff;
+  --text:      #e6edf3;
+  --muted:     #8b949e;
+  --border:    #30363d;
+  --border-h:  #58a6ff;
+  --success:   #3fb950;
+  --error:     #f85149;
+  --warning:   #d29922;
+  --near:      #00c1de;
 }
-body{background:var(--dark);color:var(--text);font-family:'Share Tech Mono',monospace;min-height:100vh;overflow-x:hidden;}
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,136,0.035) 1px,transparent 1px),linear-gradient(90deg,rgba(0,119,255,0.035) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;z-index:0;}
-.scan-line{position:fixed;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--green),var(--cyan),transparent);opacity:0.2;animation:scan 4s linear infinite;pointer-events:none;z-index:2;}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Inter',system-ui,sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+  font-size:14px;
+  line-height:1.6;
+}
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(37,99,235,0.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(37,99,235,0.025) 1px,transparent 1px);
+  background-size:48px 48px;
+  pointer-events:none;z-index:0;
+}
+
+.scan-line{
+  position:fixed;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--primary),var(--accent),transparent);
+  opacity:0.12;animation:scan 7s linear infinite;pointer-events:none;z-index:2;
+}
 @keyframes scan{0%{transform:translateY(-100%)}100%{transform:translateY(100vh)}}
-.wrap{max-width:100%;width:100%;margin:0 auto;padding:20px 16px 80px;position:relative;z-index:2;}
-.header{text-align:center;padding:28px 0 16px;}
-.logo-img{width:110px;height:110px;border-radius:50%;margin:0 auto 14px;display:block;object-fit:cover;filter:drop-shadow(0 0 22px #00ff8899) drop-shadow(0 0 8px #0077ffaa);animation:float 3s ease-in-out infinite;border:2px solid var(--green);box-shadow:0 0 30px #00ff8844;}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-h1{font-family:'Orbitron',monospace;font-size:26px;font-weight:900;background:linear-gradient(90deg,var(--green),var(--cyan),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 16px #00ff8866);letter-spacing:4px;margin-bottom:4px;}
-.subtitle{font-size:10px;letter-spacing:3px;color:#4488aa;text-transform:uppercase;}
-.net-badge{display:inline-flex;align-items:center;gap:6px;background:#000f1f;border:1px solid #00ff8844;border-radius:20px;padding:6px 14px;font-size:10px;color:var(--cyan);margin-top:10px;letter-spacing:1px;}
-.net-dot{width:6px;height:6px;background:#00ff88;border-radius:50%;animation:pulse 2s infinite;box-shadow:0 0 8px #00ff88;}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
-.connect-bar{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px;margin:14px 0 6px;}
-.near-badge{display:inline-flex;align-items:center;gap:6px;background:#00c1de22;border:1px solid #00c1de55;border-radius:20px;padding:6px 14px;font-size:10px;color:var(--near);cursor:pointer;transition:all .2s;}
-.near-badge:hover{background:#00c1de33;border-color:var(--near);}
+
+.wrap{max-width:100%;width:100%;margin:0 auto;padding:24px 16px 100px;position:relative;z-index:2;}
+
+/* Header */
+.header{text-align:center;padding:32px 0 20px;}
+.logo-img{
+  width:100px;height:100px;border-radius:50%;margin:0 auto 16px;display:block;object-fit:cover;
+  border:2px solid var(--primary);
+  box-shadow:0 0 0 4px rgba(37,99,235,0.15),0 0 30px rgba(37,99,235,0.3);
+  animation:float 4s ease-in-out infinite;
+}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+h1{
+  font-family:'Orbitron',monospace;font-size:28px;font-weight:900;
+  background:linear-gradient(90deg,var(--accent),var(--cyan),var(--primary));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  letter-spacing:5px;margin-bottom:6px;
+}
+.subtitle{font-size:11px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;}
+.net-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--card2);border:1px solid var(--border);
+  border-radius:20px;padding:5px 14px;font-size:10px;color:var(--cyan);
+  margin-top:12px;letter-spacing:1px;font-family:'Orbitron',monospace;
+}
+.net-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(0,255,136,0.4)}50%{opacity:.6;box-shadow:0 0 0 4px rgba(0,255,136,0)}}
+
+/* Connect bar */
+.connect-bar{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px;margin:16px 0 8px;}
+.near-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(0,193,222,0.1);border:1px solid rgba(0,193,222,0.3);
+  border-radius:20px;padding:7px 16px;font-size:11px;color:var(--near);
+  cursor:pointer;transition:all .2s;font-weight:500;
+}
+.near-badge:hover{background:rgba(0,193,222,0.18);border-color:var(--near);}
 .near-dot{width:6px;height:6px;background:var(--near);border-radius:50%;animation:pulse 2s infinite;}
-.tabs{display:flex;justify-content:center;gap:4px;margin:14px 0 18px;flex-wrap:wrap;}
-.tab{padding:8px 16px;border-radius:6px;border:1px solid var(--border);background:transparent;color:#4488aa;font-family:'Orbitron',monospace;font-size:8px;letter-spacing:2px;cursor:pointer;transition:all .2s;text-transform:uppercase;}
-.tab.active{background:#00ff8811;color:var(--green);border-color:rgba(0,255,136,0.5);box-shadow:var(--glow);}
-.tab:not(.active):hover{border-color:var(--green);color:var(--text);}
-.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin:14px 0;position:relative;overflow:hidden;}
-.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--green),var(--cyan),transparent);}
-.card-title{font-family:'Orbitron',monospace;font-size:10px;letter-spacing:3px;color:#00cc88;text-transform:uppercase;margin-bottom:14px;}
-.cd-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
-.cd-box{background:#00080f;border:1px solid #004433;border-radius:10px;padding:10px 6px;text-align:center;}
-.cd-num{font-family:'Orbitron',monospace;font-size:26px;font-weight:900;background:linear-gradient(180deg,var(--green),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.cd-lbl{font-size:8px;letter-spacing:2px;color:#009966;text-transform:uppercase;margin-top:3px;}
-.presale-bar{height:5px;background:#000d26;border-radius:3px;overflow:hidden;border:1px solid var(--border);margin:10px 0;}
-.presale-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--green),var(--cyan));border-radius:3px;box-shadow:0 0 10px var(--green);transition:width 1s;}
+
+/* Tabs */
+.tabs{display:flex;justify-content:center;gap:4px;margin:16px 0 20px;flex-wrap:wrap;}
+.tab{
+  padding:8px 18px;border-radius:8px;border:1px solid var(--border);
+  background:transparent;color:var(--muted);font-family:'Orbitron',monospace;
+  font-size:8px;letter-spacing:2px;cursor:pointer;transition:all .2s;text-transform:uppercase;
+}
+.tab.active{
+  background:rgba(37,99,235,0.15);color:#60a5fa;
+  border-color:rgba(37,99,235,0.5);
+  box-shadow:0 0 20px rgba(37,99,235,0.2);
+}
+.tab:not(.active):hover{border-color:var(--border-h);color:var(--text);}
+
+/* Card */
+.card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:16px;padding:20px;margin:14px 0;position:relative;overflow:hidden;
+}
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--primary),var(--cyan),transparent);opacity:.5;
+}
+.card-title{
+  font-family:'Orbitron',monospace;font-size:10px;letter-spacing:3px;
+  color:#60a5fa;text-transform:uppercase;margin-bottom:16px;
+}
+
+/* Countdown */
+.cd-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;}
+.cd-box{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:12px 6px;text-align:center;}
+.cd-num{
+  font-family:'Orbitron',monospace;font-size:28px;font-weight:900;color:var(--text);
+  text-shadow:0 0 20px rgba(37,99,235,0.4);
+}
+.cd-lbl{font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-top:4px;}
+.presale-bar{height:6px;background:var(--bg);border-radius:4px;overflow:hidden;border:1px solid var(--border);margin:12px 0;}
+.presale-fill{
+  height:100%;background:linear-gradient(90deg,var(--primary),var(--accent));
+  border-radius:4px;box-shadow:0 0 12px rgba(37,99,235,0.4);transition:width 1s;
+}
+
+/* Stats */
 .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-.stat-box{background:#00080f;border:1px solid #004433;border-radius:10px;padding:12px 8px;text-align:center;}
-.stat-val{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;background:linear-gradient(135deg,var(--green),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px;}
-.stat-lbl{font-size:8px;letter-spacing:1px;color:#009966;text-transform:uppercase;}
-.price-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
-.price-box{background:#00080f;border:1px solid #004433;border-radius:10px;padding:12px;text-align:center;}
-.price-lbl{font-size:8px;letter-spacing:2px;color:#009966;text-transform:uppercase;margin-bottom:4px;}
-.price-val{font-family:'Orbitron',monospace;font-size:16px;font-weight:700;background:linear-gradient(135deg,var(--green),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.field{margin-bottom:12px;}
-.field label{display:block;font-size:9px;letter-spacing:2px;color:#009966;text-transform:uppercase;margin-bottom:5px;}
-.field input,.field select{width:100%;background:#00080f;border:1px solid #004433;border-radius:10px;padding:11px 50px 11px 14px;color:var(--cyan);font-family:'Orbitron',monospace;font-size:14px;outline:none;transition:border-color .3s;}
-.field input:focus,.field select:focus{border-color:var(--green);box-shadow:0 0 15px #00ff8833;}
+.stat-box{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:14px 8px;text-align:center;}
+.stat-val{font-family:'Orbitron',monospace;font-size:14px;font-weight:700;color:var(--text);margin-bottom:5px;}
+.stat-lbl{font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;}
+
+/* Price grid */
+.price-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.price-box{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;}
+.price-lbl{font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;}
+.price-val{font-family:'Orbitron',monospace;font-size:17px;font-weight:700;color:var(--text);}
+
+/* Fields */
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:11px;letter-spacing:1px;color:var(--muted);font-weight:500;text-transform:uppercase;margin-bottom:6px;}
+.field input,.field select{
+  width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  padding:12px 50px 12px 14px;color:var(--text);font-family:'Inter',sans-serif;
+  font-size:15px;outline:none;transition:border-color .2s,box-shadow .2s;
+}
+.field input:focus,.field select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,0.15);}
 .field input::-webkit-inner-spin-button{display:none;}
-.field select option{background:#000f1f;color:var(--text);}
+.field select option{background:var(--card2);color:var(--text);}
 .field-wrap{position:relative;}
-.field-unit{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:10px;color:#009966;}
-.receive-box{background:#00080f;border:1px solid #004433;border-radius:10px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
-.receive-amt{font-family:'Orbitron',monospace;font-size:20px;font-weight:700;color:#00ff88;text-shadow:0 0 10px #00ff88;}
-.receive-lbl{font-size:9px;color:#00aa77;}
-.wallet-bar{display:none;background:#000d26;border:1px solid #00ff8855;border-radius:10px;padding:9px 14px;margin-bottom:10px;font-size:10px;color:var(--green);}
+.field-unit{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--muted);font-weight:600;}
+
+/* Receive box */
+.receive-box{
+  background:var(--card2);border:1px solid var(--border);border-radius:12px;
+  padding:14px 18px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;
+}
+.receive-amt{font-family:'Orbitron',monospace;font-size:22px;font-weight:700;color:var(--accent);}
+.receive-lbl{font-size:10px;color:var(--muted);margin-top:2px;}
+
+/* Wallet bar */
+.wallet-bar{
+  display:none;background:rgba(37,99,235,0.07);border:1px solid rgba(37,99,235,0.2);
+  border-radius:10px;padding:10px 16px;margin-bottom:12px;font-size:11px;color:var(--text);
+}
 .wallet-bar.show{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;}
-.w-badge{font-size:8px;background:#00ff8822;border:1px solid #00ff8844;border-radius:4px;padding:2px 6px;color:#00ff88;letter-spacing:1px;}
-.btn-buy{width:100%;padding:14px;background:linear-gradient(135deg,var(--blue),var(--green));border:none;border-radius:12px;color:#000;font-family:'Orbitron',monospace;font-size:13px;font-weight:900;letter-spacing:3px;cursor:pointer;transition:all .3s;text-transform:uppercase;}
-.btn-buy:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 30px #00ff8844,0 4px 20px #0077ff33;}
-.btn-buy:disabled{opacity:0.35;cursor:not-allowed;}
-.btn-send{width:100%;padding:13px;background:linear-gradient(135deg,#00c1de,#0044ff);border:none;border-radius:12px;color:#000;font-family:'Orbitron',monospace;font-size:12px;font-weight:900;letter-spacing:2px;cursor:pointer;transition:all .3s;text-transform:uppercase;margin-top:10px;}
-.btn-send:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 30px #00c1de55;}
-.btn-send:disabled{opacity:0.35;cursor:not-allowed;}
-.btn-outline{width:100%;padding:11px;border:1px solid rgba(0,255,136,0.35);border-radius:10px;background:transparent;color:#4488aa;font-family:'Orbitron',monospace;font-size:10px;cursor:pointer;transition:all .2s;letter-spacing:2px;margin-top:8px;}
-.btn-outline:hover{border-color:var(--green);color:var(--green);background:#00ff8808;}
-.btn-sm{padding:6px 14px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--text);font-family:'Orbitron',monospace;font-size:8px;cursor:pointer;transition:all .2s;letter-spacing:1px;}
-.btn-sm:hover{border-color:var(--green);color:var(--green);}
-.btn-sm.danger{border-color:#ff446633;color:#ff4466;}
-.btn-sm.danger:hover{border-color:#ff4466;background:#ff446611;}
-.status-msg{text-align:center;padding:9px;border-radius:8px;font-size:10px;letter-spacing:1px;margin-top:10px;}
-.status-msg.success{background:#00ff8811;border:1px solid #00ff8844;color:#00ff88;}
-.status-msg.error{background:#ff004411;border:1px solid #ff004444;color:#ff4466;}
-.status-msg.info{background:#00ffe011;border:1px solid #00ff8844;color:var(--cyan);}
-.status-msg.pending{background:#0077ff11;border:1px solid #0077ff44;color:#0077ff;}
-.tx-list{background:#00080f;border:1px solid #004433;border-radius:10px;padding:10px;max-height:180px;overflow-y:auto;}
-.tx-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #002211;font-size:9px;gap:8px;}
+.w-badge{
+  font-size:9px;background:rgba(37,99,235,0.15);border:1px solid rgba(37,99,235,0.3);
+  border-radius:4px;padding:2px 8px;color:#60a5fa;letter-spacing:1px;font-weight:600;
+}
+
+/* Buttons */
+.btn-buy{
+  width:100%;padding:14px;background:linear-gradient(135deg,var(--primary),var(--primary-h));
+  border:none;border-radius:12px;color:#fff;font-family:'Orbitron',monospace;
+  font-size:13px;font-weight:700;letter-spacing:3px;cursor:pointer;
+  transition:all .25s;text-transform:uppercase;
+  box-shadow:0 4px 15px rgba(37,99,235,0.3);
+}
+.btn-buy:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 25px rgba(37,99,235,0.45);}
+.btn-buy:disabled{opacity:0.4;cursor:not-allowed;transform:none;box-shadow:none;}
+.btn-send{
+  width:100%;padding:13px;background:linear-gradient(135deg,var(--near),#0077cc);
+  border:none;border-radius:12px;color:#fff;font-family:'Orbitron',monospace;
+  font-size:12px;font-weight:700;letter-spacing:2px;cursor:pointer;
+  transition:all .25s;text-transform:uppercase;margin-top:10px;
+  box-shadow:0 4px 15px rgba(0,193,222,0.25);
+}
+.btn-send:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,193,222,0.4);}
+.btn-send:disabled{opacity:0.4;cursor:not-allowed;}
+.btn-outline{
+  width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;
+  background:transparent;color:var(--muted);font-family:'Orbitron',monospace;
+  font-size:10px;cursor:pointer;transition:all .2s;letter-spacing:2px;margin-top:8px;
+}
+.btn-outline:hover{border-color:var(--primary);color:#60a5fa;background:rgba(37,99,235,0.08);}
+.btn-sm{
+  padding:6px 14px;border:1px solid var(--border);border-radius:6px;background:transparent;
+  color:var(--text);font-family:'Orbitron',monospace;font-size:8px;cursor:pointer;
+  transition:all .2s;letter-spacing:1px;
+}
+.btn-sm:hover{border-color:var(--accent);color:var(--accent);}
+.btn-sm.danger{border-color:rgba(248,81,73,0.35);color:var(--error);}
+.btn-sm.danger:hover{border-color:var(--error);background:rgba(248,81,73,0.1);}
+
+/* Status */
+.status-msg{text-align:center;padding:10px 14px;border-radius:8px;font-size:11px;letter-spacing:.5px;margin-top:12px;font-weight:500;}
+.status-msg.success{background:rgba(63,185,80,.1);border:1px solid rgba(63,185,80,.3);color:var(--success);}
+.status-msg.error{background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.3);color:var(--error);}
+.status-msg.info{background:rgba(0,229,255,.07);border:1px solid rgba(0,229,255,.2);color:var(--cyan);}
+.status-msg.pending{background:rgba(37,99,235,.1);border:1px solid rgba(37,99,235,.3);color:#60a5fa;}
+
+/* TX list */
+.tx-list{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px;max-height:200px;overflow-y:auto;}
+.tx-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:11px;gap:8px;}
 .tx-row:last-child{border-bottom:none;}
-.tx-desc{color:var(--cyan);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.tx-time{color:#4488aa;font-size:8px;}
-.tx-link{color:#00cc88;text-decoration:none;font-size:8px;white-space:nowrap;}
-.tx-link:hover{color:var(--green);}
-.tx-empty{font-size:10px;color:#4488aa;text-align:center;padding:8px;}
-.dex-filter{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;}
-.dex-flt{padding:4px 12px;border-radius:6px;border:1px solid #004433;background:transparent;color:#4488aa;font-family:'Orbitron',monospace;font-size:8px;letter-spacing:1px;cursor:pointer;transition:all .2s;}
-.dex-flt.active{border-color:var(--green);color:var(--green);background:#00ff8811;}
+.tx-desc{color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.tx-time{color:var(--muted);font-size:10px;}
+.tx-link{color:#60a5fa;text-decoration:none;font-size:10px;white-space:nowrap;font-weight:500;}
+.tx-link:hover{color:var(--cyan);}
+.tx-empty{font-size:11px;color:var(--muted);text-align:center;padding:16px;}
+
+/* DEX */
+.dex-filter{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+.dex-flt{
+  padding:5px 14px;border-radius:6px;border:1px solid var(--border);background:transparent;
+  color:var(--muted);font-family:'Orbitron',monospace;font-size:8px;letter-spacing:1px;cursor:pointer;transition:all .2s;
+}
+.dex-flt.active{border-color:var(--primary);color:#60a5fa;background:rgba(37,99,235,.12);}
 .dex-grid-list{display:flex;flex-direction:column;gap:8px;}
-.dex-row{background:#00080f;border:1px solid #004433;border-left:3px solid transparent;border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .25s;}
-.dex-row:hover{border-color:var(--green)!important;transform:translateX(3px);}
-.dex-logo{width:34px;height:34px;border-radius:50%;object-fit:cover;flex-shrink:0;background:#001433;border:1px solid #004433;}
-.dex-sym{font-family:'Orbitron',monospace;font-size:10px;font-weight:700;letter-spacing:1px;}
-.dex-name{font-size:8px;color:#4488aa;margin-top:1px;}
-.dex-price{font-family:'Orbitron',monospace;font-size:9px;color:var(--cyan);text-align:right;}
-.dex-dot{width:5px;height:5px;border-radius:50%;background:#00ff88;animation:pulse 2s infinite;box-shadow:0 0 5px #00ff88;flex-shrink:0;}
-.gallery{display:flex;gap:10px;overflow-x:auto;padding-bottom:10px;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
-.gallery::-webkit-scrollbar{display:none;}
-.tok-card{flex:0 0 105px;background:#00080f;border:1px solid #004433;border-radius:12px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden;}
-.tok-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--tok-color,var(--cyan));opacity:.7;}
-.tok-card:hover{border-color:var(--tok-color,var(--cyan));transform:translateY(-3px);}
-.tok-logo{width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid var(--tok-color,var(--cyan));background:#001433;}
-.tok-sym{font-family:'Orbitron',monospace;font-size:9px;font-weight:700;color:var(--tok-color,var(--cyan));letter-spacing:1px;}
-.tok-name{font-size:7px;color:#4488aa;text-align:center;}
-.tok-btn{width:100%;padding:4px;border:1px solid var(--tok-color,var(--cyan));border-radius:5px;background:transparent;color:var(--tok-color,var(--cyan));font-family:'Orbitron',monospace;font-size:7px;font-weight:700;cursor:pointer;transition:all .2s;}
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:300;align-items:center;justify-content:center;backdrop-filter:blur(8px);}
+.dex-row{
+  background:var(--card2);border:1px solid var(--border);border-left:3px solid transparent;
+  border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:10px;
+  cursor:pointer;transition:all .2s;
+}
+.dex-row:hover{border-color:rgba(37,99,235,.4)!important;transform:translateX(3px);background:rgba(37,99,235,.04);}
+.dex-logo{width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;background:var(--bg);border:1px solid var(--border);}
+.dex-sym{font-family:'Orbitron',monospace;font-size:11px;font-weight:700;letter-spacing:1px;}
+.dex-name{font-size:10px;color:var(--muted);margin-top:2px;}
+.dex-price{font-family:'Orbitron',monospace;font-size:10px;color:var(--cyan);text-align:right;}
+.dex-dot{width:6px;height:6px;border-radius:50%;background:var(--success);animation:pulse 2s infinite;flex-shrink:0;}
+
+/* Gallery */
+.gallery{display:flex;gap:10px;overflow-x:auto;padding-bottom:10px;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.tok-card{
+  flex:0 0 108px;background:var(--card2);border:1px solid var(--border);border-radius:14px;
+  padding:14px 8px;display:flex;flex-direction:column;align-items:center;gap:8px;
+  cursor:pointer;transition:all .22s;position:relative;overflow:hidden;
+}
+.tok-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--tok-color,var(--primary));opacity:.8;}
+.tok-card:hover{border-color:var(--tok-color,var(--primary));transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.3);}
+.tok-logo{width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid var(--tok-color,var(--primary));background:var(--bg);}
+.tok-sym{font-family:'Orbitron',monospace;font-size:9px;font-weight:700;color:var(--tok-color,var(--text));letter-spacing:1px;}
+.tok-name{font-size:8px;color:var(--muted);text-align:center;}
+.tok-btn{
+  width:100%;padding:5px;border:1px solid var(--tok-color,var(--primary));border-radius:6px;
+  background:transparent;color:var(--tok-color,var(--text));font-family:'Orbitron',monospace;
+  font-size:7px;font-weight:700;cursor:pointer;transition:all .2s;
+}
+
+/* Modals */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:300;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
 .modal-overlay.show{display:flex;}
-.modal-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px;width:92%;max-width:400px;position:relative;max-height:90vh;overflow-y:auto;}
-.modal-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--green),var(--cyan),transparent);border-radius:20px 20px 0 0;}
-.modal-close{position:absolute;top:14px;right:14px;background:none;border:none;color:#009966;cursor:pointer;font-size:18px;}
-.modal-header{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
-.modal-logo{width:50px;height:50px;border-radius:50%;object-fit:cover;}
-.modal-name{font-family:'Orbitron',monospace;font-size:15px;font-weight:700;}
-.modal-sym{font-size:10px;color:#4488aa;letter-spacing:2px;}
-.sell-section{margin-top:14px;padding-top:14px;border-top:1px solid #004433;}
-.near-opt{display:flex;align-items:center;gap:12px;background:#00080f;border:1px solid #004433;border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:all .25s;}
-.near-opt:hover{border-color:var(--near);background:#00c1de11;}
+.modal-box{
+  background:var(--card);border:1px solid var(--border);border-radius:20px;padding:26px;
+  width:92%;max-width:400px;position:relative;max-height:90vh;overflow-y:auto;
+  box-shadow:0 24px 60px rgba(0,0,0,.6);
+}
+.modal-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--primary),var(--cyan),transparent);border-radius:20px 20px 0 0;}
+.modal-close{
+  position:absolute;top:16px;right:16px;background:var(--card2);border:1px solid var(--border);
+  border-radius:6px;color:var(--muted);cursor:pointer;font-size:14px;padding:4px 8px;transition:all .2s;
+}
+.modal-close:hover{color:var(--text);border-color:var(--border-h);}
+.modal-header{display:flex;align-items:center;gap:14px;margin-bottom:20px;}
+.modal-logo{width:52px;height:52px;border-radius:50%;object-fit:cover;}
+.modal-name{font-family:'Orbitron',monospace;font-size:16px;font-weight:700;}
+.modal-sym{font-size:11px;color:var(--muted);letter-spacing:2px;margin-top:2px;}
+.sell-section{margin-top:16px;padding-top:16px;border-top:1px solid var(--border);}
+
+/* NEAR options */
+.near-opt{display:flex;align-items:center;gap:14px;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:8px;cursor:pointer;transition:all .2s;}
+.near-opt:hover{border-color:var(--near);background:rgba(0,193,222,.07);}
 .near-icon{font-size:22px;width:36px;text-align:center;}
-.near-opt-name{font-family:'Orbitron',monospace;font-size:12px;color:var(--text);}
-.near-opt-desc{font-size:9px;color:#4488aa;}
-.quote-box{margin-top:12px;padding:12px;border-radius:10px;background:rgba(0,255,136,.04);border:1px solid var(--border);}
-.quote-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(0,255,136,.07);font-size:12px;}
+.near-opt-name{font-family:'Orbitron',monospace;font-size:12px;color:var(--text);font-weight:600;}
+.near-opt-desc{font-size:10px;color:var(--muted);margin-top:2px;}
+
+/* Quote */
+.quote-box{margin-top:14px;padding:14px;border-radius:10px;background:var(--card2);border:1px solid var(--border);}
+.quote-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;}
 .quote-row:last-child{border-bottom:none;}
-.quote-row span:first-child{color:#4488aa;}
-.quote-row span:last-child{color:var(--green);font-weight:700;font-family:'Orbitron',monospace;font-size:10px;}
-.deposit-box{margin-top:12px;padding:12px;border-radius:8px;background:rgba(0,255,136,.05);border:1px solid rgba(0,255,136,.25);word-break:break-all;font-size:10px;color:var(--green);font-family:monospace;line-height:1.7;}
-.tw-connect-wrap{display:flex;justify-content:center;margin:14px 0;}
-.contract-box{background:#00080f;border:1px solid #004433;border-radius:10px;padding:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;transition:border-color .3s;}
-.contract-box:hover{border-color:var(--green);}
-.contract-addr{font-size:10px;color:#00aa77;word-break:break-all;flex:1;}
-.copy-btn{background:none;border:1px solid #004433;border-radius:6px;color:var(--green);font-size:9px;padding:4px 8px;cursor:pointer;white-space:nowrap;font-family:'Share Tech Mono',monospace;}
-.explorer-link{display:block;text-align:center;margin-top:8px;color:var(--cyan);font-size:10px;letter-spacing:1px;text-decoration:none;padding:8px;border:1px solid #004433;border-radius:8px;transition:all .3s;}
-.explorer-link:hover{border-color:var(--green);}
-.steps{display:flex;flex-direction:column;gap:10px;}
-.step{display:flex;gap:12px;align-items:flex-start;}
-.step-num{width:26px;height:26px;min-width:26px;border:1px solid var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:10px;color:var(--green);}
-.step-text{font-size:11px;color:var(--text);line-height:1.6;padding-top:3px;}
-.step-text strong{color:var(--cyan);display:block;margin-bottom:2px;letter-spacing:1px;}
-.swap-row{display:grid;grid-template-columns:1fr 28px 1fr;gap:8px;align-items:end;margin-bottom:12px;}
-.swap-arrow{font-size:18px;color:var(--green);text-align:center;padding-bottom:12px;}
-.info-pill{background:#00080f;border:1px solid #004433;border-radius:8px;padding:8px 12px;font-size:10px;color:#4488aa;display:flex;justify-content:space-between;margin-bottom:8px;}
-.info-pill span:last-child{color:var(--cyan);font-family:'Orbitron',monospace;}
-.footer{text-align:center;padding:20px 0 40px;font-size:9px;color:#4488aa;letter-spacing:2px;}
-.footer-title{font-family:'Orbitron',monospace;font-size:12px;font-weight:700;background:linear-gradient(90deg,#00ff88,#00ffe0,#0077ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px;}
-.social-links{display:flex;justify-content:center;gap:10px;margin-top:16px;flex-wrap:wrap;}
-.social-link{display:inline-flex;align-items:center;gap:6px;background:#000f1f;border:1px solid #1a1a2e;border-radius:20px;padding:9px 16px;text-decoration:none;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:1px;transition:all .3s;}
-@media(min-width:600px){.wrap{max-width:580px;margin:0 auto;}}
-@media(min-width:900px){.wrap{max-width:860px;margin:0 auto;}.dex-grid-list{display:grid;grid-template-columns:1fr 1fr;}}
+.quote-row span:first-child{color:var(--muted);}
+.quote-row span:last-child{color:var(--accent);font-weight:600;font-family:'Orbitron',monospace;font-size:11px;}
+.deposit-box{margin-top:14px;padding:14px;border-radius:10px;background:rgba(0,255,136,.04);border:1px solid rgba(0,255,136,.2);word-break:break-all;font-size:11px;color:var(--accent);font-family:'Inter',monospace;line-height:1.8;}
+
+.tw-connect-wrap{display:flex;justify-content:center;margin:16px 0;}
+.contract-box{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;transition:border-color .2s;}
+.contract-box:hover{border-color:var(--primary);}
+.contract-addr{font-size:11px;color:var(--muted);word-break:break-all;flex:1;font-family:'Inter',monospace;}
+.copy-btn{background:rgba(37,99,235,.1);border:1px solid rgba(37,99,235,.3);border-radius:6px;color:#60a5fa;font-size:10px;padding:5px 10px;cursor:pointer;white-space:nowrap;font-weight:600;transition:all .2s;}
+.copy-btn:hover{background:rgba(37,99,235,.2);}
+.explorer-link{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px;color:#60a5fa;font-size:11px;text-decoration:none;padding:10px;border:1px solid var(--border);border-radius:8px;transition:all .2s;font-weight:500;}
+.explorer-link:hover{border-color:var(--primary);background:rgba(37,99,235,.07);}
+
+.steps{display:flex;flex-direction:column;gap:14px;}
+.step{display:flex;gap:14px;align-items:flex-start;}
+.step-num{width:28px;height:28px;min-width:28px;background:rgba(37,99,235,.15);border:1px solid rgba(37,99,235,.4);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:11px;color:#60a5fa;font-weight:700;}
+.step-text{font-size:12px;color:var(--text);line-height:1.7;padding-top:4px;}
+.step-text strong{color:var(--cyan);display:block;margin-bottom:2px;font-size:11px;letter-spacing:1px;text-transform:uppercase;}
+
+.swap-row{display:grid;grid-template-columns:1fr 32px 1fr;gap:8px;align-items:end;margin-bottom:14px;}
+.swap-arrow{font-size:18px;color:var(--primary);text-align:center;padding-bottom:14px;}
+.info-pill{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:9px 14px;font-size:11px;color:var(--muted);display:flex;justify-content:space-between;margin-bottom:8px;}
+.info-pill span:last-child{color:var(--cyan);font-family:'Orbitron',monospace;font-size:10px;font-weight:600;}
+
+.footer{text-align:center;padding:24px 0 50px;font-size:11px;color:var(--muted);letter-spacing:1px;}
+.footer-title{font-family:'Orbitron',monospace;font-size:14px;font-weight:700;background:linear-gradient(90deg,var(--accent),var(--cyan),var(--primary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px;}
+.social-links{display:flex;justify-content:center;gap:10px;margin-top:18px;flex-wrap:wrap;}
+.social-link{display:inline-flex;align-items:center;gap:6px;background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:9px 18px;text-decoration:none;font-family:'Inter',sans-serif;font-size:12px;font-weight:500;transition:all .2s;}
+.social-link:hover{border-color:var(--border-h);transform:translateY(-1px);}
+
+@media(min-width:600px){.wrap{max-width:560px;margin:0 auto;}}
+@media(min-width:900px){.wrap{max-width:840px;margin:0 auto;}.dex-grid-list{display:grid;grid-template-columns:1fr 1fr;}}
 `;
 
 // ── MAIN APP ──────────────────────────────────────────────────────────────────
@@ -375,7 +553,7 @@ function EurospaceApp() {
     setDexPrices(results);
   }
 
-  // ── PRESALE COUNTDOWN — ends April 18 2027 (1 year from today) ──
+  // Presale countdown — ends April 18 2027
   const [countdown,setCountdown]=useState({d:"00",h:"00",m:"00",s:"00",pct:0});
   useEffect(()=>{
     const END  = new Date("2027-04-18T23:59:59Z").getTime();
@@ -432,7 +610,7 @@ function EurospaceApp() {
     if(!account||!modalBuyAmt||!tokenModal) return;
     const tc=getContract({client,chain:MONAD_MAINNET,address:tokenModal.contract,
       abi:[{name:"buyTokens",type:"function",inputs:[],outputs:[],stateMutability:"payable"}]});
-    setModalStatus({type:"info",msg:"Sending…"});
+    setModalStatus({type:"info",msg:"Sending transaction…"});
     sendTx(prepareContractCall({contract:tc,method:"buyTokens",params:[],value:toWei(modalBuyAmt)}),{
       onSuccess:r=>{
         setModalStatus({type:"success",msg:"✓ Bought! TX: "+(r.transactionHash||"").slice(0,18)+"…"});
@@ -527,7 +705,7 @@ function EurospaceApp() {
                 <div><div className="near-opt-name">{w.name}</div><div className="near-opt-desc">{w.desc}</div></div>
               </div>
             ))}
-            <div style={{marginTop:12,borderTop:"1px solid #004433",paddingTop:12}}>
+            <div style={{marginTop:14,borderTop:"1px solid var(--border)",paddingTop:14}}>
               <div className="field"><label>Manual NEAR Account</label><input placeholder="yourname.near" value={nearManual} onChange={e=>setNearManual(e.target.value)} style={{paddingRight:14}}/></div>
               <button className="btn-buy" onClick={()=>{if(nearManual){setNearAccount(nearManual);localStorage.setItem("near_account_id",nearManual);setNearModal(false);}}}>Connect Manual</button>
             </div>
@@ -545,16 +723,16 @@ function EurospaceApp() {
               <div>
                 <div className="modal-name" style={{color:tokenModal.color}}>{tokenModal.name}</div>
                 <div className="modal-sym">{tokenModal.symbol}</div>
-                <div style={{fontSize:10,color:"#4488aa",marginTop:4}}>Balance: {tokenBalance} {tokenModal.symbol}</div>
+                <div style={{fontSize:11,color:"var(--muted)",marginTop:5}}>Balance: <span style={{color:"var(--text)",fontWeight:600}}>{tokenBalance} {tokenModal.symbol}</span></div>
               </div>
             </div>
-            <div className="card-title">BUY {tokenModal.symbol}</div>
+            <div className="card-title">Buy {tokenModal.symbol}</div>
             <div className="field"><label>You Pay (MON)</label><div className="field-wrap"><input type="number" placeholder="0.0" value={modalBuyAmt} onChange={e=>setModalBuyAmt(e.target.value)}/><span className="field-unit">MON</span></div></div>
-            <button className="btn-buy" style={{background:`linear-gradient(135deg,${tokenModal.color}cc,${tokenModal.color})`}} onClick={handleTokenBuy} disabled={!account||!modalBuyAmt}>{account?`◈ Buy ${tokenModal.symbol}`:"Connect Wallet First"}</button>
+            <button className="btn-buy" style={{background:`linear-gradient(135deg,${tokenModal.color}aa,${tokenModal.color})`}} onClick={handleTokenBuy} disabled={!account||!modalBuyAmt}>{account?`◈ Buy ${tokenModal.symbol}`:"Connect Wallet First"}</button>
             <div className="sell-section">
-              <div className="card-title" style={{color:"#ff8844"}}>SELL {tokenModal.symbol}</div>
-              <div className="field"><label style={{color:"#ff8844"}}>Token Amount</label><div className="field-wrap"><input type="number" placeholder="0.0" value={modalSellAmt} onChange={e=>setModalSellAmt(e.target.value)}/><span className="field-unit">{tokenModal.symbol}</span></div></div>
-              <button className="btn-buy" style={{background:"linear-gradient(135deg,#ff4444,#ff8844)"}}
+              <div className="card-title" style={{color:"#fb923c"}}>Sell {tokenModal.symbol}</div>
+              <div className="field"><label style={{color:"#fb923c"}}>Token Amount</label><div className="field-wrap"><input type="number" placeholder="0.0" value={modalSellAmt} onChange={e=>setModalSellAmt(e.target.value)}/><span className="field-unit">{tokenModal.symbol}</span></div></div>
+              <button className="btn-buy" style={{background:"linear-gradient(135deg,#dc2626,#ea580c)"}}
                 onClick={()=>{
                   if(!account||!modalSellAmt||!tokenModal)return;
                   const tc=getContract({client,chain:MONAD_MAINNET,address:tokenModal.contract,abi:[{name:"sellTokens",type:"function",inputs:[{name:"tokenAmount",type:"uint256"}],outputs:[],stateMutability:"nonpayable"}]});
@@ -572,14 +750,15 @@ function EurospaceApp() {
       )}
 
       <div className="wrap">
+        {/* Header */}
         <div className="header">
           <img src="/logo.png" alt="EUROSPACE" className="logo-img" onError={e=>(e.target.src="https://files.catbox.moe/9o0wad.png")}/>
           <h1>EUROSPACE</h1>
-          <div className="subtitle">Presale — Monad Network</div>
+          <div className="subtitle">Presale · Monad Network</div>
           <div className="net-badge"><div className="net-dot"/>MONAD MAINNET · CHAIN ID 143</div>
         </div>
 
-        {/* ── Wallet connection bar ── */}
+        {/* Connect bar */}
         <div className="connect-bar">
           <ConnectButton
             client={client}
@@ -589,10 +768,7 @@ function EurospaceApp() {
             connectModal={{
               title:"Connect to EUROSPACE",
               size:"compact",
-              welcomeScreen:{
-                title:"EUROSPACE",
-                subtitle:"Connect your wallet to buy EURO on Monad",
-              },
+              welcomeScreen:{title:"EUROSPACE",subtitle:"Connect your wallet to buy EURO on Monad"},
             }}
             wallets={undefined}
           />
@@ -605,50 +781,47 @@ function EurospaceApp() {
         {account&&(
           <div className="wallet-bar show">
             <div style={{display:"flex",alignItems:"center",gap:8}}>
-              <span>{shortAddr(account.address)}</span>
+              <span style={{fontFamily:"monospace",fontSize:12}}>{shortAddr(account.address)}</span>
               <span className="w-badge">EVM</span>
-              {isOwner&&<span className="w-badge" style={{background:"#ffd70022",borderColor:"#ffd70044",color:"#ffd700"}}>OWNER</span>}
+              {isOwner&&<span className="w-badge" style={{background:"rgba(255,215,0,.12)",borderColor:"rgba(255,215,0,.3)",color:"#FFD700"}}>OWNER</span>}
             </div>
-            <div style={{fontSize:10,color:"#009966"}}>EURO: {fmt(twEuroBalance)} EURO</div>
+            <div style={{fontSize:11,color:"var(--success)",fontWeight:600}}>EURO: {fmt(twEuroBalance)}</div>
           </div>
         )}
 
-        {/* ── Tabs ── */}
+        {/* Tabs */}
         <div className="tabs">
           {[
-            {id:"presale", label:"PRESALE"},
-            {id:"evmswap", label:"⚡ EVM SWAP"},
-            {id:"tokens",  label:"17 TOKENS"},
-            {id:"dex",     label:"DEX LIVE"},
-            {id:"swap",    label:"NEAR SWAP"},
-            {id:"history", label:"TX HISTORY"},
+            {id:"presale", label:"Presale"},
+            {id:"evmswap", label:"⚡ EVM Swap"},
+            {id:"tokens",  label:"17 Tokens"},
+            {id:"dex",     label:"DEX Live"},
+            {id:"swap",    label:"NEAR Swap"},
+            {id:"history", label:"History"},
           ].map(t=>(
             <button key={t.id} className={`tab ${tab===t.id?"active":""}`} onClick={()=>setTab(t.id)}>{t.label}</button>
           ))}
         </div>
 
-        {/* ══════════════════════ PRESALE TAB ══════════════════════ */}
+        {/* ══ PRESALE ══ */}
         {tab==="presale"&&<>
           <div className="card">
             <div className="card-title">⬡ Presale Ends In</div>
             <div className="cd-grid">
               {[{v:countdown.d,l:"Days"},{v:countdown.h,l:"Hours"},{v:countdown.m,l:"Mins"},{v:countdown.s,l:"Secs"}].map(x=>(
-                <div key={x.l} className="cd-box">
-                  <div className="cd-num">{x.v}</div>
-                  <div className="cd-lbl">{x.l}</div>
-                </div>
+                <div key={x.l} className="cd-box"><div className="cd-num">{x.v}</div><div className="cd-lbl">{x.l}</div></div>
               ))}
             </div>
             <div className="presale-bar"><div className="presale-fill" style={{width:countdown.pct+"%"}}/></div>
-            <div style={{textAlign:"center",fontSize:10,color:"#4488aa"}}>Ends: April 18, 2027</div>
+            <div style={{textAlign:"center",fontSize:11,color:"var(--muted)"}}>Ends April 18, 2027</div>
           </div>
 
           <div className="card">
             <div className="card-title">⬡ Live Stats</div>
             <div className="stats-grid">
-              <div className="stat-box"><div className="stat-val">{totalSupply}</div><div className="stat-lbl">Total Supply</div></div>
-              <div className="stat-box"><div className="stat-val">{Number(tokensPerMON).toLocaleString()}</div><div className="stat-lbl">Tokens / MON</div></div>
-              <div className="stat-box"><div className="stat-val" style={{color:buyStatus==="OPEN"?"#00ff88":"#ff4466"}}>{buyStatus}</div><div className="stat-lbl">Presale</div></div>
+              <div className="stat-box"><div className="stat-val" style={{color:"var(--cyan)"}}>{totalSupply}</div><div className="stat-lbl">Total Supply</div></div>
+              <div className="stat-box"><div className="stat-val" style={{color:"var(--gold)"}}>{Number(tokensPerMON).toLocaleString()}</div><div className="stat-lbl">Tokens / MON</div></div>
+              <div className="stat-box"><div className="stat-val" style={{color:buyStatus==="OPEN"?"var(--success)":"var(--error)"}}>{buyStatus}</div><div className="stat-lbl">Presale Status</div></div>
             </div>
           </div>
 
@@ -656,14 +829,14 @@ function EurospaceApp() {
             <div className="card-title">⬡ Buy Euro Coin</div>
             <div className="price-grid">
               <div className="price-box">
-                <div className="price-lbl">You Receive</div>
-                <div className="price-val">{Number(tokensPerMON).toLocaleString()}</div>
-                <div style={{fontSize:9,color:"#009966",marginTop:2}}>EURO per MON</div>
+                <div className="price-lbl">Rate</div>
+                <div className="price-val" style={{color:"var(--gold)"}}>{Number(tokensPerMON).toLocaleString()}</div>
+                <div style={{fontSize:10,color:"var(--muted)",marginTop:4}}>EURO per MON</div>
               </div>
               <div className="price-box">
                 <div className="price-lbl">Network</div>
-                <div className="price-val" style={{fontSize:13}}>MONAD</div>
-                <div style={{fontSize:9,color:"#009966",marginTop:2}}>Chain ID 143</div>
+                <div className="price-val" style={{fontSize:14,color:"var(--cyan)"}}>MONAD</div>
+                <div style={{fontSize:10,color:"var(--muted)",marginTop:4}}>Chain ID 143</div>
               </div>
             </div>
             <div className="field">
@@ -674,53 +847,26 @@ function EurospaceApp() {
               </div>
             </div>
             <div className="receive-box">
-              <div>
-                <div className="receive-amt">{receiveAmount}</div>
-                <div className="receive-lbl">EURO COIN</div>
-              </div>
-              <img src="/logo.png" style={{width:30,height:30,borderRadius:"50%",objectFit:"cover"}} alt="EURO"/>
+              <div><div className="receive-amt">{receiveAmount}</div><div className="receive-lbl">EURO COIN</div></div>
+              <img src="/logo.png" style={{width:36,height:36,borderRadius:"50%",objectFit:"cover",border:"2px solid var(--primary)"}} alt="EURO"/>
             </div>
-
             {!account
-              ? (
-                <div className="tw-connect-wrap">
-                  <ConnectButton
-                    client={client}
-                    chain={MONAD_MAINNET}
-                    theme="dark"
-                    btnTitle="◈ Connect Wallet to Buy"
-                    connectModal={{title:"Connect to EUROSPACE",size:"compact"}}
-                    wallets={undefined}
-                  />
-                </div>
-              )
-              : (
-                <button className="btn-buy" onClick={handleBuyEuro} disabled={!monAmount||txStatus==="pending"}>
-                  {txStatus==="pending"?"◈ Processing…":"◈ Buy Euro Coin"}
-                </button>
-              )
+              ? <div className="tw-connect-wrap"><ConnectButton client={client} chain={MONAD_MAINNET} theme="dark" btnTitle="◈ Connect Wallet to Buy" connectModal={{title:"Connect to EUROSPACE",size:"compact"}} wallets={undefined}/></div>
+              : <button className="btn-buy" onClick={handleBuyEuro} disabled={!monAmount||txStatus==="pending"}>{txStatus==="pending"?"◈ Processing…":"◈ Buy Euro Coin"}</button>
             }
-
             {txStatus==="success"&&(
               <div className="status-msg success">
                 ✓ Bought {receiveAmount} EURO!
-                {txHash&&<><br/><a href={`https://monad.socialscan.io/tx/${txHash}`} target="_blank" rel="noopener noreferrer" style={{color:"#00ff88"}}>View TX ↗</a></>}
+                {txHash&&<><br/><a href={`https://monad.socialscan.io/tx/${txHash}`} target="_blank" rel="noopener noreferrer" style={{color:"var(--success)"}}>View Transaction ↗</a></>}
               </div>
             )}
-            {txStatus==="error"&&<div className="status-msg error">Transaction failed. Check wallet.</div>}
-
+            {txStatus==="error"&&<div className="status-msg error">Transaction failed. Check your wallet and try again.</div>}
             {isOwner&&(
-              <div style={{marginTop:16,padding:14,background:"#000a1a",border:"1px solid #00ff8822",borderRadius:12}}>
-                <div className="card-title">⚙ OWNER PANEL</div>
+              <div style={{marginTop:18,padding:16,background:"rgba(37,99,235,.06)",border:"1px solid rgba(37,99,235,.2)",borderRadius:12}}>
+                <div className="card-title">⚙ Owner Panel</div>
                 <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-                  <button className="btn-sm" onClick={()=>{
-                    sendTx(prepareContractCall({contract:euroTWContract,method:"toggleBuy",params:[true],abi:[{name:"toggleBuy",type:"function",inputs:[{type:"bool"}],outputs:[],stateMutability:"nonpayable"}]}),
-                    {onSuccess:()=>alert("Enabled!"),onError:e=>alert(e?.message)});
-                  }}>✓ Enable</button>
-                  <button className="btn-sm danger" onClick={()=>{
-                    sendTx(prepareContractCall({contract:euroTWContract,method:"toggleBuy",params:[false],abi:[{name:"toggleBuy",type:"function",inputs:[{type:"bool"}],outputs:[],stateMutability:"nonpayable"}]}),
-                    {onSuccess:()=>alert("Disabled!"),onError:e=>alert(e?.message)});
-                  }}>✕ Disable</button>
+                  <button className="btn-sm" onClick={()=>{sendTx(prepareContractCall({contract:euroTWContract,method:"toggleBuy",params:[true],abi:[{name:"toggleBuy",type:"function",inputs:[{type:"bool"}],outputs:[],stateMutability:"nonpayable"}]}),{onSuccess:()=>alert("Enabled!"),onError:e=>alert(e?.message)});}}>✓ Enable Presale</button>
+                  <button className="btn-sm danger" onClick={()=>{sendTx(prepareContractCall({contract:euroTWContract,method:"toggleBuy",params:[false],abi:[{name:"toggleBuy",type:"function",inputs:[{type:"bool"}],outputs:[],stateMutability:"nonpayable"}]}),{onSuccess:()=>alert("Disabled!"),onError:e=>alert(e?.message)});}}>✕ Disable Presale</button>
                 </div>
               </div>
             )}
@@ -753,13 +899,13 @@ function EurospaceApp() {
           </div>
         </>}
 
-        {/* ══════════════════════ EVM SWAP TAB ══════════════════════ */}
+        {/* ══ EVM SWAP ══ */}
         {tab==="evmswap"&&(
           <div className="card">
             <div className="card-title">⚡ EVM Swap — MON → Any Token</div>
-            <div style={{fontSize:11,color:"#4488aa",marginBottom:16,lineHeight:1.8}}>
-              Swap <strong style={{color:"var(--green)"}}>MON</strong> into any of the <strong style={{color:"var(--cyan)"}}>17 Meta Tokens</strong> with one click.<br/>
-              Uses each token's on-chain <code style={{color:"var(--cyan)",fontSize:10}}>buyTokens()</code> — no router, no slippage config needed.
+            <div style={{fontSize:12,color:"var(--muted)",marginBottom:18,lineHeight:1.8,padding:"12px 14px",background:"var(--card2)",borderRadius:10,border:"1px solid var(--border)"}}>
+              Swap <strong style={{color:"var(--accent)"}}>MON</strong> into any of the <strong style={{color:"var(--cyan)"}}>17 Meta Tokens</strong> with one click.
+              Uses each token's on-chain <code style={{color:"#60a5fa",background:"rgba(37,99,235,.1)",padding:"1px 6px",borderRadius:4}}>buyTokens()</code> — no router, no slippage config needed.
             </div>
             {!account
               ? <div className="tw-connect-wrap"><ConnectButton client={client} chain={MONAD_MAINNET} theme="dark" btnTitle="Connect Wallet to Swap" wallets={undefined}/></div>
@@ -767,10 +913,7 @@ function EurospaceApp() {
                   <div className="swap-row">
                     <div className="field" style={{marginBottom:0}}>
                       <label>You Pay</label>
-                      <div className="field-wrap">
-                        <input type="number" placeholder="0.0" value={evmFromAmt} onChange={e=>setEvmFromAmt(e.target.value)}/>
-                        <span className="field-unit">MON</span>
-                      </div>
+                      <div className="field-wrap"><input type="number" placeholder="0.0" value={evmFromAmt} onChange={e=>setEvmFromAmt(e.target.value)}/><span className="field-unit">MON</span></div>
                     </div>
                     <div className="swap-arrow">→</div>
                     <div className="field" style={{marginBottom:0}}>
@@ -780,23 +923,21 @@ function EurospaceApp() {
                       </select>
                     </div>
                   </div>
-                  <div className="info-pill"><span>Estimated output:</span><span>{evmEstimate}</span></div>
-                  {dexPrices[evmToToken.pair]&&(
-                    <div className="info-pill"><span>DEX price:</span><span>{dexPrices[evmToToken.pair].price.toFixed(6)} WMON / {evmToToken.symbol}</span></div>
-                  )}
-                  <button className="btn-buy" onClick={handleEvmSwap} disabled={!evmFromAmt||evmStatus?.type==="pending"} style={{background:`linear-gradient(135deg,${evmToToken.color}cc,${evmToToken.color})`}}>
+                  <div className="info-pill"><span>Estimated output</span><span>{evmEstimate}</span></div>
+                  {dexPrices[evmToToken.pair]&&<div className="info-pill"><span>DEX price</span><span>{dexPrices[evmToToken.pair].price.toFixed(6)} WMON/{evmToToken.symbol}</span></div>}
+                  <button className="btn-buy" onClick={handleEvmSwap} disabled={!evmFromAmt||evmStatus?.type==="pending"} style={{background:`linear-gradient(135deg,${evmToToken.color}99,${evmToToken.color})`}}>
                     {evmStatus?.type==="pending"?"◈ Swapping…":`⚡ Swap MON → ${evmToToken.symbol}`}
                   </button>
                   {evmStatus&&<div className={`status-msg ${evmStatus.type}`}>{evmStatus.msg}</div>}
-                  <div style={{marginTop:14,padding:10,background:"#00080f",border:"1px solid #004433",borderRadius:8,fontSize:9,color:"#4488aa",lineHeight:1.8}}>
-                    ℹ️ MON is sent directly to the token contract which calculates the rate and delivers tokens instantly to your wallet. No approval step required.
+                  <div style={{marginTop:14,padding:12,background:"var(--card2)",border:"1px solid var(--border)",borderRadius:8,fontSize:11,color:"var(--muted)",lineHeight:1.8}}>
+                    ℹ️ MON is sent directly to the token contract which calculates the rate and delivers tokens to your wallet. No approval step required.
                   </div>
                 </>
             }
           </div>
         )}
 
-        {/* ══════════════════════ TOKENS TAB ══════════════════════ */}
+        {/* ══ TOKENS ══ */}
         {tab==="tokens"&&(
           <div className="card">
             <div className="card-title">⬡ 17 Meta Tokens — Tap to Trade</div>
@@ -810,11 +951,11 @@ function EurospaceApp() {
                 </div>
               ))}
             </div>
-            <div style={{marginTop:12,fontSize:10,color:"#4488aa",textAlign:"center"}}>Tap any token · connect wallet to trade</div>
+            <div style={{marginTop:14,fontSize:11,color:"var(--muted)",textAlign:"center"}}>Tap any token to open the trade modal · Connect wallet first</div>
           </div>
         )}
 
-        {/* ══════════════════════ DEX TAB ══════════════════════ */}
+        {/* ══ DEX ══ */}
         {tab==="dex"&&(
           <div className="card">
             <div className="card-title">⬡ DEX Live · {ALL_PAIRS.length} Pairs</div>
@@ -834,81 +975,70 @@ function EurospaceApp() {
                       <div className="dex-sym" style={{color:p.color}}>{p.symbol}</div>
                       <div className="dex-name">{p.name}</div>
                       <div style={{display:"flex",gap:6,marginTop:5}}>
-                        <a href={`https://dexscreener.com/monad/${p.pair}`} target="_blank" rel="noopener noreferrer" style={{fontSize:7,padding:"2px 7px",border:"1px solid #00ff8844",borderRadius:4,color:"#00cc88",textDecoration:"none"}} onClick={e=>e.stopPropagation()}>📊 CHART</a>
-                        <button style={{fontSize:7,padding:"2px 7px",border:"1px solid #0077ff44",borderRadius:4,color:"#0077ff",background:"transparent",cursor:"pointer"}} onClick={e=>{e.stopPropagation();openTokenModal(p);}}>⚡ TRADE</button>
+                        <a href={`https://dexscreener.com/monad/${p.pair}`} target="_blank" rel="noopener noreferrer" style={{fontSize:9,padding:"2px 8px",border:"1px solid rgba(63,185,80,.3)",borderRadius:4,color:"var(--success)",textDecoration:"none",fontWeight:500}} onClick={e=>e.stopPropagation()}>📊 Chart</a>
+                        <button style={{fontSize:9,padding:"2px 8px",border:"1px solid rgba(37,99,235,.3)",borderRadius:4,color:"#60a5fa",background:"transparent",cursor:"pointer",fontWeight:500}} onClick={e=>{e.stopPropagation();openTokenModal(p);}}>⚡ Trade</button>
                       </div>
                     </div>
-                    <div className="dex-price">{pd?pd.price.toFixed(6)+" WMON":"loading…"}</div>
+                    <div className="dex-price">{pd?pd.price.toFixed(6)+" WMON":"—"}</div>
                   </div>
                 );
               })}
             </div>
             {selectedPair&&(
-              <div style={{marginTop:12,borderRadius:12,overflow:"hidden",border:"1px solid #004433"}}>
+              <div style={{marginTop:14,borderRadius:12,overflow:"hidden",border:"1px solid var(--border)"}}>
                 <iframe src={`https://dexscreener.com/monad/${selectedPair}?embed=1&theme=dark&trades=0&info=0`} style={{width:"100%",height:360,border:"none",display:"block"}} title="DEX Chart"/>
               </div>
             )}
           </div>
         )}
 
-        {/* ══════════════════════ NEAR SWAP TAB ══════════════════════ */}
+        {/* ══ NEAR SWAP ══ */}
         {tab==="swap"&&(
           <div className="card">
             <div className="card-title">⬡ Swap → EURO via NEAR Intents</div>
-            <div style={{fontSize:11,color:"#4488aa",marginBottom:16,lineHeight:1.8}}>
-              Powered by <strong style={{color:"var(--near)"}}>NEAR Intents</strong> — swap ETH, BTC, SOL, USDC → EURO.<br/>
-              Get a quote, then click <strong style={{color:"var(--green)"}}>⚡ SEND NOW</strong> to trigger your wallet automatically.
+            <div style={{fontSize:12,color:"var(--muted)",marginBottom:18,lineHeight:1.8,padding:"12px 14px",background:"var(--card2)",borderRadius:10,border:"1px solid var(--border)"}}>
+              Powered by <strong style={{color:"var(--near)"}}>NEAR Intents</strong> — swap ETH, BTC, SOL, USDC → EURO.
+              Get a quote, then click <strong style={{color:"var(--accent)"}}>⚡ SEND NOW</strong> to complete in one click.
             </div>
             {!account
               ? <div style={{textAlign:"center",padding:"20px 0"}}><ConnectButton client={client} chain={MONAD_MAINNET} theme="dark" btnTitle="Connect Wallet to Swap" wallets={undefined}/></div>
               : <>
-                  <div className="field">
-                    <label>From Token</label>
+                  <div className="field"><label>From Token</label>
                     <select value={swapOrigin} onChange={e=>setSwapOrigin(e.target.value)}>
                       <option value="">Select token…</option>
                       {swapTokens.map(t=><option key={t.assetId} value={t.assetId}>{t.symbol} — {t.blockchain?.toUpperCase()||""}{t.price?" ($"+Number(t.price).toFixed(2)+")":""}</option>)}
                     </select>
                   </div>
-                  <div className="field">
-                    <label>Amount to Swap</label>
-                    <div className="field-wrap"><input type="number" placeholder="0.00" value={swapAmount} onChange={e=>setSwapAmount(e.target.value)}/></div>
-                  </div>
-                  <div className="field">
-                    <label>Receive To (EVM Address)</label>
-                    <input value={account.address} readOnly style={{color:"#4488aa",paddingRight:14}}/>
-                  </div>
-                  <button className="btn-buy" onClick={handleNearQuote} disabled={!swapOrigin||!swapAmount||swapLoading}>
-                    {swapLoading?"⬡ Fetching Quote…":"◈ Get Best Quote"}
-                  </button>
+                  <div className="field"><label>Amount to Swap</label><div className="field-wrap"><input type="number" placeholder="0.00" value={swapAmount} onChange={e=>setSwapAmount(e.target.value)}/></div></div>
+                  <div className="field"><label>Receive To (EVM Address)</label><input value={account.address} readOnly style={{color:"var(--muted)",paddingRight:14}}/></div>
+                  <button className="btn-buy" onClick={handleNearQuote} disabled={!swapOrigin||!swapAmount||swapLoading}>{swapLoading?"⬡ Fetching Quote…":"◈ Get Best Quote"}</button>
                   {swapError&&<div className="status-msg error">{swapError}</div>}
                   {swapQuote&&!swapError&&(
                     <>
                       <div className="quote-box">
                         {[
-                          ["You Send",   `${swapAmount} ${swapTokens.find(t=>t.assetId===swapOrigin)?.symbol||""}`],
+                          ["You Send",`${swapAmount} ${swapTokens.find(t=>t.assetId===swapOrigin)?.symbol||""}`],
                           ["You Receive",swapQuote.amountOutFormatted?`${swapQuote.amountOutFormatted} EURO`:"—"],
-                          ["Slippage",   "1%"],
-                          ["Deadline",   swapQuote.deadline?new Date(swapQuote.deadline).toLocaleTimeString():"10 min"],
+                          ["Slippage","1%"],
+                          ["Deadline",swapQuote.deadline?new Date(swapQuote.deadline).toLocaleTimeString():"10 min"],
                         ].map(([k,v])=><div key={k} className="quote-row"><span>{k}</span><span>{v}</span></div>)}
                       </div>
                       {swapQuote.depositAddress&&(
                         <div className="deposit-box">
-                          <div style={{color:"var(--green)",marginBottom:6,fontWeight:700}}>DEPOSIT ADDRESS:</div>
+                          <div style={{color:"var(--accent)",marginBottom:6,fontWeight:700,fontSize:10,letterSpacing:1}}>DEPOSIT ADDRESS</div>
                           {swapQuote.depositAddress}
-                          <div style={{marginTop:8,color:"#4488aa",fontSize:10}}>Send tokens here → NEAR Intents delivers EURO to your wallet automatically.</div>
-                          <button className="btn-send" onClick={handleNearSend} disabled={sendStatus?.type==="pending"}>
-                            {sendStatus?.type==="pending"?"⏳ Sending…":"⚡ SEND NOW (One-Click)"}
-                          </button>
-                          <button className="btn-outline" onClick={()=>navigator.clipboard.writeText(swapQuote.depositAddress)}>📋 Copy Address (Manual)</button>
+                          <div style={{marginTop:8,color:"var(--muted)",fontSize:11}}>Send tokens here → NEAR Intents delivers EURO to your wallet automatically.</div>
+                          <button className="btn-send" onClick={handleNearSend} disabled={sendStatus?.type==="pending"}>{sendStatus?.type==="pending"?"⏳ Sending…":"⚡ SEND NOW (One-Click)"}</button>
+                          <button className="btn-outline" onClick={()=>navigator.clipboard.writeText(swapQuote.depositAddress)}>📋 Copy Deposit Address</button>
                         </div>
                       )}
                       {sendStatus&&<div className={`status-msg ${sendStatus.type}`}>{sendStatus.msg}</div>}
                     </>
                   )}
                   {nearAccount&&(
-                    <div style={{marginTop:14,padding:12,background:"#00c1de11",border:"1px solid #00c1de33",borderRadius:10}}>
-                      <div style={{fontSize:9,color:"var(--near)",letterSpacing:2,marginBottom:6}}>NEAR ACCOUNT LINKED</div>
-                      <div style={{fontSize:11,color:"#4488aa"}}>{nearAccount}</div>
+                    <div style={{marginTop:14,padding:12,background:"rgba(0,193,222,.07)",border:"1px solid rgba(0,193,222,.25)",borderRadius:10}}>
+                      <div style={{fontSize:10,color:"var(--near)",letterSpacing:2,marginBottom:5,fontWeight:600,textTransform:"uppercase"}}>NEAR Account Linked</div>
+                      <div style={{fontSize:12,color:"var(--muted)",fontFamily:"monospace"}}>{nearAccount}</div>
                     </div>
                   )}
                 </>
@@ -916,7 +1046,7 @@ function EurospaceApp() {
           </div>
         )}
 
-        {/* ══════════════════════ TX HISTORY TAB ══════════════════════ */}
+        {/* ══ HISTORY ══ */}
         {tab==="history"&&(
           <div className="card">
             <div className="card-title">⬡ Transaction History (this session)</div>
@@ -936,16 +1066,16 @@ function EurospaceApp() {
           </div>
         )}
 
-        {/* ══════════════════════ FOOTER ══════════════════════ */}
+        {/* Footer */}
         <div className="footer">
           <div className="footer-title">EUROSPACE</div>
-          MONAD MAINNET · 2026
+          <div style={{marginTop:4,fontSize:11,color:"var(--muted)"}}>MONAD MAINNET · 2026</div>
           <div className="social-links">
-            <a href="https://x.com/bnbgold277983"                     target="_blank" rel="noopener noreferrer" className="social-link" style={{color:"#e7e9ea"}}>Twitter</a>
-            <a href="https://discord.com/channels/1316093079090106472" target="_blank" rel="noopener noreferrer" className="social-link" style={{color:"#5865f2"}}>Discord</a>
-            <a href="https://t.me/eurocoin_monad_bot"                  target="_blank" rel="noopener noreferrer" className="social-link" style={{color:"#29aae1"}}>Telegram</a>
+            <a href="https://x.com/bnbgold277983" target="_blank" rel="noopener noreferrer" className="social-link" style={{color:"#e7e9ea"}}>𝕏 Twitter</a>
+            <a href="https://discord.com/channels/1316093079090106472" target="_blank" rel="noopener noreferrer" className="social-link" style={{color:"#7289da"}}>Discord</a>
+            <a href="https://t.me/eurocoin_monad_bot" target="_blank" rel="noopener noreferrer" className="social-link" style={{color:"#29aae1"}}>Telegram</a>
           </div>
-          <div style={{marginTop:16,fontSize:8,color:"#2a4a3a",letterSpacing:3}}>© 2026 EUROSPACE · ALL RIGHTS RESERVED</div>
+          <div style={{marginTop:18,fontSize:10,color:"var(--border)",letterSpacing:2}}>© 2026 EUROSPACE · ALL RIGHTS RESERVED</div>
         </div>
       </div>
     </>
