@@ -5,7 +5,7 @@ import {
   useReadContract,
   useSendTransaction,
   ThirdwebProvider,
-  useConnectModal, 
+  useConnectModal,
 } from "thirdweb/react";
 import {
   createThirdwebClient,
@@ -82,7 +82,6 @@ const ethCall = (addr, data) => rpcFetch("eth_call",[{to:addr,data},"latest"]);
 const encodeBalanceOf = addr =>
   "0x70a08231" + "000000000000000000000000" + addr.toLowerCase().replace("0x","");
 
-// Encode ERC-20 transfer(address,uint256)
 function encodeERC20Transfer(to, amountBigInt) {
   return "0xa9059cbb"
     + to.toLowerCase().replace("0x","").padStart(64,"0")
@@ -269,7 +268,6 @@ h1{font-family:'Orbitron',monospace;font-size:26px;font-weight:900;background:li
 .step-num{width:26px;height:26px;min-width:26px;border:1px solid var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:10px;color:var(--green);}
 .step-text{font-size:11px;color:var(--text);line-height:1.6;padding-top:3px;}
 .step-text strong{color:var(--cyan);display:block;margin-bottom:2px;letter-spacing:1px;}
-/* EVM SWAP */
 .swap-row{display:grid;grid-template-columns:1fr 28px 1fr;gap:8px;align-items:end;margin-bottom:12px;}
 .swap-arrow{font-size:18px;color:var(--green);text-align:center;padding-bottom:12px;}
 .info-pill{background:#00080f;border:1px solid #004433;border-radius:8px;padding:8px 12px;font-size:10px;color:#4488aa;display:flex;justify-content:space-between;margin-bottom:8px;}
@@ -293,8 +291,6 @@ function EurospaceApp() {
     }
   }, [account, isOpen, open]);
 
-   const [tokensPerMON,  setTokensPerMON]  = useState(0n);
-
   const [tokensPerMON,  setTokensPerMON]  = useState(0n);
   const [totalSupply,   setTotalSupply]   = useState("—");
   const [buyStatus,     setBuyStatus]     = useState("—");
@@ -313,13 +309,12 @@ function EurospaceApp() {
   const [swapQuote,     setSwapQuote]     = useState(null);
   const [swapLoading,   setSwapLoading]   = useState(false);
   const [swapError,     setSwapError]     = useState(null);
-  const [sendStatus,    setSendStatus]    = useState(null); // ✅ one-click NEAR send
+  const [sendStatus,    setSendStatus]    = useState(null);
 
   const [dexPrices,     setDexPrices]     = useState({});
   const [dexFilter,     setDexFilter]     = useState("all");
   const [selectedPair,  setSelectedPair]  = useState(null);
 
-  // ✅ EVM SWAP state
   const [evmFromAmt,    setEvmFromAmt]    = useState("");
   const [evmToToken,    setEvmToToken]    = useState(ALL_PAIRS[0]);
   const [evmEstimate,   setEvmEstimate]   = useState("—");
@@ -411,7 +406,6 @@ function EurospaceApp() {
     setReceiveAmount(rate>0?(mon*rate).toFixed(2):"0.00");
   },[monAmount,tokensPerMON]);
 
-  // EVM estimate from live DEX price
   useEffect(()=>{
     if(!evmFromAmt||!evmToToken){setEvmEstimate("—");return;}
     const pd=dexPrices[evmToToken.pair];
@@ -455,7 +449,6 @@ function EurospaceApp() {
     });
   }
 
-  // ── ✅ EVM SWAP: MON → token via buyTokens ────────────────────────────────
   function handleEvmSwap(){
     if(!account||!evmFromAmt||!evmToToken) return;
     setEvmStatus({type:"pending",msg:"Sending to wallet…"});
@@ -471,7 +464,6 @@ function EurospaceApp() {
     });
   }
 
-  // ── NEAR QUOTE ────────────────────────────────────────────────────────────
   async function handleNearQuote(){
     if(!swapOrigin||!swapAmount||!account) return;
     setSwapLoading(true); setSwapError(null); setSwapQuote(null); setSendStatus(null);
@@ -485,7 +477,6 @@ function EurospaceApp() {
     setSwapLoading(false);
   }
 
-  // ── ✅ ONE-CLICK NEAR SEND (native + ERC-20) ──────────────────────────────
   async function handleNearSend(){
     if(!swapQuote?.depositAddress||!account) return;
     setSendStatus({type:"pending",msg:"Waiting for wallet confirmation…"});
@@ -494,16 +485,13 @@ function EurospaceApp() {
       const decimals   =originToken?.decimals||18;
       const amountBig  =BigInt(Math.round(parseFloat(swapAmount)*Math.pow(10,decimals)));
       const depositAddr=swapQuote.depositAddress;
-
       let txHash;
       if(originToken?.contractAddress){
-        // ERC-20 token: call transfer() on the token contract
         txHash = await window.ethereum.request({
           method:"eth_sendTransaction",
           params:[{ from:account.address, to:originToken.contractAddress, data:encodeERC20Transfer(depositAddr,amountBig), value:"0x0" }],
         });
       } else {
-        // Native coin (ETH, MON, etc.)
         txHash = await window.ethereum.request({
           method:"eth_sendTransaction",
           params:[{ from:account.address, to:depositAddr, value:"0x"+amountBig.toString(16) }],
@@ -534,7 +522,6 @@ function EurospaceApp() {
       <style dangerouslySetInnerHTML={{__html:STYLES}}/>
       <div className="scan-line"/>
 
-      {/* NEAR MODAL */}
       {nearModal&&(
         <div className="modal-overlay show" onClick={e=>{if(e.target.className.includes("modal-overlay"))setNearModal(false);}}>
           <div className="modal-box">
@@ -554,7 +541,6 @@ function EurospaceApp() {
         </div>
       )}
 
-      {/* TOKEN MODAL */}
       {tokenModal&&(
         <div className="modal-overlay show" onClick={e=>{if(e.target.className.includes("modal-overlay"))setTokenModal(null);}}>
           <div className="modal-box">
@@ -591,7 +577,6 @@ function EurospaceApp() {
       )}
 
       <div className="wrap">
-        {/* HEADER */}
         <div className="header">
           <img src="/logo.png" alt="EUROSPACE" className="logo-img" onError={e=>(e.target.src="https://files.catbox.moe/9o0wad.png")}/>
           <h1>EUROSPACE</h1>
@@ -615,7 +600,6 @@ function EurospaceApp() {
           </div>
         )}
 
-        {/* TABS */}
         <div className="tabs">
           {[
             {id:"presale", label:"PRESALE"},
@@ -629,7 +613,6 @@ function EurospaceApp() {
           ))}
         </div>
 
-        {/* ── PRESALE ── */}
         {tab==="presale"&&<>
           <div className="card">
             <div className="card-title">⬡ Presale Ends In</div>
@@ -669,7 +652,6 @@ function EurospaceApp() {
           </div>
         </>}
 
-        {/* ── ✅ EVM SWAP TAB ── */}
         {tab==="evmswap"&&(
           <div className="card">
             <div className="card-title">⚡ EVM Swap — MON → Any Token</div>
@@ -696,17 +678,14 @@ function EurospaceApp() {
                       </select>
                     </div>
                   </div>
-
                   <div className="info-pill"><span>Estimated output:</span><span>{evmEstimate}</span></div>
                   {dexPrices[evmToToken.pair]&&(
                     <div className="info-pill"><span>DEX price:</span><span>{dexPrices[evmToToken.pair].price.toFixed(6)} WMON / {evmToToken.symbol}</span></div>
                   )}
-
                   <button className="btn-buy" onClick={handleEvmSwap} disabled={!evmFromAmt||evmStatus?.type==="pending"} style={{background:`linear-gradient(135deg,${evmToToken.color}cc,${evmToToken.color})`}}>
                     {evmStatus?.type==="pending"?"◈ Swapping…":`⚡ Swap MON → ${evmToToken.symbol}`}
                   </button>
                   {evmStatus&&<div className={`status-msg ${evmStatus.type}`}>{evmStatus.msg}</div>}
-
                   <div style={{marginTop:14,padding:10,background:"#00080f",border:"1px solid #004433",borderRadius:8,fontSize:9,color:"#4488aa",lineHeight:1.8}}>
                     ℹ️ MON is sent directly to the token contract which calculates the rate and delivers tokens instantly to your wallet. No approval step required.
                   </div>
@@ -715,7 +694,6 @@ function EurospaceApp() {
           </div>
         )}
 
-        {/* ── TOKENS TAB ── */}
         {tab==="tokens"&&(
           <div className="card">
             <div className="card-title">⬡ 17 Meta Tokens — Tap to Trade</div>
@@ -733,7 +711,6 @@ function EurospaceApp() {
           </div>
         )}
 
-        {/* ── DEX TAB ── */}
         {tab==="dex"&&(
           <div className="card">
             <div className="card-title">⬡ DEX Live · {ALL_PAIRS.length} Pairs</div>
@@ -762,13 +739,12 @@ function EurospaceApp() {
           </div>
         )}
 
-        {/* ── NEAR SWAP TAB ── */}
         {tab==="swap"&&(
           <div className="card">
             <div className="card-title">⬡ Swap → EURO via NEAR Intents</div>
             <div style={{fontSize:11,color:"#4488aa",marginBottom:16,lineHeight:1.8}}>
               Powered by <strong style={{color:"var(--near)"}}>NEAR Intents</strong> — swap ETH, BTC, SOL, USDC → EURO.<br/>
-              Get a quote, then click <strong style={{color:"var(--green)"}}>⚡ SEND NOW</strong> to trigger your wallet automatically — no manual copy-paste needed.
+              Get a quote, then click <strong style={{color:"var(--green)"}}>⚡ SEND NOW</strong> to trigger your wallet automatically.
             </div>
             {!account
               ? <div style={{textAlign:"center",padding:"20px 0"}}><ConnectButton client={client} chain={MONAD_MAINNET} theme="dark" btnTitle="Connect Wallet to Swap"/></div>
@@ -782,9 +758,7 @@ function EurospaceApp() {
                   <div className="field"><label>Amount to Swap</label><div className="field-wrap"><input type="number" placeholder="0.00" value={swapAmount} onChange={e=>setSwapAmount(e.target.value)}/></div></div>
                   <div className="field"><label>Receive To (EVM Address)</label><input value={account.address} readOnly style={{color:"#4488aa",paddingRight:14}}/></div>
                   <button className="btn-buy" onClick={handleNearQuote} disabled={!swapOrigin||!swapAmount||swapLoading}>{swapLoading?"⬡ Fetching Quote…":"◈ Get Best Quote"}</button>
-
                   {swapError&&<div className="status-msg error">{swapError}</div>}
-
                   {swapQuote&&!swapError&&(
                     <>
                       <div className="quote-box">
@@ -800,7 +774,6 @@ function EurospaceApp() {
                           <div style={{color:"var(--green)",marginBottom:6,fontWeight:700}}>DEPOSIT ADDRESS:</div>
                           {swapQuote.depositAddress}
                           <div style={{marginTop:8,color:"#4488aa",fontSize:10}}>Send tokens here → NEAR Intents delivers EURO to your wallet automatically.</div>
-                          {/* ✅ ONE-CLICK SEND */}
                           <button className="btn-send" onClick={handleNearSend} disabled={sendStatus?.type==="pending"}>
                             {sendStatus?.type==="pending"?"⏳ Sending…":"⚡ SEND NOW (One-Click)"}
                           </button>
@@ -816,7 +789,6 @@ function EurospaceApp() {
           </div>
         )}
 
-        {/* ── TX HISTORY ── */}
         {tab==="history"&&(
           <div className="card">
             <div className="card-title">⬡ Transaction History (this session)</div>
