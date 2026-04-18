@@ -288,10 +288,10 @@ function EurospaceApp() {
 const { open, isOpen } = useConnectModal();
 
 useEffect(() => {
-  if (!account && !isOpen) {
+  if (!account && !isOpen && typeof open === "function") {
     open({ client, chain: MONAD_MAINNET });
   }
-}, [account, isOpen]);
+}, [account, isOpen, open]);
 
   const [tokensPerMON,  setTokensPerMON]  = useState(0n);
   const [totalSupply,   setTotalSupply]   = useState("—");
