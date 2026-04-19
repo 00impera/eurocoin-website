@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/00impera/eurocoin-website/main/public/logo.png" alt="EUROSPACE" width="140" />
+  <img src="https://raw.githubusercontent.com/00impera/eurocoin-website/c33247d444a202a1a3205acc7b3f059d4a884c15/logo.png" alt="EUROSPACE" width="140" />
 </p>
 
 <h1 align="center">⬡ EUROSPACE</h1>
